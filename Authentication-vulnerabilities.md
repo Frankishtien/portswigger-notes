@@ -60,6 +60,12 @@ Invalid password or password ← لو اليوزر موجود.
   > wiener:51dc30ddc473d43a6011e9ebba6ca770
   > ```
   >
+  > ``structure of cookies``
+  >
+  > ```
+  > base64(username:MD5(password))
+  > ```
+  >
   > ohh so this cookie have username and passowrd hashed in ``MD5`` after decrypt it found the password **``peter``**
   >
   > **``order is important``**
