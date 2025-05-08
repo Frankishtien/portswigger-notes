@@ -43,3 +43,30 @@ Invalid password or password ← لو اليوزر موجود.
 ```
 
 ---------
+
+### 🎱``8 Lab: Brute-forcing a stay-logged-in cookie``
+
+- > first login with ``wiener:peter`` with stay logged in option and inturcept the request
+  >
+  > ``found``
+  >
+  > ```
+  > Cookie: session=X2AecSWQYF3pEDwqbjSuG6FYLHSV6IGq; stay-logged-in=d2llbmVyOjUxZGMzMGRkYzQ3M2Q0M2E2MDExZTllYmJhNmNhNzcw
+  > ```
+  >
+  > as you see ``stay-logged-in`` is decoded in **``base64``** when decode it found:
+  >
+  > ```
+  > wiener:51dc30ddc473d43a6011e9ebba6ca770
+  > ```
+  >
+  > ohh so this cookie have username and passowrd hashed in ``MD5`` after decrypt it found the password **``peter``**
+  >
+  > ![image](https://github.com/user-attachments/assets/d8ed9b02-4be1-4c3d-b40b-d4e1d4d1b8d9)
+  >
+  > 
+
+
+
+
+
