@@ -106,4 +106,11 @@ Invalid password or password ← لو اليوزر موجود.
 
 
 
+----- 
 
+### Password reset broken logic
+
+
+- > click reset password and check email box you will found link click on it if you try to remove token error will apper
+  >
+  > write new password and intercept the request now you can remove token and change user to carlos 
