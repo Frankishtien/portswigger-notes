@@ -294,7 +294,7 @@ now try to know database version :
  
 
      
- </details>
+   </details>
 
 
 * ```sql
