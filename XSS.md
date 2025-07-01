@@ -1,6 +1,8 @@
 # xss
 
+
 ==========================================
+
 http://example.com/swagerUI/      SERARCH for swagerui xss payload
 
 ==========================================
