@@ -122,6 +122,70 @@ Cart total price cannot be less than zero
 
 
 
+<details>
+  <summary>Lab: Inconsistent security controls</summary>
+
+1. after doing enumration
+
+```
+gobuster dir -u https://0a4800b704e8549d827179ca0018004d.web-security-academy.net -w /home/kali/Downloads/wordlists/directory-list-2.3-medium.txt 
+```
+![image](https://github.com/user-attachments/assets/25a10fc0-e937-49c5-9888-c7c06a2ce3b5)
+
+2. try to navigate ``/amdin`` found
+
+![image](https://github.com/user-attachments/assets/ae0455f2-bc54-4b03-ada3-65bfddb111bf)
+
+```
+Admin interface only available if logged in as a DontWannaCry user 
+```
+
+3. when rigester found this note
+
+```http
+If you work for DontWannaCry, please use your @dontwannacry.com email address
+```
+
+4. after rigester change ``email`` to ``anyname@dontwannacry.com``
+
+![image](https://github.com/user-attachments/assets/e42e3404-ed42-4b35-b3f6-00c66de07a09)
+  
+6. now you have acccess to ``/admin``
+7. delete ``carlos``
+
+  
+</details>
+
+
+
+
+
+
+
+
+<details>
+  <summary>Lab: Flawed enforcement of business rules</summary>
+
+
+1. login using ``wiener:peter``
+2. noties that there is coupon code
+
+![image](https://github.com/user-attachments/assets/33b61cbd-4518-483e-aa65-708598452798)
+
+```
+NEWCUST5
+```
+
+3. At the bottom of the page, sign up to the newsletter. You receive another coupon code, ``SIGNUP30``.
+> ### 4. try applying the codes more than once. Notice that if you enter the same code twice in a row, it is rejected because the coupon has already been applied. However, if you alternate between the two codes, you can bypass this control. 
+
+![image](https://github.com/user-attachments/assets/e559ab83-5443-4e58-a997-690205f73749)
+
+5. click ``place order``
+
+
+  
+</details>
 
 
 
@@ -136,17 +200,9 @@ Cart total price cannot be less than zero
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+<details>
+  <summary>Lab: Low-level logic flaw</summary>
+</details>
 
 
 
