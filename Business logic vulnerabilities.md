@@ -105,7 +105,7 @@ if you click ``place order`` this error appear
 Cart total price cannot be less than zero
 ```
 
-> ### now try to shoose sheap product and add it more than one time with negative and add the positive one wanted product:
+> ### now try to shoose sheap product and add it more than one time with negative and add the wanted product just one time with positive:
 
 ![image](https://github.com/user-attachments/assets/4a57f6fa-320e-400f-9596-54e2305cf0f3)
 
