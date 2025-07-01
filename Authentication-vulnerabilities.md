@@ -1,4 +1,54 @@
 # Authentication vulnerabilities
+
+
+
+
+<details>
+  <summary>Lab: Password reset poisoning via middleware</summary>
+
+
+1. login with ``wiener:peter``
+2. signout
+3. login with ``carlos``
+4. click forget passowrd
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------
 ```
 ✅ 1. Username enumeration via different responses
@@ -114,3 +164,51 @@ Invalid password or password ← لو اليوزر موجود.
 - > click reset password and check email box you will found link click on it if you try to remove token error will apper
   >
   > write new password and intercept the request now you can remove token and change user to carlos 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
