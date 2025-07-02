@@ -105,7 +105,7 @@ if you click ``place order`` this error appear
 Cart total price cannot be less than zero
 ```
 
-> ### now try to shoose sheap product and add it more than one time with negative and add the wanted product just one time with positive:
+> ### now try to shoose cheep product and add it more than one time with negative and add the wanted product just one time with positive:
 
 ![image](https://github.com/user-attachments/assets/4a57f6fa-320e-400f-9596-54e2305cf0f3)
 
@@ -202,6 +202,55 @@ NEWCUST5
 
 <details>
   <summary>Lab: Low-level logic flaw</summary>
+
+
+1. login using ``wiener:peter``
+2. navigate ``home`` page and select product
+3. Click ``add to cart`` with intercept the request
+4. if you add a larg number of `quantity` the ``price`` will happend ``integer overflow`` and it will count from negtive
+
+```http
+POST /cart HTTP/2
+Host: 0a4f008503c158c382ac42ea00130067.web-security-academy.net
+Cookie: session=F1AyWAioFLqVDYMZxyMuY0MDZzrYqBcj
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 37
+Origin: https://0a4f008503c158c382ac42ea00130067.web-security-academy.net
+Referer: https://0a4f008503c158c382ac42ea00130067.web-security-academy.net/product?productId=1
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+
+
+productId=1&redir=PRODUCT&quantity=90
+```
+
+5. you need   ``2147483647 / 133700 = ~16061 `` jacked
+6. you will send this request ``162`` time
+
+```url
+productId=1&redir=PRODUCT&quantity=99
+```
+
+![image](https://github.com/user-attachments/assets/aaf9f3d3-dd79-4038-9aec-f36de6ade157)
+
+![image](https://github.com/user-attachments/assets/d7e834db-2b69-4c2b-b9a9-642b59ab67c3)
+
+7. now try to buy cheep product more than one time until reach ``small positive`` price
+8. now click ``place order``
+
+
+
+  
 </details>
 
 
@@ -216,7 +265,13 @@ NEWCUST5
 
 
 
+<details>
+  <summary>Lab: Inconsistent handling of exceptional input</summary>
 
+
+
+  
+</details>
 
 
 
