@@ -320,7 +320,14 @@ now the email end with ``@dontwannacry.com`` and ``admin panal`` tap appear
 
 
 
+<details>
+  <summary>Lab: Weak isolation on dual-use endpoint</summary>
 
+
+
+
+  
+</details>
 
 
 
