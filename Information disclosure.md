@@ -83,3 +83,134 @@
 
     
   </details>
+
+
+
+
+---
+
+
+
+
+<details>
+    <summary>Lab: Information disclosure in error messages</summary>
+
+> ### This lab's verbose error messages reveal that it is using a vulnerable version of a third-party framework. To solve the lab, obtain and submit the version number of this framework. 
+
+---
+
+1. select product and intercept the request
+
+```http
+GET /product?productId=14 HTTP/2
+Host: 0af4004a035cd3fa80028afc007b00bc.web-security-academy.net
+Cookie: session=UFkGMCREvMWWvtzcAYCtB1X6EmX33YLO
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0af4004a035cd3fa80028afc007b00bc.web-security-academy.net/
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+```
+
+**``put the product id = '``**
+
+```url
+GET /product?productId=' HTTP/2
+```
+
+<img width="1520" height="675" alt="image" src="https://github.com/user-attachments/assets/9448b106-3b9e-48d3-9634-9bd0b8ebde0f" />
+
+```ip
+2.3.31
+```
+    
+</details>
+
+
+
+
+
+<details>
+    <summary></summary>
+</details>
+
+
+
+
+
+
+
+<details>
+    <summary></summary>
+</details>
+
+
+
+
+
+<details>
+    <summary></summary>
+</details>
+
+
+
+
+<details>
+    <summary></summary>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
