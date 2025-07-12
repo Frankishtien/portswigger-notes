@@ -95,7 +95,7 @@
 <details>
     <summary>Lab: Information disclosure in error messages</summary>
 
-> ### This lab's verbose error messages reveal that it is using a vulnerable version of a third-party framework. To solve the lab, obtain and submit the version number of this framework. 
+> ### This lab's verbose error messages reveal that it is using a vulnerable version of a third-party framework. To solve the lab, obtain and submit the ``version number`` of this framework. 
 
 ---
 
@@ -138,7 +138,34 @@ GET /product?productId=' HTTP/2
 
 
 <details>
-    <summary></summary>
+    <summary>Lab: Information disclosure on debug page</summary>
+
+> ###  This lab contains a debug page that discloses sensitive information about the application. To solve the lab, obtain and submit the ``SECRET_KEY`` environment variable. 
+
+---
+
+
+1. ``view page sourse``
+
+<img width="796" height="377" alt="image" src="https://github.com/user-attachments/assets/bed8ee5b-e879-46eb-bb6d-77956d29e5f3" />
+
+```html
+<!-- <a href=/cgi-bin/phpinfo.php>Debug</a> -->
+```
+
+2. now navigate:
+
+```url
+https://0a7c00d104bf2dae82109c31002d006a.web-security-academy.net/cgi-bin/phpinfo.php
+```
+
+<img width="1002" height="615" alt="image" src="https://github.com/user-attachments/assets/02ef5a51-f28a-40d0-8733-9f932ef055cb" />
+
+```css
+9l5zi0qwghgf3dycpuf6e0nb2lmdkwuk
+```
+
+    
 </details>
 
 
