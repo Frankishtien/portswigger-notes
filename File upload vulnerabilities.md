@@ -176,9 +176,6 @@ no thing happend !!!!
 <img width="1034" height="380" alt="image" src="https://github.com/user-attachments/assets/53ce3704-b2f2-4b56-aba1-ce42a718c25f" />
 
 
-```
-/../../../../files/avatars/exploit.php
-```
 
 this mean it not allow files in this directory to excuted ``/avatars``
 
