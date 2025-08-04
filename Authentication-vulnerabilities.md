@@ -2,6 +2,83 @@
 
 
 
+<details>
+  <summary>Lab: Username enumeration via different responses</summary>
+
+> ### try invalid usernaem ``admin``
+
+<img width="1030" height="436" alt="image" src="https://github.com/user-attachments/assets/ae7dc0ef-29c0-4040-95a1-7011a3012721" />
+
+> ### try to bruteforce username and match ``Invalid username``
+
+<img width="1604" height="553" alt="image" src="https://github.com/user-attachments/assets/25abcbc9-5139-4067-b66f-27aa66b63cb8" />
+
+<img width="1277" height="469" alt="image" src="https://github.com/user-attachments/assets/2d856d21-4f13-420d-a978-5b3fd040ab66" />
+
+### so now username is 
+
+```
+user
+```
+
+---
+
+> ### now bruteforce the password:
+
+<img width="1016" height="358" alt="image" src="https://github.com/user-attachments/assets/65292c04-6634-4f0a-befa-d58f1a5474c4" />
+
+so passowrd is :
+
+```
+iloveyou
+```
+
+<img width="1341" height="617" alt="image" src="https://github.com/user-attachments/assets/77519529-471c-40f0-9f0a-7c447c705326" />
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+<details>
+  <summary>Lab: 2FA simple bypass</summary>
+
+
+<img width="1105" height="319" alt="image" src="https://github.com/user-attachments/assets/7fbed2c2-8e4d-4fd5-bbc8-7d820821a746" />
+
+
+  
+</details>
+
+
+
+
+<details>
+  <summary>Lab: Password reset broken logic</summary>
+
+
+- > click reset password and check email box you will found link click on it if you try to remove token error will apper
+  >
+  > write new password and intercept the request now you can remove token and change user to carlos 
+
+
+
+  
+</details>
+
+
+
+
+
+
+
 
 <details>
   <summary>Lab: Password reset poisoning via middleware</summary>
