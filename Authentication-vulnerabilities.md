@@ -774,6 +774,8 @@ mfa-code=123456
 
 <img width="1178" height="552" alt="image" src="https://github.com/user-attachments/assets/b3e1371f-3053-42ca-a6ce-f7cc89da9ccb" />
 
+<img width="1890" height="838" alt="image" src="https://github.com/user-attachments/assets/bbdf9caa-d367-4366-8b5a-f96d9fe7e1f0" />
+
 <img width="1417" height="822" alt="image" src="https://github.com/user-attachments/assets/884e0d3c-2b5f-4a11-9a57-718c7f7892ba" />
 
 <img width="1565" height="749" alt="image" src="https://github.com/user-attachments/assets/7294253e-6ed6-4bc1-9061-224ac2d471b4" />
