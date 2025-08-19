@@ -638,9 +638,41 @@ carlos : daniel
 <details>
   <summary>Lab: Username enumeration via account lock</summary>
 
+<img width="1480" height="804" alt="image" src="https://github.com/user-attachments/assets/558b88cf-ae67-439c-9ca5-caac98a2280e" />
+
+```
+carlos
+carlos
+carlos
+carlos
+carlos
+root
+root
+root
+root
+root
+admin
+admin
+admin
+admin
+admin
+....
+....
+
+```
+
+> ### SO USERNAME IS **`acceso`**
 
 
+<img width="1543" height="738" alt="image" src="https://github.com/user-attachments/assets/2c27e85f-9d3b-4c07-b3b6-18f92347f884" />
 
+> ### SO PASSWORD IS **`letmein`**
+
+```
+acceso : letmein
+```
+
+<img width="1779" height="845" alt="image" src="https://github.com/user-attachments/assets/e7e2dd78-6f7b-41bd-a779-ade23d51a0a8" />
 
 
   
