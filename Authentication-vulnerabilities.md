@@ -635,7 +635,16 @@ carlos : daniel
 
 
 
+<details>
+  <summary>Lab: Username enumeration via account lock</summary>
 
+
+
+
+
+
+  
+</details>
 
 
 
