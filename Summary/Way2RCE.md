@@ -8,3 +8,8 @@
 | **Unsafe Eval / Exec**                 | Python, JavaScript, PHP                                    | إدخال المستخدم يُرسل مباشرة إلى `eval()`, `exec()`, `system()`، مثال: `eval(user_input)`                                        |
 | **Environment Variable Injection**     | Python, PHP                                                | تغيير متغيرات البيئة لتحويلها لأوامر OS أو تحميل مكتبات خبيثة                                                                   |
 | **XML / XXE Injection**                | Java, PHP, .NET                                            | تحميل ملفات أو تنفيذ أوامر عبر XML external entities                                                                            |
+
+
+
+
+ 
