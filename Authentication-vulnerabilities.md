@@ -843,7 +843,52 @@ mfa-code=123456
 
 
 <details>
-  <summary></summary>
+  <summary>Lab: Password brute-force via password change</summary>
+
+```
+old pass       neww pass 1        new pass 2
+-----------------------------------------------------------------------------------
+❌                🟩                 🟩        ===> will return to /login
+
+-----------------------------------------------------------------------------------
+
+🟩                🟩                 ❌        ===> New passwords do not match
+
+-----------------------------------------------------------------------------------
+
+❌                🟩                 ❌        ===> Current password is incorrect
+
+ ```
+
+> ### so if we don't know the old password and try to put new one will make use retrun to **`/login`** so we can't to brute force to bypass it we will found that if we put ``not matched new passwords it tell us that old passowrd is not correct`` so we can brute force 
+
+
+----
+
+<img width="1883" height="731" alt="image" src="https://github.com/user-attachments/assets/3ca615ba-e7da-4616-90d6-667fa218dc4d" />
+
+```
+username=carlos&current-password=plapla&new-password-1=123&new-password-2=1234
+```
+
+``set grep/match to New passwords do not match``
+
+<img width="741" height="467" alt="image" src="https://github.com/user-attachments/assets/edcf439f-9e2d-4aa9-b168-8d1bad8ccc42" />
+
+---
+
+<img width="1511" height="719" alt="image" src="https://github.com/user-attachments/assets/17bafaf1-8162-491c-bc3d-5b99e2ce663b" />
+
+> `found that in response say New passwords do not match that is mean the old passowrd is true put the new are not match so we know the passowrd` :
+
+```
+carlos : joshua
+```
+
+<img width="1295" height="600" alt="image" src="https://github.com/user-attachments/assets/02002043-0a12-4124-87e6-0aa249a622d0" />
+
+
+  
 </details>
 
 
