@@ -1,4 +1,4 @@
-# OAauth          
+# OAauth           
 
 * <details>
      <summary>What is OAuth and how it work?</summary>
