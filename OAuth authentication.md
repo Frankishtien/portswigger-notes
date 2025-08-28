@@ -335,6 +335,12 @@ Te: trailers
 <img width="1422" height="450" alt="image" src="https://github.com/user-attachments/assets/b65ab03a-f146-42c5-b836-36b498f27959" />
 
 
+```
+الثغرة حصلت لأن الموقع سمح بربط OAuth profile من غير أي تحقق إضافي.
+فالمهاجم قدر يبعث CSRF للضحية، وبكده يرغم حساب الضحية إنه يرتبط بحساب OAuth بتاع المهاجم.
+النتيجة: المهاجم يقدر يدخل بحساب الضحية باستخدام OAuth login → account hijacking كامل.
+```
+
      
 </details>
 
