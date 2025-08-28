@@ -283,6 +283,138 @@
 
 
 
+- <details>
+    <summary>JWT header parameter injections</summary>
+
+# JWT Header Injection - JWK Parameter Exploit
+
+## 📌 الفكرة العامة
+الـ **JWT** بيتكون من:
+1. **Header** → بيحتوي على معلومات زى `alg` (الخوارزمية) و ممكن كمان يحتوي على حاجات إضافية زى `kid`, `jwk`, `jku`.
+2. **Payload** → البيانات (claims).
+3. **Signature** → توقيع بيتعمل باستخدام secret أو مفتاح خاص (private key).
+
+السيرفر لما يستقبل الـ JWT بيستخدم الـ **Header** عشان يعرف:
+- أى خوارزمية تستخدم للتأكد من التوقيع (`HS256` / `RS256`).
+- أى مفتاح يجيب ويستخدم (من الـ `kid` أو `jwk` أو `jku`).
+
+---
+
+## 📌 التركيز هنا: `jwk` Injection
+- `jwk` = **JSON Web Key** → عبارة عن **مفتاح عام (Public Key)** مكتوب فى شكل JSON.
+- المفروض السيرفر عنده **قائمة محدودة** من المفاتيح اللى يثق فيها.
+- لكن لو السيرفر **مُسيء التهيئة (Misconfigured)**، ممكن يقبل أى مفتاح عام **موجود داخل التوكن نفسه** 🤦.
+
+---
+
+## 📌 إزاى نستغل ده؟
+1. نولد زوج مفاتيح (RSA Public/Private).
+   - عندنا المفتاح **الخاص** (Private) → نوقع بيه التوكن.
+   - عندنا المفتاح **العام** (Public) → نحطه جوه الهيدر فى باراميتر `jwk`.
+
+2. نعدل الـ Payload (مثلاً نغير `role` من `user` إلى `admin`).
+
+3. نوقع التوكن باستخدام **المفتاح الخاص بتاعنا**.
+
+4. نحط المفتاح العام جوه الهيدر:
+   ```json
+   {
+     "alg": "RS256",
+     "typ": "JWT",
+     "jwk": {
+       "kty": "RSA",
+       "e": "AQAB",
+       "n": "....",  
+       "kid": "myCustomKey"
+     }
+   }
+   ```
+
+5. لو السيرفر بيقبل ده → هيستخدم المفتاح العام اللى إحنا حاطينه ويتأكد من التوقيع، وده هيكون صحيح لأننا وقعنا بالمفتاح الخاص بتاعنا.  
+   🔥 وده بيدينا **تحكم كامل فى التوكن**.
+
+---
+
+## 📌 الخطوات العملية (مثال باستخدام Burp + JWT Editor Extension)
+1. فى Burp → افتح تبويب **JWT Editor Keys**.
+2. اعمل **Generate RSA Key**.
+3. ابعت الريكوست اللى فيه JWT لـ **Repeater**.
+4. روح على تبويب الـ **JSON Web Token**.
+5. عدل الـ Payload (مثلاً غير `user":"test"` لـ `user":"admin"`).
+6. اضغط **Attack → Embedded JWK**.
+7. اختار المفتاح اللى انت مولده.
+8. ابعت الريكوست الجديد للسيرفر.
+   - لو Misconfigured → هيديك access كأنك Admin.
+
+---
+
+## 📌 الخلاصة
+- **الـ jwk Injection** = بنخدع السيرفر يخلى باله من المفتاح العام بتاعنا.
+- إحنا نوقع بالتوكن بمفتاحنا الخاص.
+- السيرفر يتأكد باستخدام المفتاح اللى إحنا حطينه → فالتحقق يعدى.
+- النتيجة: نتحكم فى التوكن ونعدل أى Claims (زي role → admin).
+
+
+
+---
+
+
+
+
+
+
+  </details>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -449,7 +581,48 @@ GET /admin/delete?username=carlos HTTP/2
 
 
 
+<details>
+    <summary>Lab: JWT authentication bypass via jwk header injection</summary>
 
+
+```json
+eyJraWQiOiJiZjFhOTg1Zi00NDgwLTQ1MmQtODQzZS0wMjIyMGUzZTg2YmYiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjQyODc5MSwic3ViIjoid2llbmVyIn0.f2YN61RhTmuZSUdncWJi6PKVky_FYVsWfPW1ue50xJBGExuDmIpl7Ufhy8DlgGN_q2XWI0x5JG85bhoUcLc-8wed0RSPuu0P1C0g-f9naycBtAUDb_wNFCR7WdDSn-L8JJd8UWJS4-XAozvW9EFMk4q5D0YlfsCWPz2oe_JLKlvUug12MN3vRYp_wVgpzumwfAhrMowNNFpBOIjaBxc_hQXMmJ65qnqQD9h2lViue1PAPgXoHmLQUkl9qrvrEMTATCdlgQDFlmPAbgJxn4sVIDtTsi6cxLjaNnpip6fldEyexxSaE3U9x7rnrgTQf0k5vOrpxwtcgp_u1a6dmGPINg
+```
+
+
+<img width="737" height="568" alt="image" src="https://github.com/user-attachments/assets/2e653954-72a1-45bc-9d5f-e9ca6f2923c1" />
+
+
+---
+
+> genrate ``RSA key``
+
+<img width="798" height="656" alt="image" src="https://github.com/user-attachments/assets/5150b333-3fb7-4639-ab77-3c8bbb26b8fe" />
+
+
+<img width="742" height="675" alt="image" src="https://github.com/user-attachments/assets/e3a19886-667c-4798-a3dd-2721db6b47fa" />
+
+
+---
+
+> send the request
+
+<img width="1544" height="635" alt="image" src="https://github.com/user-attachments/assets/4756464e-c1fc-4120-9c2d-b098c596c390" />
+
+
+----
+
+> now change the path 
+
+```
+/admin/delete?username=carlos
+```
+
+<img width="1498" height="671" alt="image" src="https://github.com/user-attachments/assets/e2a03383-f021-41df-81e0-ac7105e16b12" />
+
+    
+    
+</details>
 
 
 
