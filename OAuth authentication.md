@@ -355,8 +355,76 @@ Te: trailers
 
 
 
+<details>
+     <summary>Lab: OAuth account hijacking via redirect_uri</summary>
+
+> ###  To solve the lab, steal an authorization code associated with the admin user, then use it to access their account and delete the user carlos.
+
+> The admin user will open anything you send from the exploit server and they always have an active session with the OAuth service.
+
+> You can log in with your own social media account using the following credentials: ``wiener:peter``. 
 
 
+----
+
+
+click on **`my account`** and intercept the request with burp
+
+<img width="919" height="189" alt="image" src="https://github.com/user-attachments/assets/62a1f3d7-f094-42e0-9790-7075f623621a" />
+
+> you will found two interested requests
+
+**``_first request_ 🟩``**
+
+```http
+GET /auth?client_id=iy51f2tj0ixwem692hh0t&redirect_uri=https://0a910017032e61e280a8037a00770034.web-security-academy.net/oauth-callback&response_type=code&scope=openid%20profile%20email HTTP/1.1
+Host: oauth-0ab0006c03ae611b807c0195020900ee.oauth-server.net
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: cross-site
+Priority: u=0, i
+Te: trailers
+Connection: keep-alive
+
+```
+
+**``_second request_ 🟠``**
+
+```http
+GET /oauth-callback?code=v56NTxN-NphRmcLC51s9LQV2iGtbhr5uXlcCHumO2KD HTTP/2
+Host: 0a910017032e61e280a8037a00770034.web-security-academy.net
+Cookie: session=wkh6g0tWFNuw8BNfVbGNBwRhnpPx4tMu
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://oauth-0ab0006c03ae611b807c0195020900ee.oauth-server.net/
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: cross-site
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+```
+
+> ### send both to repeater 
+
+> now see the response of them 
+
+**_`first response 🟩`_**
+
+```http
+
+```
+
+     
+</details>
 
 
 
