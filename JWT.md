@@ -458,7 +458,58 @@
 
 
 
+- <details>
+     <summary>JWT kid path traversal</summary>
 
+    # JWT Attack using `kid` Parameter
+    
+    ## 🔹 الفكرة الأساسية
+    - الـ JWT بيكون له **header** (فيه معلومات عن الخوارزمية والـ key).
+    - في بعض الأحيان، الـ header يحتوي على **`kid` (Key ID)** → السيرفر بيستخدم القيمة دي عشان يعرف أي مفتاح (key) يستعمل في التوقيع.
+    - الطبيعي: السيرفر يجيب المفتاح من database أو JWK Set بناءً على قيمة الـ `kid`.
+    
+    ---
+    
+    ## 🔹 نقطة الضعف
+    - **الـ `kid` مش محدد له structure** → مجرد string عشوائي بيحدده المبرمج.
+    - لو المبرمج عمل lookup للـ key بشكل unsafe (مثلاً يروح يفتح ملف بنفس اسم الـ `kid`)، ممكن المهاجم يستغل ده.
+    
+    ### مثال
+    ```json
+    {
+      "kid": "../../path/to/file",
+      "typ": "JWT",
+      "alg": "HS256"
+    }
+    ```
+    - هنا المهاجم بيعمل **Directory Traversal** بالـ `kid`.
+    - السيرفر يروح يقرأ أي ملف من الـ filesystem ويستخدمه كـ secret key.
+    
+    ---
+    
+    ## 🔹 الهجوم
+    لو السيرفر بيقبل **خوارزمية symmetric زي HS256**:
+    1. تختار ملف معروف موجود في السيرفر (مثلاً `/dev/null` على Linux).
+    2. `/dev/null` → بيكون دايمًا **فاضي** → أي قراءة منه ترجع **string فاضية**.
+    3. تعمل sign للـ JWT باستخدام **secret = "" (empty string)**.
+    4. السيرفر يقرأ `/dev/null` → يرجع برضه empty string → يظن إن التوقيع صحيح ✅.
+    
+    ---
+    
+    ## 🔹 الصعوبة العملية
+    - مشكلة: Burp JWT Editor ما بيسمحش تعمل signing بــ empty string.
+    - الحل: **استغلال bug** → وقته ممكن تبعت Base64 encoded null byte بدل ما تبعت empty string. ده بيخدع الـ extension ويخلي التوقيع valid.
+    
+    ---
+    
+    ## 🔹 الخلاصة
+    - أي مكان السيرفر **بيثق في `kid`** من غير validation → ممكن يتحول لسلاح ضد السيرفر.
+    - مهاجم يوجّه السيرفر يقرأ ملف ثابت (زي `/dev/null`) أو ملف فيه key معروف → ويوقّع بنفسه JWTs صحيحة.
+    - النتيجة: **تخطّي المصادقة (Authentication Bypass)** أو **تزوير الصلاحيات (Privilege Escalation)**.
+    
+    
+
+  </details>
 
 
 
@@ -836,7 +887,48 @@ https://exploit-0a1d00cb047f301a8160c9ac01d800dd.exploit-server.net/exploit
 
 
 
+<details>
+    <summary>Lab: JWT authentication bypass via kid header path traversal</summary>
 
+
+```json
+eyJraWQiOiJlZDZjYmIwYy03MDdhLTQ3MGYtYmYzOS01NjQwOTU3YTYwMGMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjUxMzY0Mywic3ViIjoid2llbmVyIn0.BwlNCmoE1ZZZu1eXcR_dMRjnfI-NFAvn_-RuVvEzfA0
+```
+
+<img width="745" height="680" alt="image" src="https://github.com/user-attachments/assets/147e9e71-80ea-4963-a97c-bb7aa416ecef" />
+
+
+> ## now try to change **`"kid"`** to **``../../../../../dev/null``**
+
+```json
+{
+    "kid": "../../../../../dev/null",
+    "alg": "HS256"
+}
+```
+
+> ## so the server will check if the **`k`** equel to the value in **`../../../../../dev/null`** so we need to put the **`k`** empty
+> but burp refuse so we can put **``AA==``** instead this is null in base64
+
+<img width="1073" height="591" alt="image" src="https://github.com/user-attachments/assets/4abb0c4a-435b-474f-8486-2d41e917a1af" />
+
+> ## click **`sign`**
+> - change user to **`administrator`**
+
+<img width="737" height="568" alt="image" src="https://github.com/user-attachments/assets/4b61e028-0369-45d5-a187-b7035aad516c" />
+
+> ## send the request
+
+
+
+<img width="1530" height="759" alt="image" src="https://github.com/user-attachments/assets/652efa50-1b1c-4fe7-b134-a180a6ff4f6b" />
+
+> change path to **`GET /admin/delete?username=carlos HTTP/2`**
+
+<img width="1502" height="728" alt="image" src="https://github.com/user-attachments/assets/315c0911-891d-4e9b-82c1-28d8d0719f6d" />
+
+    
+</details>
 
 
 
