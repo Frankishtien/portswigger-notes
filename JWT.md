@@ -1470,6 +1470,89 @@ Found n with multiplier 1:
 
 <img width="1543" height="730" alt="image" src="https://github.com/user-attachments/assets/6a0ee703-3173-4662-92e8-cda37cfaa913" />
 
+
+
+
+
+- <details>
+     <summary>summary</summary>
+
+
+
+
+
+    
+    # 🔐 PortSwigger Lab Write-up: Algorithm Confusion Attack with sig2n
+    
+    ## 📌 Steps to Solve
+    
+    ### 1. Extract JWT Tokens
+    - Logged in as **wiener:peter**.  
+    - Obtained two different JWT tokens from the application.  
+    - Having two tokens allowed extraction of the **public key**.
+    
+    ---
+    
+    ### 2. Extract Public Key with sig2n
+    - Ran PortSwigger's **sig2n** tool via Docker:
+      ```bash
+      sudo docker run --rm -it portswigger/sig2n <token_1> <token_2>
+      ```
+    - The tool derived the **modulus (n)** from the tokens and output multiple possible keys:
+      - **Base64 encoded x509 key**
+      - **Base64 encoded pkcs1 key**
+      - Pre-generated **tampered JWTs**
+    
+    > In the lab we knew that the **x509 key** was correct, but in a real-world case you’d test each possibility until one works.
+    
+    ---
+    
+    ### 3. Configure New Key in Burp
+    - Verified the tampered JWT works in the app.  
+    - Opened **Burp → JWT Editor Keys**.  
+    - Created a **symmetric key**.  
+    - Replaced the key value `k` with the **Base64 encoded x509 key**.
+    
+    ---
+    
+    ### 4. Forge and Re-sign JWT
+    - Opened the token in **JWT Editor**.  
+    - Modified the claim:
+      - `sub` → changed from **wiener** to **administrator**.  
+    - Selected the symmetric key.  
+    - Re-signed the token using **HS256**.
+    
+    ---
+    
+    ### 5. Exploit Admin Access
+    - Sent modified request to `/admin` instead of `/my-account`.  
+    - Gained **administrator privileges**.  
+    - Executed the following request:
+      ```http
+      GET /admin/delete?username=carlos HTTP/2
+      ```
+    - Successfully deleted **carlos** and solved the lab ✅.
+    
+    ---
+    
+    ## 🎯 Conclusion
+    This was an **Algorithm Confusion Attack**:  
+    - Server expected **RS256** (asymmetric signing).  
+    - We tricked it into accepting **HS256** (symmetric).  
+    - Used the **public key as the secret** to sign forged JWTs.  
+    - Escalated privileges and performed admin actions.
+    
+    ---
+
+
+
+
+
+
+
+  </details>
+
+
     
 </details>
 
