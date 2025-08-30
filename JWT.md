@@ -581,6 +581,75 @@
     
 
 
+
+
+
+    ---
+    
+    # Algorithm Confusion Attack Walkthrough
+    
+    ## Step 1 - Obtain the server's public key
+    
+    -   أحياناً السيرفر بيعرض الـ **Public Key** فى شكل JWK (JSON Web Key)
+        عبر endpoint زى:
+        -   `/jwks.json`
+        -   `/.well-known/jwks.json`
+    -   ممكن تلاقيه فى array اسمها `keys`.
+    -   مثال:
+    
+    ``` json
+    {
+        "keys": [
+            {
+                "kty": "RSA",
+                "e": "AQAB",
+                "kid": "75d0ef47-af89-47a9-9061-7c02a610d5ab",
+                "n": "o-yy1wpYmffgXBxhAUJzHHocCuJolwDqql75ZWuCQ_cb33K2vh9mk6GPM9gNN4Y_qTVX67WhsN3JvaFYw-fhvsWQ"
+            }
+        ]
+    }
+    ```
+    
+    -   حتى لو المفتاح مش ظاهر بشكل علني، ممكن تستخرجه من JWTs موجودة.
+    
+    ------------------------------------------------------------------------
+    
+    ## Step 2 - Convert the public key to a suitable format
+    
+    -   السيرفر بيستخدم نسخة من الـ **public key** من الـ filesystem أو
+        database.
+    -   علشان الهجوم ينجح لازم المفتاح اللى هتستخدمه يطابق نسخة السيرفر بالـ
+        **byte**.
+    -   مثال: لو محتاج المفتاح فى **X.509 PEM format**:
+        1.  افتح Burp → `JWT Editor Keys` tab.
+        2.  اعمل **New RSA Key** وحط الـ JWK.
+        3.  اختر **PEM** وانسخ المفتاح.
+        4.  روح للـ Decoder tab واعمل Base64 encode.
+        5.  ارجع لـ `JWT Editor Keys` → **New Symmetric Key**.
+        6.  غير القيمة `k` للـ Base64-encoded PEM.
+        7.  احفظ المفتاح.
+    
+    ------------------------------------------------------------------------
+    
+    ## Step 3 - Modify your JWT
+    
+    -   بعد ما جهزت الـ public key بالـ format الصح، عدل الـ JWT payload زى
+        ما تحب.
+    -   لازم تتأكد إن الـ header فيه: `"alg": "HS256"`.
+    
+    ------------------------------------------------------------------------
+    
+    ## Step 4 - Sign the JWT using the public key
+    
+    -   وقع الـ JWT باستخدام خوارزمية **HS256**.
+    -   استعمل الـ **RSA Public Key كأنه secret key**.
+    
+    
+
+
+
+
+
   </details>
 
 
@@ -592,7 +661,22 @@
 
 
 
+- <details>
+    <summary>Deriving public keys from existing tokens</summary>
 
+
+
+
+
+
+
+
+
+
+
+
+
+  </details>
 
 
 
