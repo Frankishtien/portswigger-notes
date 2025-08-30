@@ -1172,6 +1172,91 @@ LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFN
 
 
 
+- <details>
+    <summary>summary</summary>
+
+
+    
+    
+    
+    # JWT Algorithm Confusion Attack (RS256 → HS256)
+    
+    ## 📌 Summary
+    
+    This attack exploits a misconfiguration in JWT verification where the server allows the algorithm to be chosen from the token header. By switching from **RS256** (asymmetric) to **HS256** (symmetric), the public key can be abused as the HMAC secret.
+    
+    ---
+    
+    ## 🔑 Steps
+    
+    1. **Identify algorithm used**
+       - Original token header:
+         ```json
+         { "kid": "...", "alg": "RS256" }
+         ```
+    
+    2. **Retrieve public key**
+       - Extracted from server's **JWK Set** or endpoint.
+    
+    3. **Convert public key**
+       - Save as PEM format.
+       - Base64 encode it to be used as a string secret.
+    
+    4. **Modify token**
+       - Change algorithm in header:
+         ```json
+         { "kid": "...", "alg": "HS256" }
+         ```
+       - Modify payload:
+         ```json
+         { "sub": "administrator" }
+         ```
+    
+    5. **Sign the token**
+       - Use the public key as the HMAC secret with HS256.
+    
+    6. **Exploit**
+       - Send the forged JWT to the server.
+       - The server validates it successfully, granting **admin privileges**.
+    
+       Example request:
+       ```http
+       GET /admin/delete?username=carlos HTTP/1.1
+       Host: vulnerable-app.com
+       Cookie: session=<forged_token>
+       ```
+    
+    ---
+    
+    ## ✅ Why it works
+    - RS256 = asymmetric (private key to sign, public key to verify).
+    - HS256 = symmetric (same key for signing & verifying).
+    - If the server doesn’t enforce RS256, switching to HS256 makes the server treat the **public key** as the secret, enabling forgery.
+    
+    ---
+    
+    ## ⚠️ Impact
+    - Full account takeover.
+    - Privilege escalation to administrator.
+    - Arbitrary actions on behalf of other users.
+    
+    ---
+    
+    ## 🛡️ Mitigation
+    - Do **not** allow algorithm from untrusted token header.
+    - Enforce a strict algorithm (e.g., RS256).
+    - Rotate compromised keys immediately.
+    
+    
+
+
+    
+  </details>
+
+
+
+
+
     
 </details>
 
