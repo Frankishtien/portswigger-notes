@@ -89,7 +89,7 @@
 
 
 - <details>
-     <summary></summary>
+     <summary>Interacting with API endpoints</summary>
 
      
      
