@@ -187,7 +187,124 @@
 
 
 
+- <details>
+     <summary>Mass assignment vulnerabilities</summary>
 
+
+
+     
+     
+     
+     # API Recon and Mass Assignment Vulnerabilities
+     
+     ## Using Intruder to Find Hidden Endpoints
+     Once you have identified some initial API endpoints, you can use **Burp Intruder** to uncover hidden endpoints.
+     
+     **Example:**
+     ```
+     PUT /api/user/update
+     ```
+     
+     You can test for hidden endpoints by replacing `/update` with common words like `delete`, `add`, etc., using a **wordlist**.
+     
+     👉 Use wordlists based on:
+     - Common API naming conventions.
+     - Industry terms.
+     - Application-specific terms (from recon).
+     
+     ---
+     
+     ## Finding Hidden Parameters
+     During API recon, you may find undocumented parameters that can affect application behavior.
+     
+     ### Tools to Help:
+     - **Burp Intruder** → use a wordlist of common parameters.
+     - **Param Miner BApp** → can guess up to 65,536 parameters automatically.
+     - **Content Discovery Tool** → finds hidden/unlinked parameters.
+     
+     ---
+     
+     ## Mass Assignment Vulnerabilities
+     Mass assignment (auto-binding) happens when frameworks automatically bind request parameters to internal object fields.
+     
+     This may expose unintended hidden parameters.
+     
+     ### Identifying Hidden Parameters
+     You can often spot hidden parameters by analyzing API responses.
+     
+     **Example:**
+     ```
+     PATCH /api/users/
+     {
+         "username": "wiener",
+         "email": "wiener@example.com"
+     }
+     ```
+     
+     A concurrent response from:
+     ```
+     GET /api/users/123
+     {
+         "id": 123,
+         "name": "John Doe",
+         "email": "john@example.com",
+         "isAdmin": "false"
+     }
+     ```
+     
+     This hints that `id` and `isAdmin` may be hidden parameters.
+     
+     ---
+     
+     ## Testing for Mass Assignment
+     Try modifying hidden parameters in requests.
+     
+     ### Test 1 - Normal update with hidden parameter:
+     ```
+     {
+         "username": "wiener",
+         "email": "wiener@example.com",
+         "isAdmin": false
+     }
+     ```
+     
+     ### Test 2 - Invalid value for hidden parameter:
+     ```
+     {
+         "username": "wiener",
+         "email": "wiener@example.com",
+         "isAdmin": "foo"
+     }
+     ```
+     
+     If behavior changes → parameter is being processed.
+     
+     ### Exploitation - Privilege Escalation:
+     ```
+     {
+         "username": "wiener",
+         "email": "wiener@example.com",
+         "isAdmin": true
+     }
+     ```
+     
+     If bound without validation, the user may gain **admin privileges**.
+     
+     ---
+     
+     ## Key Takeaways
+     - Intruder helps find hidden endpoints.
+     - Param Miner & Intruder can find hidden parameters.
+     - Mass assignment can expose sensitive parameters like `isAdmin`.
+     - Always test with valid and invalid values to confirm vulnerability.
+     
+     
+
+
+
+
+
+  </details>
 
 
 
