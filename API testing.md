@@ -311,7 +311,40 @@
 
 
 
+- <details>
+     <summary>Server-side parameter pollution</summary>
 
+
+     <details>
+     
+     <img width="774" height="277" alt="image" src="https://github.com/user-attachments/assets/31406ab2-46e6-4171-b439-aa876d551c18" />
+     
+     <img width="842" height="373" alt="image" src="https://github.com/user-attachments/assets/db2fecd5-b365-4f6f-a7fe-e4aee42fecff" />
+     
+     <img width="744" height="612" alt="image" src="https://github.com/user-attachments/assets/422a0a92-6a6d-4b69-abcf-c78378bdc83b" />
+     
+     <img width="766" height="406" alt="image" src="https://github.com/user-attachments/assets/efa52df2-a6fc-48e4-ba92-076bcb6d872d" />
+     
+     <img width="762" height="410" alt="image" src="https://github.com/user-attachments/assets/c938e7c5-7897-4f86-a968-4528db4c3952" />
+     
+     <img width="772" height="596" alt="image" src="https://github.com/user-attachments/assets/fc0ae5b7-7f91-4276-91a6-966fb87993ef" />
+     
+     <img width="697" height="661" alt="image" src="https://github.com/user-attachments/assets/2985f930-0f96-41c0-8763-f5cd4a8277e8" />
+     
+     
+          
+     </details>
+     
+     
+     
+     
+
+
+
+
+
+     
+</details>
 
 
 
