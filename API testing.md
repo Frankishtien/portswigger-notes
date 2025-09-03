@@ -884,7 +884,114 @@ Content-Length: 0
 
 
 
+<details>
+     <summary>Lab: Exploiting server-side parameter pollution in a query string</summary>
 
+
+## try to reset password for user **`wiener`**
+
+<img width="1177" height="402" alt="image" src="https://github.com/user-attachments/assets/31899866-d1d4-4327-91e8-c0df6ae3255c" />
+
+
+## but we know that there is user called **`administrator`**
+
+<img width="1177" height="395" alt="image" src="https://github.com/user-attachments/assets/ce896ced-71d9-4794-9819-d78602fe4a66" />
+
+
+## note that there is **`/static/js/forgotPassword.js`** 
+
+<img width="1570" height="686" alt="image" src="https://github.com/user-attachments/assets/e27d8981-09c6-4bfb-b206-dfc052c02b96" />
+
+
+**`we found in it reset password function`**
+
+```javascript
+
+const displayMsg = (e) => {
+    e.preventDefault();
+    validateInputsAndCreateMsg(e);
+};
+
+forgotPwdReady(() => {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const resetToken = urlParams.get('reset-token');
+    if (resetToken)
+    {
+        window.location.href = `/forgot-password?reset_token=${resetToken}`;
+    }
+    else
+    {
+        const forgotPasswordBtn = document.getElementById("forgot-password-btn");
+        forgotPasswordBtn.addEventListener("click", displayMsg);
+    }
+});
+
+```
+
+> ## so we need **`reset-token`** parameter to reset the password
+
+> ## now go back to **`reset-passowrd`**
+> - try to inject **`#`** , **`&`** 
+
+<img width="1169" height="464" alt="image" src="https://github.com/user-attachments/assets/59047886-df85-4aee-a454-0f27412f3bda" />
+
+> ## now i try **`&`** and put **username** parameter to see if it will take the first value or the second
+
+<img width="1163" height="483" alt="image" src="https://github.com/user-attachments/assets/08490d3b-f376-4029-b81e-0ad376416cd5" />
+
+> ## ohh it take the second value
+
+> ## now i will encode **`&`** and try to put any prameter maybe **`a=b`**
+
+<img width="1168" height="430" alt="image" src="https://github.com/user-attachments/assets/074d8e30-26c2-486e-825e-c9ef9d4cc64c" />
+
+> ## **`Parameter is not supported.`** so let's burte force it 
+
+<img width="1610" height="544" alt="image" src="https://github.com/user-attachments/assets/dd518ccd-688e-4b2e-bd70-43e7a5f73180" />
+
+> ## filtered it by length and found that **`feild`** parameter in response say **`Invalid field.`** so we know that there is parameter call **`feild`**
+> - lets try to put it's value `username` , `email` , `password`
+
+<img width="1049" height="428" alt="image" src="https://github.com/user-attachments/assets/4513b538-c4ec-4f43-8e61-e6f0c772daa8" />
+
+<img width="1173" height="511" alt="image" src="https://github.com/user-attachments/assets/1801fb9a-f311-43e3-ab7f-bb71e8f94155" />
+
+<img width="1157" height="499" alt="image" src="https://github.com/user-attachments/assets/076935ac-de88-41bf-98de-6f4c43f2bd26" />
+
+> ## so what it we try **`reset-token`** that we need
+
+<img width="1085" height="495" alt="image" src="https://github.com/user-attachments/assets/6ef6dfec-683b-4f80-9c92-8e59b169ee8a" />
+
+
+```
+2y0ykivivnl76kodlyx3adq5qzrp1mn6
+```
+
+> ## now
+
+```
+/forgot-password?reset_token=2y0ykivivnl76kodlyx3adq5qzrp1mn6
+```
+
+
+<img width="1055" height="680" alt="image" src="https://github.com/user-attachments/assets/658bab92-716d-449f-8710-c1e5909ce3f3" />
+
+
+> ## now reset password and login as **`adminstrator`**
+
+```
+administrator : 123
+```
+
+<img width="1295" height="662" alt="image" src="https://github.com/user-attachments/assets/f7c5497c-1bf3-43fa-af17-10108b020d04" />
+
+
+<img width="1237" height="545" alt="image" src="https://github.com/user-attachments/assets/0daf5a7b-a6db-41a6-a426-3f259a74e361" />
+
+
+     
+</details>
 
 
 
