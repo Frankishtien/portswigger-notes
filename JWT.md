@@ -1,6 +1,9 @@
 # JWT 
 
 
+[jwt_notes](https://notebooklm.google.com/notebook/8a587b11-b55d-4426-9a7f-7ebc63d43e7a)
+
+
 - <details>
     <summary>what is JWT?</summary>
   
