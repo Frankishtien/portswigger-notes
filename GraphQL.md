@@ -1,4 +1,4 @@
-# GraphQL
+# GraphQL 
 
 <details>
   <summary>what is GraphQL?</summary>
