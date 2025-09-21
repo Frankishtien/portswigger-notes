@@ -1197,7 +1197,78 @@ if __name__ == "__main__":
 
 ### use cookie editor extension and put the new cookie and refresh
 
-![Uploading image.png…]()
+<img width="1593" height="651" alt="image" src="https://github.com/user-attachments/assets/8a3714a4-f388-47a9-bad0-9ad3bed35b95" />
+
+
+
+<details>
+  <summary>summary</summary>
+
+
+
+# 2FA Bypass using Brute-force Attack
+
+## **فكرة التحدي**
+الموقع بيستخدم **2FA (Two-Factor Authentication)** بعد تسجيل الدخول.  
+حتى لو عندك **username** و **password** صح (في حالتنا `carlos:montoya`)، لسه لازم تدخل كود مكوّن من **4 أرقام** يتغير بعد فترة.  
+
+الثغرة هنا إن **صفحة 2FA نفسها قابلة لعملية brute-force**، ومفيش أي **rate limiting** أو حماية قوية تمنع المحاولات المتكررة.  
+لكن في مشكلة:  
+- لو جربت كودين غلط ورا بعض، الموقع بيرجعك للـ login page.
+- كمان كل محاولة محتاجة **CSRF token** جديد وجلسة session جديدة.
+
+---
+
+## **خطوات الحل**
+### 1. **تحليل الطلبات**
+- لقينا إن تسجيل الدخول بيتم بـ `/login` ومعاه:
+  ```
+  csrf=<token>&username=carlos&password=montoya
+  ```
+- بعد كده بيتحول المستخدم لـ `/login2` لإدخال كود الـ 2FA، والطلب بيحتاج:
+  ```
+  csrf=<token>&mfa-code=1234
+  ```
+- طول الكود = 4 أرقام → يعني من `0000` لحد `9999`.
+
+### 2. **تحديات واجهتنا**
+- لازم نعمل **تسجيل دخول جديد** لكل محاولة عشان نجيب `session` و `csrf` صالحين.
+- بعد محاولتين غلط بيتم إرجاعك للصفحة الأولى.
+- سرعة التنفيذ كانت بطيئة جدًا لما بدأنا نجرب الكودات واحدة واحدة.
+
+### 3. **الحل البرمجي**
+- كتبنا **script بلغة Python** يستخدم مكتبة `requests`.
+- الخطوات اللي بينفذها لكل كود:
+  1. يعمل `session` جديد.
+  2. يجيب **CSRF token** من `/login`.
+  3. يدخل بيانات `username` و `password`.
+  4. يجيب **CSRF token** جديد من `/login2`.
+  5. يجرب كود 2FA.
+- لو رجع الرد **302 Redirect** لـ `/my-account` → الكود صحيح ✅.
+
+### 4. **التسريع**
+- استخدمنا **ThreadPoolExecutor** لتجربة أكتر من كود في نفس الوقت.
+- خلينا 10 محاولات متوازية، فده سرّع الهجوم جدًا.
+
+---
+
+## **النتيجة النهائية**
+- الـ script نجح في إيجاد الكود الصحيح:  
+  ```
+  [+] 2FA code found: 0564
+  ```
+- بعدها قدرنا ندخل على حساب Carlos ونجيب الـ session cookie النهائية.
+
+---
+
+
+
+
+  
+</details>
+
+
+
 
 
   
