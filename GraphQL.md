@@ -1377,7 +1377,15 @@ GET /graphql?query=mutation{changePassword(newPassword:"hacked")}
 
 
 
+<details>
+  <summary>Preventing GraphQL attacks</summary>
 
+
+
+
+
+  
+</details>
 
 
 
