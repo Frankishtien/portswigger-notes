@@ -1160,6 +1160,138 @@ Stay sneaky 😎
 
 
 
+<details>
+  <summary>Bypassing rate limiting using aliases</summary>
+
+
+
+# 🚀 Bypassing Rate Limiting using GraphQL Aliases
+
+## 📌 المشكلة الأساسية: Rate Limiting
+- الـ **Rate Limiting** هو نظام بيحط قيود على عدد الـ **requests** اللي تقدر تبعتها للـ API خلال فترة زمنية معينة.  
+  **مثال:**
+  - مسموح لك تبعت **5 requests في الدقيقة**.
+  - لو بعت أكتر، السيرفر هيبدأ يرد عليك برسالة زي:  
+    ```
+    429 Too Many Requests
+    ```
+- الهدف منه إنه يمنع هجمات **brute force** أو **DoS attacks**.
+
+---
+
+## 📌 GraphQL وموضوع الـ Aliases
+- في GraphQL، العادي إنك **ماينفعش تكرر نفس الـ field مرتين** في نفس الـ query.  
+  **مثال (❌ غلط):**
+  ```graphql
+   query {
+       isValidDiscount(code: 123)
+       isValidDiscount(code: 456)
+   }
+  ```
+  هيطلع لك Error لأنك كررت `isValidDiscount`.
+
+---
+
+## 📌 الحل → Aliases
+- **Aliases** في GraphQL بتسمح لك إنك **تدي اسم مختلف لكل field**، حتى لو نفس الـ function أو الـ resolver.  
+  **مثال (✅ صح):**
+  ```graphql
+  query {
+      discount1: isValidDiscount(code: 123) {
+          valid
+      }
+      discount2: isValidDiscount(code: 456) {
+          valid
+      }
+      discount3: isValidDiscount(code: 789) {
+          valid
+      }
+  }
+  ```
+
+هنا:
+- `discount1` → هي alias للـ `isValidDiscount` الأول.
+- `discount2` → alias تاني.
+- وهكذا...
+
+---
+
+## 📌 إزاي ده بيكسر Rate Limiting؟
+- بعض أنظمة الـ **Rate Limiting** بتحسب **عدد الـ requests** بس، مش **عدد العمليات الداخلية في GraphQL**.
+- **GraphQL Aliases** بتخليك تبعت **Request واحدة** فيها **عمليات كتير**.
+
+### 📍 **مثال حقيقي:**
+بدل ما تبعت 100 طلب بالشكل ده:
+```graphql
+query {
+    isValidDiscount(code: 123)
+}
+```
+تبعت طلب واحد بس كده:
+```graphql
+query {
+    d1: isValidDiscount(code: 123) { valid }
+    d2: isValidDiscount(code: 124) { valid }
+    d3: isValidDiscount(code: 125) { valid }
+    d4: isValidDiscount(code: 126) { valid }
+    d5: isValidDiscount(code: 127) { valid }
+    ...
+    d100: isValidDiscount(code: 222) { valid }
+}
+```
+
+🔹 **النتيجة:**
+- السيرفر شايف إن ده **Request واحد** → وبالتالي مش هيوقفك بالـ rate limiter.  
+- إنت فعليًا عملت **brute force** جوه الـ API من غير ما تتقيد بعدد الـ requests.
+
+---
+
+## 📌 سيناريو عملي (تخيل تحدي CTF):
+لو عندك endpoint في GraphQL بيتأكد من كود خصم:
+```graphql
+query {
+    isValidDiscount(code: "12345") {
+        valid
+    }
+}
+```
+بدلاً من تبعت كود واحد في كل Request → تبعت 50 كود في Request واحدة:
+```graphql
+query {
+    check1: isValidDiscount(code: "11111") { valid }
+    check2: isValidDiscount(code: "22222") { valid }
+    check3: isValidDiscount(code: "33333") { valid }
+    check4: isValidDiscount(code: "44444") { valid }
+    check5: isValidDiscount(code: "55555") { valid }
+}
+```
+
+🔹 **كده لو فيه كود صحيح، هتعرفه بسرعة كبيرة من غير ما تتوقف بالـ rate limiting.**
+
+---
+
+## 📌 الخلاصة:
+- **Aliases** في GraphQL وسيلة لتسمية نفس العملية بأسماء مختلفة.
+- تقدر تستغلها علشان **تعمل brute force في طلب واحد بس**.
+- ده بيكسر أنظمة rate limiting الضعيفة لأنها بتحسب عدد الـ requests مش العمليات الداخلية.
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
