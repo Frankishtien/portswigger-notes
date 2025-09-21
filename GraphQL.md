@@ -1791,7 +1791,7 @@ so it require the **``id``**
   
   
   ```graphql
-  mutation  {
+  mutation login {
           
       }
   ```
