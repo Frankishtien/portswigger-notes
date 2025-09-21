@@ -1286,7 +1286,92 @@ query {
 
 
 
+<details>
+   <summary>GraphQL CSRF Vulnerability</summary>
 
+
+
+# GraphQL CSRF Vulnerability
+
+
+**GraphQL** هو API System بيشتغل غالبًا على `/graphql` endpoint.
+
+- الطبيعي إن GraphQL بياخد **POST request** ومعاه **Content-Type: application/json**.
+- المتصفحات **ما ينفعش** تبعت POST requests بالـ `application/json` بشكل مباشر *بدون موافقة المستخدم*.
+- **لكن...** لو الـ GraphQL endpoint:
+  1. **ما بيتأكدش من نوع الـ Content-Type**  
+     يعني يقبل `application/x-www-form-urlencoded` أو حتى `GET request`.
+  2. **ما فيش CSRF token شغال**.
+
+  👈 في الحالة دي، المتصفح ممكن يبعث طلب بشكل طبيعي جداً زي أي فورم HTML، والمهاجم يقدر يستغل ده.
+
+---
+
+## 📌 مثال عملي
+تخيل الـ GraphQL endpoint عندك بياخد استعلام زي ده:
+
+```graphql
+POST /graphql
+Content-Type: application/json
+
+{
+  "query": "mutation { changePassword(newPassword: \"hacked\") }"
+}
+```
+
+ده آمن لأن أي هكر مش هيقدر يخلي المتصفح يبعته كده بسهولة.
+
+**لكن لو السيرفر بيقبل حاجة زي:**
+```http
+POST /graphql
+Content-Type: application/x-www-form-urlencoded
+
+query=mutation+{changePassword(newPassword:%22hacked%22)}
+```
+
+أو حتى GET request كده:
+```
+GET /graphql?query=mutation{changePassword(newPassword:"hacked")}
+```
+
+هنا أي موقع ضار يقدر يبني صفحة HTML فيها فورم بسيط كده:
+
+```html
+<form action="https://victim.com/graphql" method="POST">
+  <input type="hidden" name="query" value='mutation { changePassword(newPassword: "hacked") }'>
+  <input type="submit" value="Click me!">
+</form>
+```
+
+أول ما الضحية يفتح الصفحة، المتصفح يبعث الطلب ومعاه **الكوكيز بتاعته** ⇒ كلمة السر تتغير بدون ما الضحية يعرف.
+
+---
+
+## 📌 إزاي تمنع الهجوم؟
+
+1. **تحقق من الـ Content-Type**  
+   لازم السيرفر يرفض أي طلب مش `application/json`.  
+   لو جالك `x-www-form-urlencoded` أو `multipart/form-data` → رجّع `400 Bad Request`.
+
+2. **استخدم CSRF tokens**  
+   - زود كل استعلام GraphQL بحقل CSRF token لازم يكون صحيح.
+   - حتى لو الهكر عمل فورم، مش هيعرف يجيب التوكن.
+
+3. **الاعتماد على SameSite Cookies**  
+   لو الكوكيز بتاعت الـ session معمولة `SameSite=Strict` أو `Lax`،  
+   المتصفح مش هيبعتها مع طلب جاي من موقع خارجي.
+
+---
+
+## 📌 الخلاصة
+- CSRF على GraphQL زي CSRF العادي، لكن بيظهر أكتر لما:
+  - الـ endpoint بيقبل **GET requests** أو **form-urlencoded POST**.
+  - **مفيش CSRF protection** زي التوكنز أو `SameSite`.
+- الحل: **اقفل قبول أي طلب غير JSON + استخدم CSRF tokens**.
+
+
+  
+</details>
 
 
 
