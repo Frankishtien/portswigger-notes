@@ -351,6 +351,93 @@ csrf=xnA1Oakwv5UDQ52xSxV4UaMJhuemakJs&username=administrator&new-password-1=123&
 
 
 
+<details>
+  <summary>Lab: Insufficient workflow validation</summary>
+
+
+1. login as `wiener`
+2. try to buy something cheap
+3. and do place order you will see this endpoint
+
+```
+/cart/order-confirmation?order-confirmed=true
+```
+
+4. now try to buy high cost item and 
+
+**`change`**
+
+```
+/cart?err=INSUFFICIENT_FUNDS
+```
+
+**`with`**
+
+```
+/cart/order-confirmation?order-confirmed=true
+```
+
+<img width="1453" height="823" alt="image" src="https://github.com/user-attachments/assets/39212cc5-5e54-4c3e-bd21-91174444921e" />
+
+
+  
+</details>
+
+
+
+
+
+
+<details>
+  <summary>Lab: Authentication bypass via flawed state machine</summary>
+
+1. login as `wiener`
+2. select role 
+
+<img width="1046" height="431" alt="image" src="https://github.com/user-attachments/assets/43fd0736-3ba8-4f26-bd8f-8d9261a61159" />
+
+3. in request change it from 
+
+```
+role=user&csrf=oyT66U3RA5HmiTMXnv6NSH0kDbAtwDSs
+```
+
+`to`
+
+```
+role=administrator&csrf=oyT66U3RA5HmiTMXnv6NSH0kDbAtwDSs
+```
+
+> ### but not work so i loged out and try to login again but Drop the request of :
+
+```
+GET /role-selector
+```
+
+### and it work
+
+<img width="1588" height="417" alt="image" src="https://github.com/user-attachments/assets/6bb88781-68ec-4b8f-bff9-1257b60a6f53" />
+
+
+  
+</details>
+
+
+
+
+<details>
+  <summary></summary>
+</details>
+
+
+
+
+
+
+
+
+
+
 
 
 
