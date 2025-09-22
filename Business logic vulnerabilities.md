@@ -426,7 +426,13 @@ GET /role-selector
 
 
 <details>
-  <summary></summary>
+  <summary>Lab: Infinite money logic flaw</summary>
+
+
+
+
+
+  
 </details>
 
 
