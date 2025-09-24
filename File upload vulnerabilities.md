@@ -369,6 +369,37 @@ raBbwWYE7pk77sdGXjeDvpzl0PTQUbBq
 
 
 
+<details>
+  <summary>Lab: Remote code execution via polyglot web shell upload</summary>
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
