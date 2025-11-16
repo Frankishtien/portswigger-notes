@@ -739,12 +739,222 @@ Reverse shell:
 
 
 
+---
+
+
+🔥 **Explanation --- Read about the security implications**
+=================================================
+
+After you specify the template engine (Jinja2 / Twig / ERB / ​​Velocity / Mako...), not only do you have to understand Syntax...\
+But you must read **Security Implications** --- the part that tells you:
+
+### ✔ Things you *cannot do*
+
+### ✔ Things that are *dangerous if they happen*
+
+### ✔ Things that *cause vulnerabilities*
+
+This is very important for two reasons:
+
+* * * * *
+
+
+⭐ 1) The Security Section = Cheat Sheet for exploitation
+=================================================
+
+The documentation has hours in which there is a Section called:
+
+-Security considerations
+
+- Security Notes
+
+- Sandbox Security
+
+- Unsafe Functions
+
+In this part, the developers write:
+
+❗ *"Do not use function X because it may cause code execution"*\
+❗ *"Avoid passing user input directly into eval tags"*
+
+This is like a security laboratory for you = **treasure**\
+for him?\
+Because everything they tell you “don’t do” → is exactly what you want to do as a person trying to exploit.
+
+* * * * *
+
+⭐ 2) Even if there is no Security Section --- there are small warnings
+=====================================================
+
+Even if there is no full section for security, you will always find lines like:
+
+⚠️ *This function allows access to the file system*\
+⚠️ *This object can invoke OS commands*\
+⚠️ *This feature is disabled by default for security reasons*
+
+There will be signs telling you:
+
+➡️ “Search here, this is an entry point for exploitation”
+
+* * * * *
+
+⭐ 3) Obvious example: ERB (Ruby Template Engine)
+==========================================
+
+The ERB documentation states that inside template\
+You can use Ruby code directly.
+
+If you use it incorrectly (via user input) → it turns into **RCE**.
+
+Famous example:
+
+### 📌 Listing directories + reading files using ERB:
+
+```ruby
+<%= Dir.entries('/') %>
+<%= File.read('/etc/passwd') %>
+```
+
+This happens inside the template itself!
+
+If you have an SSTI in ERB, you can do:
+
+✔ List directories\
+✔ Read files\
+✔ Write files\
+✔ Execute system commands
+
+Because ERB essentially = Ruby code execution environment.
+
+* * * * *
+
+
+⭐ 4) Why is this important in exploitation?
+=================================================
+
+Because the goal in SSTI is not just to receive a message\
+the goal:
+
+🔥 File Read\
+🔥 File Write\
+🔥 RCE\
+🔥 Shell
+
+And the documentation tells you:
+
+- Which classes can access the filesystem
+
+- What functions can you use to escape from the Sandbox?
+
+- Any built-ins are “dangerous” and connect to the OS
+
+It literally tells you where the holes are.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
   
 </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -868,7 +1078,24 @@ blog-post-author-display=user.first_name}}{%25+import+os+%25}{{os.system('rm%20/
 
 
 
+<details>
+   <summary></summary>
 
+
+## [Restriction bypass using ?lower_abc function](https://www.synack.com/exploits-explained/exploits-explained-discovering-a-server-side-template-injection-vuln-in-freemarker/) ✨👑
+
+
+```
+${"freemarker.template.utility.Execute"?new()("rm /home/carlos/morale.txt")}
+```
+
+
+<img width="1184" height="521" alt="image" src="https://github.com/user-attachments/assets/259ac013-aabd-4e7f-aa58-e62b4fd245a9" />
+
+
+
+  
+</details>
 
 
 
