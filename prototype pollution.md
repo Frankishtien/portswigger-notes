@@ -709,7 +709,7 @@ XSS from Prototype Pollution.
 
 
 <details>
-  <summmary>Prototype pollution sources</summmary>
+  <summary>Prototype pollution sources</summary>
 
 
 
