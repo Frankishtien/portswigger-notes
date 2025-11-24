@@ -708,6 +708,48 @@ XSS from Prototype Pollution.
 
 
 
+<details>
+  <summmary>Prototype pollution sources</summmary>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
