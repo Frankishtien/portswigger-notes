@@ -727,6 +727,52 @@ XSS from Prototype Pollution.
 
 
 
+<details>
+  <summary>Client-side prototype pollution</summary>
+
+
+
+
+
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+----
+
+# **`labs`**
+
+<details>
+  <summary>Lab: DOM XSS via client-side prototype pollution</summary>
+
+
+
+
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
 
 
 
