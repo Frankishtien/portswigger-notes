@@ -1208,7 +1208,228 @@ yummwyxyh4cibvzdp5g92ctc95a4obz5
 
 
 
+---
+---
+---
 
+<details>
+     <summary>api endpoints</summary>
+
+
+
+**1️⃣ Swagger / OpenAPI**
+=========================
+
+أشهر حاجة، ولو الـ API بيستخدم Swagger هتلاقي ملف:
+
+-   **swagger.json**
+
+-   **openapi.json**
+
+-   **openapi.yaml**
+
+وتقدر تشوفه غالبًا في لينكات زي:
+
+`/swagger.json
+/openapi.json
+/v3/api-docs
+/api-docs
+/swagger/v1/swagger.json`
+
+* * * * *
+
+**2️⃣ Postman Collections**
+===========================
+
+بعض الـ APIs بتنشر ملف Postman جاهز:
+
+-   postman_collection.json
+
+-   collection.json
+
+وتقدر تشوفه في لينكات زي:
+
+`/postman.json
+/collection.json
+/api-collection`
+
+* * * * *
+
+**3️⃣ API Documentation Generators ثانية غير Swagger**
+======================================================
+
+فيه أنظمة تانية غير Swagger بتعرض كل الـ endpoints:
+
+### ✔ **Redoc**
+
+لو شفت واجهة بشكل نظيف جدًا أبيض وأحمر → غالبًا Redoc\
+وملفه بيكون برضه OpenAPI:
+
+`/openapi.json
+/openapi.yaml`
+
+وتلاقي الواجهة على:
+
+`/docs
+/documentation
+/redoc`
+
+* * * * *
+
+### ✔ **API Blueprint / Apiary**
+
+لو الـ API مكتوب بـ **API Blueprint** هتشوف ملفات:
+
+-   `api.apib`
+
+-   `api.md`
+
+والـ documentation بيكون على:
+
+`/apiary.apib
+/api.apib
+/docs`
+
+* * * * *
+
+### ✔ **GraphQL**
+
+لو الـ API GraphQL فمش هيبقى فيه Endpoints كتير، هو Endpoint واحد بس:
+
+`/graphql`
+
+لكن تقدر تجيب *كل الـ queries و mutations* من:
+
+-   GraphiQL
+
+-   Apollo Explorer
+
+-   Voyager
+
+وغالبًا على:
+
+`/graphql
+/graphiql
+/graphql-playground`
+
+* * * * *
+
+**4️⃣ و لو الـ API REST بدون Documentation**
+============================================
+
+يبقى انت تعمل Enumeration بنفسك من:
+
+### ✔ **robots.txt**
+
+بعض المواقع تفضح Paths:
+
+`/robots.txt`
+
+### ✔ **Fuzzing**
+
+استخدم أدوات زي:
+
+-   **ffuf**
+
+-   **dirsearch**
+
+-   **gobuster**
+
+وتعمل Fuzzing للـ API:
+
+`ffuf -u https://site.com/api/FUZZ -w wordlist.txt`
+
+
+| النوع           | الامتداد    | مثال                        |
+| --------------- | ----------- | --------------------------- |
+| Swagger/OpenAPI | json / yaml | swagger.json / openapi.yaml |
+| Postman         | json        | postman_collection.json     |
+| Redoc           | json/yaml   | openapi.json                |
+| API Blueprint   | apib / md   | api.apib                    |
+| RAML            | raml        | api.raml                    |
+| GraphQL         | —           | graphiql explorer           |
+
+
+
+🔵 **إيه هو WSDL؟**
+===================
+
+ده اختصار:\
+**Web Services Description Language**
+
+وبيوصف **SOAP Web Services** مش REST.
+
+وبيكون ملف XML فيه:
+
+-   كل الـ operations
+
+-   كل الـ endpoints
+
+-   كل الـ request/response structures
+
+* * * * *
+
+🔥 فين بتلاقي الـ WSDL؟ (المسارات المشهورة)
+===========================================
+
+غالبًا على واحد من دول:
+
+`?wsdl
+&wsdl
+/service.wsdl
+/webservice.wsdl
+/wsdl`
+
+أمثلة:
+
+`https://example.com/api?wsdl
+https://example.com/service?wsdl
+https://example.com/soap?wsdl
+https://example.com/someService?singleWsdl`
+
+* * * * *
+
+🔥 كل أنواع ملفات SOAP / WSDL
+=============================
+
+| النوع | الامتداد | وظيفته |
+| --- | --- | --- |
+| **WSDL** | `.wsdl` | وصف الخدمة (operations, bindings) |
+| **XSD** | `.xsd` | تعريف أنواع البيانات (schemas) |
+| **SOAP Envelope** | XML | الرسائل نفسها |
+
+
+🔥 مسارات لازم تجربها عند Enumeration
+=====================================
+
+لو بتفّز مواقع:
+
+`/services?wsdl
+/Service?wsdl
+/soap?wsdl
+/API?wsdl
+/WebService?wsdl
+/WebServices?wsdl
+/wsdl?wsdl
+/application?wsdl
+/aspx?wsdl`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     
+</details>
 
 
 
