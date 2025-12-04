@@ -1,4 +1,4 @@
-<img width="804" height="277" alt="image" src="https://github.com/user-attachments/assets/3f32f2a6-3ef9-4d4c-9eb0-e1417be8eb63" /># prototype pollution
+# prototype pollution
 
 
 <details>
@@ -1128,6 +1128,173 @@ script insertion
 
   
 </details>
+
+
+
+
+
+
+
+
+<details>
+  <summary>Server-side prototype pollution</summary>
+
+
+
+Server-side prototype pollution
+===============================
+
+JavaScript was originally a client-side language designed to run in browsers. However, due to the emergence of server-side runtimes, such as the hugely popular Node.js, JavaScript is now widely used to build servers, APIs, and other back-end applications. Logically, this means that it's also possible for prototype pollution vulnerabilities to arise in server-side contexts.
+
+Although the fundamental concepts remain largely the same, the process of identifying server-side prototype pollution vulnerabilities, and developing them into working exploits, presents some additional challenges.
+
+In this section, you'll learn a number of techniques for black-box detection of server-side prototype pollution. We'll cover how to do this efficiently and non-destructively, then use interactive, deliberately vulnerable labs to demonstrate how you can leverage prototype pollution for remote code execution.
+
+PortSwigger Research
+--------------------
+
+Some of the materials and labs in this section are based on original PortSwigger research. For more technical details and an insight into how we were able to develop these techniques, check out the accompanying whitepaper by Gareth Heyes:
+
+-   [Server-side prototype pollution: Black-box detection without the DoS](https://portswigger.net/research/server-side-prototype-pollution)
+
+Why is server-side prototype pollution more difficult to detect?
+----------------------------------------------------------------
+
+For a number of reasons, server-side prototype pollution is generally more difficult to detect than its client-side variant:
+
+-   **No source code access** - Unlike with client-side vulnerabilities, you typically won't have access to the vulnerable JavaScript. This means there's no easy way to get an overview of which sinks are present or spot potential gadget properties.
+-   **Lack of developer tools** - As the JavaScript is running on a remote system, you don't have the ability to inspect objects at runtime like you would when using your browser's DevTools to inspect the DOM. This means it can be hard to tell when you've successfully polluted the prototype unless you've caused a noticeable change in the website's behavior. This limitation obviously doesn't apply to white-box testing.
+-   **The DoS problem** - Successfully polluting objects in a server-side environment using real properties often breaks application functionality or brings down the server completely. As it's easy to inadvertently cause a denial-of-service (DoS), testing in production can be dangerous. Even if you do identify a vulnerability, developing this into an exploit is also tricky when you've essentially broken the site in the process.
+-   **Pollution persistence** - When testing in a browser, you can reverse all of your changes and get a clean environment again by simply refreshing the page. Once you pollute a server-side prototype, this change persists for the entire lifetime of the Node process and you don't have any way of resetting it.
+
+In the following sections, we'll cover a number of non-destructive techniques that enable you to safely test for server-side prototype pollution despite these limitations.
+
+Detecting server-side prototype pollution via polluted property reflection
+--------------------------------------------------------------------------
+
+An easy trap for developers to fall into is forgetting or overlooking the fact that a JavaScript `for...in` loop iterates over all of an object's enumerable properties, including ones that it has inherited via the prototype chain.
+
+#### Note
+
+This doesn't include built-in properties set by JavaScript's native constructors as these are non-enumerable by default.
+
+You can test this out for yourself as follows:
+
+```js
+const myObject = { a: 1, b: 2 };
+
+// pollute the prototype with an arbitrary property
+Object.prototype.foo = 'bar';
+
+// confirm myObject doesn't have its own foo property
+myObject.hasOwnProperty('foo'); // false
+
+// list names of properties of myObject
+for(const propertyKey in myObject){
+    console.log(propertyKey);
+}
+
+// Output: a, b, foo
+```
+
+
+This also applies to arrays, where a `for...in` loop first iterates over each index, which is essentially just a numeric property key under the hood, before moving on to any inherited properties as well.
+
+```js
+const myArray = ['a','b'];
+Object.prototype.foo = 'bar';
+
+for(const arrayKey in myArray){
+    console.log(arrayKey);
+}
+
+// Output: 0, 1, foo
+```
+
+In either case, if the application later includes the returned properties in a response, this can provide a simple way to probe for server-side prototype pollution.
+
+`POST` or `PUT` requests that submit JSON data to an application or API are prime candidates for this kind of behavior as it's common for servers to respond with a JSON representation of the new or updated object. In this case, you could attempt to pollute the global `Object.prototype` with an arbitrary property as follows:
+
+```js
+POST /user/update HTTP/1.1
+Host: vulnerable-website.com
+...
+{
+    "user":"wiener",
+    "firstName":"Peter",
+    "lastName":"Wiener",
+    "__proto__":{
+        "foo":"bar"
+    }
+}
+```
+
+If the website is vulnerable, your injected property would then appear in the updated object in the response:
+
+```json
+HTTP/1.1 200 OK
+...
+{
+    "username":"wiener",
+    "firstName":"Peter",
+    "lastName":"Wiener",
+    "foo":"bar"
+}
+```
+
+In rare cases, the website may even use these properties to dynamically generate HTML, resulting in the injected property being rendered in your browser.
+
+Once you identify that server-side prototype pollution is possible, you can then look for potential gadgets to use for an exploit. Any features that involve updating user data are worth investigating as these often involve merging the incoming data into an existing object that represents the user within the application. If you can add arbitrary properties to your own user, this can potentially lead to a number of vulnerabilities, including privilege escalation.
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
