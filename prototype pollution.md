@@ -1647,12 +1647,159 @@ vulnerable-website.com/?__proto__.sequence=alert(0)
 
 
 
+<details>
+  <summary>Lab: Privilege escalation via server-side prototype pollution</summary>
+
+
+##### Study the address change feature
+
+1.  Log in and visit your account page. Submit the form for updating your billing and delivery address.
+
+2.  In Burp, go to the **Proxy > HTTP history** tab and find the `POST /my-account/change-address` request.
+
+3.  Observe that when you submit the form, the data from the fields is sent to the server as JSON.
+
+4.  Notice that the server responds with a JSON object that appears to represent your user. This has been updated to reflect your new address information.
+
+5.  Send the request to Burp Repeater.
+
+
+<img width="1543" height="737" alt="image" src="https://github.com/user-attachments/assets/075b195f-163b-4ea5-8eda-374def1d2c7b" />
+
+
+##### Identify a prototype pollution source
+
+1.  In Repeater, add a new property to the JSON with the name `__proto__`, containing an object with an arbitrary property:
+
+```json
+{
+"address_line_1":"Wiener HQ",
+"address_line_2":"One Wiener Way",
+"city":"Wienerville",
+"postcode":"BU1 1RP",
+"country":"UK",
+"sessionId":"E4Jucm9KytngayebpqfRfFmAPqKmmq6G",
+"__proto__": {
+    "foo":"bar"
+}
+}
+```
+
+<img width="1760" height="711" alt="image" src="https://github.com/user-attachments/assets/90c907a8-63a9-46f8-9b0c-b84f10db5f01" />
+
+
+2.  Send the request.
+
+3.  Notice that the object in the response now includes the arbitrary property that you injected, but no `__proto__` property. This strongly suggests that you have successfully polluted the object's prototype and that your property has been inherited via the prototype chain.
+
+
+##### Identify a gadget
+
+1.  Look at the additional properties in the response body.
+
+2.  Notice the `isAdmin` property, which is currently set to `false`.
+
+##### Craft an exploit
+
+1.  Modify the request to try polluting the prototype with your own `isAdmin` property:
+
+```json
+{
+"address_line_1":"Wiener HQ",
+"address_line_2":"One Wiener Way",
+"city":"Wienerville",
+"postcode":"BU1 1RP",
+"country":"UK",
+"sessionId":"E4Jucm9KytngayebpqfRfFmAPqKmmq6G",
+"__proto__": { "isAdmin":true }
+}
+```
+
+
+
+3.  Send the request. Notice that the `isAdmin` value in the response has been updated. This suggests that the object doesn't have its own `isAdmin` property, but has instead inherited it from the polluted prototype.
+
+4.  In the browser, refresh the page and confirm that you now have a link to access the admin panel.
+
+5.  Go to the admin panel and delete `carlos` to solve the lab.
+
+
+<img width="1591" height="692" alt="image" src="https://github.com/user-attachments/assets/92d2cf70-a712-49e0-b508-78c60a249aa9" />
+
+
+<img width="1605" height="598" alt="image" src="https://github.com/user-attachments/assets/fc8d8f95-6be2-45f2-bd1f-2e56b36c8bfe" />
 
 
 
 
+  
+</details>
 
 
+
+
+<details>
+  <summary>Lab: Detecting server-side prototype pollution without polluted property reflection</summary>
+
+
+##### Study the address change feature
+
+1.  Log in and visit your account page. Submit the form for updating your billing and delivery address.
+
+2.  In Burp, go to the **Proxy > HTTP history** tab and find the `POST /my-account/change-address` request.
+
+3.  Observe that when you submit the form, the data from the fields is sent to the server as JSON. Notice that the server responds with a JSON object that appears to represent your user. This has been updated to reflect your new address information.
+
+4.  Send the request to Burp Repeater.
+
+5.  In Repeater, add a new property to the JSON with the name `__proto__`, containing an object with an arbitrary property:
+
+ ```json
+"__proto__": { "foo":"bar" }
+```
+
+<img width="1741" height="696" alt="image" src="https://github.com/user-attachments/assets/2208e852-9c1e-4fbe-b2a9-f29728cf248c" />
+
+
+
+6.  Send the request. Observe that the object in the response does not reflect the injected property. However, this doesn't necessarily mean that the application isn't vulnerable to prototype pollution.
+
+##### Identify a prototype pollution source
+
+1.  In the request, modify the JSON in a way that intentionally breaks the syntax. For example, delete a comma from the end of one of the lines.
+
+2.  Send the request. Observe that you receive an error response in which the body contains a JSON error object.
+
+3.  Notice that although you received a `500` error response, the error object contains a `status` property with the value `400`.
+
+4.  In the request, make the following changes:
+
+    -   Fix the JSON syntax by reversing the changes that triggered the error.
+
+    -   Modify your injected property to try polluting the prototype with your own distinct `status` property. Remember that this must be between 400 and 599.
+
+```json
+"__proto__": { "status":555 }
+```
+
+<img width="1585" height="660" alt="image" src="https://github.com/user-attachments/assets/383b7eb9-c142-42f1-886e-1192a2150b77" />
+
+ 
+
+5.  Send the request and confirm that you receive the normal response containing your user object.
+
+6.  Intentionally break the JSON syntax again and reissue the request.
+
+7.  Notice that this time, although you triggered the same error, the `status` and `statusCode` properties in the JSON response match the arbitrary error code that you injected into `Object.prototype`. This strongly suggests that you have successfully polluted the prototype and the lab is solved.
+
+
+<img width="1854" height="682" alt="image" src="https://github.com/user-attachments/assets/8eb94886-65ab-4879-a267-1ea9181590de" />
+
+
+
+
+  
+</details>
 
 
 
