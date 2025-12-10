@@ -21,7 +21,7 @@
 </details>
 
 
-
+[!image](https://dock12.sorint.com/images/19-04-2023/deserialization-diagram.jpg)
 
 
 
