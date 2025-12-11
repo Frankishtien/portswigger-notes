@@ -21,7 +21,175 @@
 </details>
 
 
+
+
+<details>
+     <summary>Deserialization</summary>
+
+
 ![image](https://dock12.sorint.com/images/19-04-2023/deserialization-diagram.jpg)
+
+
+## **`Serialized Data`**
+
+
+From **`Object`** → **`String`**
+
+> ### you will see in reqest 
+
+
+## **`DeSerialized Data`**
+
+From **`string`** → **`Object`**
+
+> ### you don't see it it's in server
+
+
+
+----
+
+
+❗ Example showing the picture:
+===================
+
+🎯 Before Serialization (Object in the server):
+-----------------------------------------
+
+
+```js
+array(
+  "id" => 10,
+  "admin" => true
+)
+```
+
+
+🎯 After Serialization (string appears as Cookie):
+------------------------------------------------
+
+```java
+a:2:{s:2:"id";i:10;s:5:"admin";b:1;}
+```
+
+
+🔥 Here **string → Serialized**\
+🔥 Once the server receives it and returns it, Object → **Deserialized** (and you will not see it)
+
+
+
+----
+
+> ### Example on json
+
+**`Object`**
+
+```js
+const user = { name: "frank", role: "user" };
+```
+
+**`String`**
+
+```json
+{"name":"frank","role":"user"}
+```
+
+
+This is **Serialized JSON string**\
+It means just **Text** not Object.
+
+In order to return Object, you must do:
+
+```js
+let obj = JSON. parse('{"name":"frank","role":"user"}');
+```
+
+And vice versa:
+
+```js 
+JSON.stringify({ name: "frank", role: "user" });
+```
+
+
+
+---
+
+---
+
+
+
+🎯 The real question:
+
+===================
+
+**How ​​do I know that the site is deserializing the data I see?**
+
+======================================================================================
+
+Answer yourself with 3 questions:
+
+❓ 1) Does the data you see look serialized?
+
+-----------------------------------------
+
+If yes → there is a high probability that the site will deserialize.
+
+❓ 2) Is the data listed in Cookie/Request and changed when I log in?
+
+--------------------------------------------------------------
+
+If Ah → This is Session Serialization.
+
+❓ 3) If I changed the value... the site had different behavior?
+
+------------------------------------------------------
+
+like:
+
+-   I remained admin
+
+- An error occurred
+
+- There was a crash
+
+-   Logging out happened
+
+If Ah → then it really does **deserialization**.
+
+
+
+
+
+
+
+
+
+
+     
+     
+</details>
+
+
+<details>
+     <summary>Modifying data types</summary>
+
+
+
+
+
+
+     
+</details>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
