@@ -477,7 +477,7 @@ Tzo0OiJVc2VyIjozOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2Vu
 
 
 <details>
-     <sammary>Lab: Arbitrary object injection in PHP</sammary>
+     <summary>Lab: Arbitrary object injection in PHP</summary>
 
 
 1. login as **`wiener`**
