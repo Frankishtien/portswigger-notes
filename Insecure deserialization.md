@@ -162,6 +162,19 @@ If Ah → then it really does **deserialization**.
 
 
 
+## PHP serialization format
+
+<img width="1108" height="800" alt="image" src="https://github.com/user-attachments/assets/495c1224-41be-4fc2-bd09-908bd6f0491d" />
+
+
+## Java serialization format
+
+<img width="1117" height="353" alt="image" src="https://github.com/user-attachments/assets/31e2f31d-4217-4a74-89d0-cbb9994cccf0" />
+
+
+
+
+
 
 
      
@@ -523,7 +536,7 @@ class CustomTemplate {
     function __destruct() {
         // Carlos thought this would be a good idea
         if (file_exists($this->lock_file_path)) {
-            unlink($this->lock_file_path);
+            unlink($this->lock_file_path);               // this line
         }
     }
 }
