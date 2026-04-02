@@ -427,7 +427,54 @@ If the server:
 ## **` Labs 🧪`**
 
 
+<details>
+  <summary>Lab: Manipulating WebSocket messages to exploit vulnerabilities</summary>
 
+
+
+1. go to live chat
+2. write any message in chat and send it
+3. intercpt request with burp
+4. look at `websockets history` tab 
+
+> ### to make the connection form front side to backend refresh the page
+
+<img width="1259" height="418" alt="image" src="https://github.com/user-attachments/assets/78bc070d-d96f-4552-b504-cc5296e6f89e" />
+
+5. send it to repeater
+6. click connect then send it 
+
+<img width="1876" height="507" alt="image" src="https://github.com/user-attachments/assets/cd9857e0-9ae6-4a16-8647-bff019b6e548" />
+
+7. now what if we try to inject some thing or do xss 
+
+### write 
+
+```json
+{"user":"You","content":"<img src=1 onerror='alert(1)'>"}
+```
+
+### instead of 
+
+```
+{"user":"You","content":"hello, i am hacker "}
+```
+
+## if send it from frontend found that html encoded
+
+<img width="1000" height="141" alt="image" src="https://github.com/user-attachments/assets/2f81b5eb-fd32-46ac-99f8-74853da20895" />
+
+## so send message and edit it first 
+
+<img width="789" height="113" alt="image" src="https://github.com/user-attachments/assets/7bbf248b-edcc-4680-ad53-d8a3da2e9716" />
+
+## then send it 
+
+<img width="1680" height="521" alt="image" src="https://github.com/user-attachments/assets/4ae44db8-56d6-465e-a4fc-11123c97dd6d" />
+
+
+  
+</details>
 
 
 
