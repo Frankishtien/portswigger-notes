@@ -373,6 +373,91 @@ If the server:
 
 
 
+💣 WebSocket Vulnerabilities
+=========================================
+
+🧠Basic idea:
+-------------------
+
+> Anything you need to follow in WebSocket = Input\
+> Even if the server does not perform validation = 💥 vulnerability
+
+* * * * *
+
+⚔️ Types of vulnerabilities here
+====================
+
+1️⃣ 💉 Injection (as SQLi / XXE)
+--------------------------------
+
+If the message goes to DB or XML without filtering
+
+example:
+
+```json
+{"query":"' OR 1=1 --"}
+```
+
+* * * * *
+
+2️⃣ 👻 Blind Attacks (OAST)
+---------------------------
+
+If there is no clear response\
+→ used:
+
+- Burp Collaborator
+- DNS/HTTP callbacks
+
+* * * * *
+
+3️⃣ 🔥 XSS (the most important one here)
+--------------------------
+
+
+💡 Scenario:
+-------------
+
+### The user sends:
+
+```json
+{"message":"Hello Carlos"}
+```
+
+### The server displays it:
+
+```html
+<td>Hello Carlos</td>
+```
+
+---
+
+
+😈 Attack:
+----------
+
+Followed by:
+
+```json
+{"message":"<img src=1 onerror='alert(1)'>"}
+```
+
+💥 gets:
+
+- The code is executed by the victim
+- **XSS** remains
+
+* * * * *
+
+
+
+
+
+
+
+
+
+
   
 </details>
 
