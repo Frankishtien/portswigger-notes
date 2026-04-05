@@ -713,6 +713,7 @@ X-Role: admin
 ## i will try to use 
 
 ```
+X-Forwarded-For: 127.0.0.1
 X-Forwarded-For: 1.1.1.1
 ```
 
