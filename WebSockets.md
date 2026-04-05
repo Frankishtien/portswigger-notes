@@ -449,6 +449,123 @@ Followed by:
 
 * * * * *
 
+💣 Manipulating WebSocket Handshake (what does it mean?)
+===============================================
+
+The idea is simple:
+-----------------
+
+> Before WebSocket starts, there is **HTTP Request (Handshake)**\
+> And if you play in it = you can win access 💥
+
+
+---
+
+⚔️ Where are the vulns here?
+===================
+
+1️⃣ 🧠 Misplaced Trust in Headers
+-------------------------------------
+
+### 💡 Example:
+
+The server depends on:
+
+```
+X-Forwarded-For: 127.0.0.1
+```
+
+👉 Because he says:
+
+> This request comes from localhost → trusted 😇
+
+----
+
+
+
+😈 Attack:
+----------
+
+You add:
+
+```
+X-Forwarded-For: 127.0.0.1
+```
+
+💥 The server believes you →
+
+> privilege escalation/bypass auth
+
+* * * * *
+
+2️⃣ 🔑 Session problems
+========================
+
+```
+Cookie: session=ABC123
+```
+
+👉 The WebSocket uses the same session
+
+* * * * *
+
+😈 Attack:
+----------
+
+- Steal session (XSS/CSRF/etc)
+- You use it in handshake
+
+💥 Like this:
+
+> You stayed inside the WebSocket as if you were the victim
+
+
+----
+
+
+
+3️⃣ 🧪 Custom Headers (the most dangerous thing)
+=================================
+
+Some sites add:
+
+```
+X-User-ID: 5
+X-Role: admin
+```
+
+* * * * *
+
+😈 Attack:
+----------
+
+Edit them:
+
+```
+X-User-ID: 1
+X-Role: admin
+```
+
+💥 If the server is stupid:
+
+> Account takeover / Admin access
+
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -567,7 +684,16 @@ Followed by:
 
 
 
+<details>
+  <summary>Lab: Manipulating the WebSocket handshake to exploit vulnerabilities</summary>
 
+
+
+
+
+
+  
+</details>
 
 
 
