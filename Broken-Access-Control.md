@@ -100,7 +100,7 @@ Don't forget ``,`` in json
 # lab 11 
 
  - > login with admin account and sent upgrade request to carlos and sent it to repeater
-   > no login to wiener and reload page with intercept take your cookie put it instead of cookie if admin in repeater
+   > now login to wiener and reload page with intercept take your cookie put it instead of cookie of admin in repeater 
    > change request method to get and sent it and booom !!!
 
 
