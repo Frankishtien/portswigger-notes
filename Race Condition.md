@@ -521,7 +521,257 @@ def handleResponse(req, interesting):
 
 
 
+<details>
+    <summary>Lab: Multi-endpoint race conditions</summary>
 
+
+1. login as **`weiner`**
+2. add gift card to cart (send request to repeater)
+3. click checkout (save request in repeater)
+4. now use the copon of card in home (now you still have 100$)
+5. add jacket to cart (save request in repeater)
+6. remove jacket form cart
+7. add copon card to cart
+8. send two requests in parrallel (add jacket & checkout)
+
+
+<img width="1439" height="479" alt="image" src="https://github.com/user-attachments/assets/a227880b-620b-4367-98d3-0a61a048128a" />
+
+
+## find that i can buy jackt just with 100$ only 
+
+<img width="1625" height="632" alt="image" src="https://github.com/user-attachments/assets/39fff226-f4d6-4fc4-906b-a4cd09deb32c" />
+
+
+
+
+
+
+
+
+```
+Request A (checkout) starts
+    ↓
+The server sees: You only have a gift card → The money is enough ✅
+    ↓
+(I still haven't confirmed the order)
+    ↓
+Request B (add jacket) is delivered
+    ↓
+The jacket is added to the basket 😈
+    ↓
+The server completes the checkout → confirms the request
+```
+
+
+
+
+
+<details>
+    <summary>explain</summary>
+
+
+🧠 الفكرة العامة للاب
+=====================
+
+إنت عندك store فيه:
+
+-   Gift card (فلوس)
+-   Jacket غالي
+
+💥 المطلوب:
+
+> تشتري الجاكيت **من غير ما يكون عندك فلوس كفاية**
+
+إزاي؟\
+عن طريق **race condition بين add to cart و checkout**
+
+* * * * *
+
+🔍 أول مرحلة: Predict (نتوقع فين المشكلة)
+=========================================
+
+إنت لاحظت endpoints مهمة:
+
+-   `POST /cart` → بيضيف حاجة للسلة
+-   `POST /cart/checkout` → بيعمل checkout
+
+### 💡 نقطة مهمة:
+
+السلة مربوطة بـ:
+
+-   session بتاعتك
+
+يعني:\
+👉 أي request بيأثر على نفس السلة\
+👉 يبقى فيه **collision potential**
+
+* * * * *
+
+🔥 الفكرة الخطيرة هنا
+=====================
+
+السيرفر لما تعمل checkout:
+
+غالبًا بيعمل كده:
+
+```
+1\. يتحقق من الفلوس (gift card)2\. لو كفاية → يكمل3\. يأكد الطلب
+```
+
+💥 المشكلة:
+
+فيه وقت صغير بين:
+
+-   validation (الفلوس كفاية؟)
+-   confirmation (تم الشراء)
+
+* * * * *
+
+⚠️ الهدف بتاعك
+==============
+
+تدخل request تاني في النص:
+
+👉 تزود item (الجاكيت)\
+👉 بعد ما السيرفر check الفلوس\
+👉 وقبل ما يأكد الطلب
+
+* * * * *
+
+🧪 المرحلة التانية: Benchmark
+=============================
+
+### بتعمل إيه؟
+
+بتبعت:
+
+-   `POST /cart`
+-   `POST /cart/checkout`
+
+### في الأول:
+
+تبعتهم **sequence (ورا بعض)**
+
+لاحظت:
+
+👉 request الأول بياخد وقت أطول
+
+* * * * *
+
+💡 ليه عملنا connection warming؟
+================================
+
+لما ضفت:
+
+-   `GET /` الأول
+
+لقيت:
+
+-   باقي requests بقوا قريبين في الوقت
+
+### الاستنتاج:
+
+👉 التأخير مش من processing\
+👉 ده من network (connection setup)
+
+✔️ يبقى safe نكمل attack
+
+* * * * *
+
+🧪 تجربة عادية (بدون race)
+==========================
+
+حطيت:
+
+-   jacket في `/cart`
+
+وبعدين checkout
+
+💥 النتيجة:
+
+> ❌ insufficient funds
+
+وده طبيعي 👍
+
+* * * * *
+
+😈 المرحلة المهمة: Prove (الهجوم)
+=================================
+
+دلوقتي بقى نلعب صح:
+
+🎯 الإعداد:
+-----------
+
+-   خليك حاطط **gift card بس** في السلة
+
+* * * * *
+
+⚔️ الهجوم:
+----------
+
+في Repeater:
+
+### عندك requestين:
+
+1.  `POST /cart`\
+    👉 تضيف الجاكيت (productId=1)
+2.  `POST /cart/checkout`\
+    👉 تعمل checkout
+
+* * * * *
+
+🔥 بدل ما تبعتهم ورا بعض:
+-------------------------
+
+ابعتهم **parallel (في نفس اللحظة)**
+
+* * * * *
+
+💥 إيه اللي بيحصل فعليًا؟
+=========================
+
+السيناريو الناجح:
+
+```
+Request A (checkout) يبدأ
+    ↓
+السيرفر يشوف: عندك gift card بس → الفلوس كفاية ✅
+    ↓
+(لسه ما أكدش الطلب)
+    ↓
+Request B (add jacket) يوصل
+    ↓
+الجاكيت يتضاف للسلة 😈
+    ↓
+السيرفر يكمل checkout → يأكد الطلب
+```
+
+🎉 النتيجة:
+
+> اشتريت الجاكيت من غير ما تدفع تمنه
+
+* * * * *
+
+😵 ليه ساعات بيفشل؟
+===================
+
+عشان race condition:
+
+-   محتاج timing مظبوط جدًا
+-   مش كل مرة هتظبط
+
+👉 عادي تعيد المحاولة كذا مرة
+
+    
+</details>
+
+
+
+
+    
+</details>
 
 
 
