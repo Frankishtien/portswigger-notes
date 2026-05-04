@@ -356,6 +356,254 @@ session['userid'] = user.useridif user.mfa_enabled:    session['enforce_mfa'] = 
 
 
 
+<details>
+    <summary>Abuse rate limits VS Connection Warming</summary>
+
+
+🧠 أول نقطة: ليه أحيانًا الـ race condition بيفشل؟
+==================================================
+
+حتى لو بتستخدم:\
+👉 single-packet attack (أقوى حاجة)
+
+ممكن تلاقي:
+
+> response times لسه مش ثابتة 😵
+
+### 💥 ده معناه إيه؟
+
+إن فيه **تأخير من السيرفر نفسه (back-end delay)**\
+مش من الشبكة عندك
+
+يعني:
+
+-   السيرفر بيعالج requests بسرعات مختلفة
+-   فـ requests مش بتوصل لنفس النقطة في نفس الوقت
+
+👉 وبالتالي السباق بيبوظ ❌
+
+* * * * *
+
+🔥 الحل الأول: Connection Warming
+=================================
+
+(إنت شوفته قبل كده)
+
+تبعت request خفيف الأول\
+علشان:
+
+-   تفتح connection
+-   تقلل latency
+
+✔️ لو اشتغل → تمام\
+❌ لو لأ → نروح لحل أذكى
+
+* * * * *
+
+😈 الحل الأقوى: Abuse rate limits
+=================================
+
+💡 الفكرة ببساطة:
+-----------------
+
+السيرفر بيقول:
+
+> "إنت بتبعت requests بسرعة... ههديك شوية 😏"
+
+👉 فيعمل delay بنفسه
+
+* * * * *
+
+🧠 وإنت تستغل ده إزاي؟
+----------------------
+
+بدل ما تحاول تظبط timing من عندك\
+👉 تخلي السيرفر هو اللي يعمل delay
+
+* * * * *
+
+⚔️ السيناريو:
+-------------
+
+1.  تبعت requests كتير جدًا (dummy requests)
+2.  السيرفر يبطأ (rate limiting)
+3.  requests الأساسية بتاعتك تيجي:\
+    👉 وكلها تتعالج في نفس الوقت تقريبًا
+
+💥 كده عملت:
+
+> server-side synchronization
+
+* * * * *
+
+🎯 ليه ده أقوى من client delay؟
+-------------------------------
+
+### ❌ client delay:
+
+-   بيعتمد على الشبكة
+-   jitter عالي = فشل
+
+### ✅ server delay:
+
+-   السيرفر نفسه اللي بيظبط التوقيت
+-   أدق بكتير
+
+* * * * *
+
+
+
+
+
+
+
+
+    
+</details>
+
+
+
+
+<details>
+    <summary>Single-endpoint race condition</summary>
+
+
+
+🔥 نقطة جامدة: Single-endpoint race condition
+=============================================
+
+بدل ما يكون عندك:
+
+-   `/cart` + `/checkout`
+
+لأ... هنا:
+
+👉 نفس endpoint\
+بس بقيم مختلفة
+
+* * * * *
+
+🧪 مثال: Password Reset
+-----------------------
+
+endpoint:
+
+```
+POST /reset-password
+```
+
+بيستخدم:
+
+-   session
+
+* * * * *
+
+😈 الهجوم:
+----------
+
+تبعت requestين في نفس اللحظة:
+
+### Request 1:
+
+```
+username = attacker
+```
+
+### Request 2:
+
+```
+username = victim
+```
+
+* * * * *
+
+💥 اللي بيحصل جوه السيرفر:
+--------------------------
+
+### Thread 1:
+
+```
+session['reset-user'] = attacker
+```
+
+### Thread 2:
+
+```
+session['reset-user'] = victim
+```
+
+* * * * *
+
+لكن التوكن؟
+
+```
+session['reset-token'] = 1234
+```
+
+ممكن يتبعت للـ attacker 😈
+
+* * * * *
+
+😱 النتيجة الخطيرة:
+-------------------
+
+```
+session['reset-user'] = victimsession['reset-token'] = 1234
+```
+
+👉 التوكن بتاع الضحية\
+👉 عندك إنت
+
+🎉 تقدر تغيّر باسورده
+
+* * * * *
+
+⚠️ ليه الهجوم ده صعب؟
+=====================
+
+لازم يحصل ترتيب معين:
+
+1.  user يتغير للـ victim
+2.  التوكن يتبعت للـ attacker
+
+👉 timing دقيق جدًا\
+👉 محتاج محاولات كتير
+
+* * * * *
+
+💌 ليه الإيميلات target ممتاز؟
+==============================
+
+لأن:
+
+👉 غالبًا بتتبعت في background thread
+
+يعني:
+
+```
+1\. السيرفر يرد HTTP response2\. بعد كده يبعت الإيميل
+```
+
+💥 ده بيخلق race window كبير
+
+    
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -775,13 +1023,284 @@ Request B (add jacket) يوصل
 
 
 
+<details>
+    <summary>Lab: Single-endpoint race conditions</summary>
+
+1. login as wiener
+2. change email to **`carlos@ginandjuice.shop`** (save request  in repeater)
+3. change email again to **`wiener`** email (save request in repeater)
+4. now i will try to send these two request in parallel and see if carlos email will sent to weiner emial
+
+> ## when send request first time it send to me wiener email i send it again and booom 
+
+<img width="1597" height="474" alt="image" src="https://github.com/user-attachments/assets/8fc75672-2bb9-478b-8fe5-02a5cb26a5f0" />
+
+## we get carols link
+
+<img width="1715" height="538" alt="image" src="https://github.com/user-attachments/assets/24449d39-0eb3-46ae-a6aa-67c3a28f4edf" />
+
+
+---
+
+<img width="1497" height="397" alt="image" src="https://github.com/user-attachments/assets/880170d3-ad8a-4b36-bfc2-a822a35ed0e4" />
+
+<img width="1417" height="338" alt="image" src="https://github.com/user-attachments/assets/2a389141-ba40-46b1-8994-eda6f78c3064" />
+
+
+
+<details>
+    <summary>explain</summary>
+
+
+
+🧠 الفكرة العامة للاب
+=====================
+
+إنت عندك feature:
+
+> تغيير الإيميل
+
+والسيستم بيعمل:
+
+1.  تحفظ الإيميل الجديد (pending)
+2.  يبعت confirmation link على الإيميل
+3.  لما تضغط اللينك → يتغير الإيميل
+
+* * * * *
+
+🔍 أول مرحلة: Predict (نتوقع المشكلة)
+=====================================
+
+💡 تجربة مهمة:
+--------------
+
+غيّرت الإيميل مرتين ورا بعض:
+
+-   test1@exploit...
+-   test2@exploit...
+
+لاحظت:\
+👉 اللينك الأول بقى invalid
+
+* * * * *
+
+🧠 الاستنتاج:
+-------------
+
+> السيستم بيخزن **pending email واحد بس**
+
+يعني:
+
+```
+pending_email = last_value
+```
+
+💥 ده معناه:\
+أي request جديدة → **بتعدل نفس القيمة**
+
+👉 يبقى فيه **collision potential** 🔥
+
+* * * * *
+
+🧪 المرحلة التانية: Benchmark
+=============================
+
+عملت إيه؟
+
+-   بعت 20 request (كل واحد بإيميل مختلف)
+-   sequence (ورا بعض)
+
+### النتيجة:
+
+✔️ كل request جاله email لوحده
+
+👉 كله طبيعي 👍
+
+* * * * *
+
+😈 المرحلة المهمة: Probe (parallel)
+===================================
+
+بعت نفس الـ 20 request:
+
+👉 لكن **في نفس اللحظة (parallel)**
+
+* * * * *
+
+👀 لاحظت حاجة غريبة:
+--------------------
+
+الإيميلات اللي وصلت:
+
+❌ مش دايمًا:
+
+-   To = نفس الإيميل اللي طلبته
+
+💥 فيه mismatch!
+
+* * * * *
+
+🔥 ده حصل ليه؟
+==============
+
+خلّينا نشوف السيرفر بيعمل إيه:
+
+```
+1\. يخزن pending_email2\. يبدأ process إرسال الإيميل (async)3\. يقرأ من database عشان يعمل email template4\. يبعت الإيميل
+```
+
+* * * * *
+
+😈 المشكلة (race window)
+------------------------
+
+بين:
+
+-   step 2 (بدأ الإرسال)
+-   step 3 (قرأ من database)
+
+👉 إنت بتغير pending_email
+
+* * * * *
+
+💥 النتيجة:
+-----------
+
+```
+الإيميل اتبعت لـ Aلكن المحتوى جاي من B
+```
+
+يعني:
+
+-   To: attacker
+-   Body: victim email
+
+🔥🔥🔥
+
+* * * * *
+
+⚔️ المرحلة الأخيرة: Prove (الهجوم الحقيقي)
+==========================================
+
+🎯 هدفك:
+--------
+
+تخلي confirmation link بتاع **carlos**\
+يوصلك إنت
+
+* * * * *
+
+🧪 تعمل إيه؟
+------------
+
+في Repeater:
+
+### Request 1:
+
+```
+email = anything@exploit-server
+```
+
+### Request 2:
+
+```
+email = carlos@ginandjuice.shop
+```
+
+* * * * *
+
+⚡ تبعتهم parallel
+-----------------
+
+* * * * *
+
+💥 السيناريو الناجح:
+====================
+
+```
+1\. السيرفر يبدأ يبعت إيميل لـ attacker2\. في النص pending_email يتغير لـ carlos3\. السيرفر يقرأ data → يلاقي carlos4\. يبعت إيميل:   To: attacker   Body: carlos confirmation link
+```
+
+* * * * *
+
+🎉 النتيجة:
+===========
+
+إنت معاك:\
+👉 confirmation link بتاع carlos
+
+* * * * *
+
+😈 تعمل إيه بعد كده؟
+====================
+
+1.  تضغط اللينك
+2.  الإيميل بتاعك يتحول لـ:
+
+    ```
+    carlos@ginandjuice.shop
+    ```
+
+* * * * *
+
+🔓 ليه ده مهم؟
+==============
+
+لأن:\
+👉 carlos = admin
+
+
+    
+</details>
+
+
+    
+</details>
 
 
 
 
 
+<details>
+    <summary>Lab: Exploiting time-sensitive vulnerabilities</summary>
 
 
+1. when login as wiener click forget passowrd
+2. in http history send **`GET`** and **`POST`** requests to `forget-password` and doblcate the **`post`**
+
+> ### now if you try to send two requests in same time you will found that in inbox of wiener two mails arrive at same time but diffrante token
+
+## if php found two requests with same cookie at same time server will run them sequential so let's bypass it
+
+1. send **`GET`** request to `forget-passowrd` but without **`cookie`**
+
+<img width="1465" height="333" alt="image" src="https://github.com/user-attachments/assets/46b6983d-d4a5-410b-97f3-f229ace07264" />
+
+## now we get new cookie and also new **`csrf_token`**
+
+```
+4seXxNHQ92uhB60yPXc78BXimomPV1pt
+```
+
+
+## let's take them and put them in one of two **`POST`** requests then send them 
+
+> ## found that token send twice with same value
+
+<img width="1760" height="716" alt="image" src="https://github.com/user-attachments/assets/4e948039-4884-48d9-af5e-e6790cc3a517" />
+
+## now just change one request of them username to carlos
+
+
+<img width="1786" height="646" alt="image" src="https://github.com/user-attachments/assets/2605f257-bc51-4b8c-87a9-0b85e82f61ee" />
+
+## now let's logiin as calros
+
+<img width="1547" height="294" alt="image" src="https://github.com/user-attachments/assets/75ecfe89-3849-4a2e-9be1-ba65a3cc559b" />
+
+
+
+</details>
 
 
 
