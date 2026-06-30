@@ -214,6 +214,201 @@ $sql="ORDER BY name $dir";
 ---
 
 
+# Scenario 7: LIMIT
+
+❌
+
+```
+$sql="LIMIT ".$_GET["limit"];
+```
+
+✅
+
+```
+$limit=(int)$_GET["limit"];
+
+if($limit<1)
+$limit=10;
+
+if($limit>100)
+$limit=100;
+
+$sql="LIMIT $limit";
+```
+
+Some databases do not allow the use of parameters in `LIMIT` clauses; therefore, strict validation and type casting to an integer are important.
+
+
+---
+
+# Scenario 8: Table Name
+
+❌
+
+```
+$table=$_GET["table"];
+
+$sql="SELECT * FROM $table";
+```
+
+Do not use user input as a table name.
+
+✅
+
+```
+$tables=[
+"users",
+"posts",
+"comments"
+];
+
+if(!in_array($table,$tables))
+exit;
+```
+
+---
+
+# Scenario 9: Column name
+
+❌
+
+```
+$field=$_GET["field"];
+
+$sql="SELECT $field FROM users";
+```
+
+✅
+
+Whitelist
+
+```
+$fields=[
+"name",
+"email",
+"age"
+];
+```
+
+Then just choose from this list.
+
+---
+
+
+# Scenario 10: IN
+
+If you have multiple IDs:
+
+❌
+
+```
+WHERE id IN ($ids)
+```
+
+If `$ids` is a string from a user, this is unsafe.
+
+✅
+
+Create the appropriate number of placeholders:
+
+```
+$ids=[3,7,9];
+
+$placeholders=implode(
+",",
+array_fill(0,count($ids),"?
+"));
+
+$sql="SELECT *
+FROM users
+WHERE id IN($placeholders)";
+```
+
+Then pass the array to `execute()`.
+
+---
+
+# Scenario eleven: INSERT
+
+❌
+
+```
+$sql="INSERT INTO users
+(name,email)
+VALUES('$name','$email')";
+```
+
+✅
+
+```
+$stmt=$pdo->prepare(
+"INSERT INTO users
+(name,email)
+"VALUES(?,?)"
+);
+
+$stmt->execute([
+$name,
+$email
+]);
+```
+
+---
+
+# Scenario 12: UPDATE
+
+❌
+
+```
+$sql="UPDATE users
+SET name='$name'";
+```
+
+✅
+
+```
+$stmt=$pdo->prepare(
+"UPDATE users
+SET name=?
+WHERE id=?"
+);
+
+$stmt->execute([
+$name,
+$id
+]);
+```
+
+---
+
+
+# Scenario thirteen: DELETE
+
+❌
+
+```
+$sql="DELETE
+FROM users
+WHERE id=$id";
+```
+
+✅
+
+```
+$stmt=$pdo->prepare(
+"DELETE
+FROM users
+WHERE id=?"
+);
+
+$stmt->execute([$id]);
+```
+
+---
+
+
+
+
 
 
 
