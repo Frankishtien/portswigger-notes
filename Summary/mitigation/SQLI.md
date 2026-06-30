@@ -411,7 +411,15 @@ $stmt->execute([$id]);
 
 
 
-
+| Injection Point   | Applicable techniques                                                            |
+| ----------------- | -------------------------------------------------------------------------------- |
+| WHERE             | Union-Based, Error-Based, Boolean-Based, Time-Based, Out-of-Band                 |
+| Login Query       | Boolean-Based, Time-Based, Error-Based                                           |
+| LIKE              | Union-Based, Error-Based, Blind                                                  |
+| ORDER BY          | Query Structure Injection                                                        |
+| LIMIT             | Query Structure Injection                                                        |
+| Table/Column Name | Query Structure Injection (Whitelist only)                                       |
+| INSERT / UPDATE   | May lead to Second-Order SQL Injection if the data is later used insecurely      |
 
 
 
