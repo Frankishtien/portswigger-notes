@@ -519,25 +519,32 @@ $stmt->execute([$id]);
 
 
 ```ruby
+
 SQL Injection
 │
+├── Error Handling
+│      └── لا تعرض Database Errors للمستخدم
+│
+├── Least Privilege
+│      └── اجعل حساب قاعدة البيانات بأقل صلاحيات
+│ 
 ├── WHERE
-│      └── Prepared Statement
+│      └── Prepared Statements
 │
 ├── INSERT
-│      └── Prepared Statement
+│      └── Prepared Statements
 │
 ├── UPDATE
-│      └── Prepared Statement
+│      └── Prepared Statements
 │
 ├── DELETE
-│      └── Prepared Statement
+│      └── Prepared Statements
 │
 ├── LIKE
-│      └── Prepared Statement
+│      └── Prepared Statements
 │
 ├── IN
-│      └── Prepared Statement
+│      └── Dynamic Placeholders + Prepared Statements
 │
 ├── ORDER BY
 │      └── Whitelist
@@ -546,13 +553,14 @@ SQL Injection
 │      └── Whitelist
 │
 ├── HAVING
-│      └── Prepared Statement أو Whitelist حسب الاستخدام
+│      ├── إذا كانت Values → Prepared Statements
+│      └── إذا كانت Columns/Functions → Whitelist
 │
 ├── LIMIT
-│      └── Integer Validation
+│      └── Integer Validation (+ Range Check)
 │
 ├── OFFSET
-│      └── Integer Validation
+│      └── Integer Validation (+ Range Check)
 │
 ├── Table Name
 │      └── Whitelist
@@ -560,14 +568,16 @@ SQL Injection
 ├── Column Name
 │      └── Whitelist
 │
-├── Stored Procedure
-│      └── لا تستخدم Dynamic SQL
+├── Stored Procedures
+│      └── تجنب Dynamic SQL داخلها
 │
 ├── ORM
-│      └── تجنب Raw SQL غير المُعامل
+│      ├── استخدم ORM APIs
+│      └── تجنب Raw SQL
 │
-└── Second-Order SQLi
-       └── استخدم Prepared Statements دائمًا
+└── Second-Order SQL Injection
+       └── استخدم Prepared Statements في كل استعلام يعيد استخدام البيانات
+
 ```
 
 
