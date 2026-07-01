@@ -441,7 +441,135 @@ $stmt->execute([$id]);
 
 
 
+<details>
+  <summary>Stored procedures</summary>
 
+
+A **Stored Procedure** is essentially a **function or small program stored within the database itself**.
+
+Instead of the application sending a full SQL query:
+
+```
+SELECT * FROM users WHERE username = ?
+```
+
+The application sends:
+
+```
+CALL GetUserByUsername(?)
+```
+
+And the database is the one that executes the code stored within it.
+
+So, instead of:
+
+```
+Application
+      │
+      ├── SQL Query
+      ▼
+Database
+```
+
+It becomes:
+
+```
+Application
+      │
+      ├── CALL Procedure
+      ▼
+Database
+      │
+      └── Pre-existing SQL
+```
+
+---
+
+# Example
+
+Instead of PHP executing:
+
+```
+$stmt = $pdo->prepare(
+"SELECT * FROM users WHERE username=?"
+);
+```
+
+It executes:
+
+```
+CALL GetUserByUsername(?)
+```
+
+And the database contains:
+
+```
+CREATE PROCEDURE GetUserByUsername(...)
+BEGIN
+    SELECT * FROM users
+    WHERE username = username_param;
+END;
+```
+
+---
+
+
+
+# Do Stored Procedures Prevent SQL Injection?
+
+
+
+**Sometimes yes, and sometimes no.**
+
+
+
+---
+
+## Case 1 (Safe)
+
+If the procedure itself is written like this:
+
+```
+SELECT *
+FROM users
+WHERE username = username_param;
+```
+
+Then it is safe.
+
+---
+
+## Case 2 (Unsafe)
+
+If the developer writes:
+
+```
+SET @sql =
+CONCAT(
+'SELECT * FROM users WHERE username="',
+username_param,
+'"'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+```
+
+This is called
+
+**Dynamic SQL**
+
+And this is susceptible to SQL Injection.
+
+In other words, simply using a Stored Procedure **does not guarantee security**.
+
+
+
+
+
+
+  
+</details>
 
 
 
