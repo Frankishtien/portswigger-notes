@@ -437,7 +437,7 @@ CSRF Token
 
 +
 
-SameSite=Lax
+SameSite
 
 +
 
