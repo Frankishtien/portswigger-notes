@@ -458,10 +458,54 @@ Require the user to re-enter their password (or complete MFA) before performing 
 ---
 
 <details>
-  <summary></summary>
+  <summary>..........</summary>
+
+1.  **Password Change Security**
+    -   Require the current password before changing it.
+    -   Invalidate all other sessions after the password is changed.
+    -   Notify the user that the password has been changed.
+2.  **Password Reset Security**
+    -   Do not reveal whether an email address is registered.
+    -   Use a short-lived, random token.
+    -   Invalidate the token after its first use.
+3.  **Email Change Security**
+    -   Require re-authentication (password or MFA).
+    -   Verify the new email address before adopting it.
+4.  **Multi-Factor Authentication (MFA)**
+    -   Prevent bypassing the second factor due to logic errors.
+    -   Securely store TOTP keys or MFA data.
+    -   Provide recovery codes and protect them.
+5.  **Session Management**
+    -   Rotate the session ID after login or privilege escalation.
+    -   Terminate the session upon logout.
+    -   Define a session lifespan with an inactivity timeout.
+6.  **Account Recovery**
+    -   Do not rely on traditional security questions, as they are often easy to guess or discover.
+    -   Use stronger verification methods, such as email or MFA.
+7.  **OAuth / OpenID Connect**
+    If using Google or GitHub login:
+    -   Validate the `state` parameter to prevent CSRF.
+    -   Validate the `redirect_uri`.
+    -   Validate the `nonce` in OpenID Connect.
+    -   Do not trust data received from the client without verifying it with the identity provider.
+8.  **JWT Best Practices**
+    -   Validate the signature, algorithm, and claims (`exp`, `iss`, `aud`).
+    -   Keep the access token lifespan short.
+    -   Store refresh tokens securely and ensure they can be revoked when necessary.
+9.  **Logging & Monitoring**
+    -   Log both successful and failed login attempts.
+    -   Monitor for unusual activity (e.g., a high volume of attempts or logins from different locations within a short timeframe).
+    -   Do not log passwords or tokens.  
+
+
+  
 </details>
 
+---
 
+<details>
+  <summary></summary>
+</details>
 
 
 
