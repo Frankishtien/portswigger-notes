@@ -2127,6 +2127,43 @@ variables=
 
 
 
+---
+
+## mutation
+
+```
+{
+  __schema {
+    mutationType {
+      name
+      fields {
+        name
+      }
+    }
+  }
+}
+```
+
+
+```
+{
+  __type(name: "Mutation") {
+    fields {
+      name
+      args {
+        name
+        type {
+          name
+          kind
+          ofType {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 
 
